@@ -61,6 +61,7 @@ char* QdmaIntf::create_qdma_queue(const char* bdf) {
 }
 
 int QdmaIntf::delete_qdma_queue(const char* bdf) {
+	usleep(100000);
     char* id = strip(bdf);
     char cmd_stop[256];
     char qdma_queue_name[12];
