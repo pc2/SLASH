@@ -5,16 +5,29 @@
 #include <ami.h>
 #include <ami_mem_access.h>
 #include <stdexcept>
+#include <vector>
+
+#include "register/register.hpp"
+//#include "api/device.hpp"
 
 namespace vrt {
+    class Device;
     class Kernel {
-        ami_device* dev = nullptr;
+        static constexpr uint64_t BASE_BAR_ADDR = 0x20100000000;
         uint8_t bar = 0;
-        uint64_t offset = 0;
-        uint16_t pci_bdf = 0;
+        ami_device* dev = nullptr;
+        std::string name;
+        uint64_t baseAddr;
+        uint64_t range;
+        std::vector<Register> registers;
 
     public:
-        Kernel(const std::string& bdf);
+        Kernel(ami_device* device, const std::string& name, uint64_t baseAddr, uint64_t range, std::vector<Register>& registers);
+        Kernel() = default;
+        
+        Kernel(vrt::Device device, const std::string& kernelName);
+
+        void setDevice(ami_device* device);
         void write(uint32_t offset, uint32_t value);
         uint32_t read(uint32_t offset);
         ~Kernel();

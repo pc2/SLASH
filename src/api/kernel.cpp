@@ -1,19 +1,25 @@
 #include "api/kernel.hpp"
-
+#include "api/device.hpp"
 namespace vrt {
 
-    Kernel::Kernel(const std::string& bdf) {
-        if(ami_dev_find(bdf.c_str(), &dev) != AMI_STATUS_OK) {
-            throw std::runtime_error("Failed to find device");
-        }
-        ami_dev_get_pci_bdf(dev, &pci_bdf);
+    Kernel::Kernel(ami_device* device, const std::string& name, uint64_t baseAddr, uint64_t range, std::vector<Register>& registers) {
+        this->dev = device;
+        this->name = name;
+        this->baseAddr = baseAddr;
+        this->range = range;
+        this->registers = registers;
+    }
+
+    Kernel::Kernel(Device device, const std::string& kernelName) {
+        *this = device.getKernel(kernelName);
     }
 
     void Kernel::write(uint32_t offset, uint32_t value) {
         uint32_t* buf = (uint32_t*) calloc(1, sizeof(uint32_t));
         *buf = value;
         if(buf) {
-            int ret = ami_mem_bar_write(dev, bar, offset, buf[0]);
+            // TODO: add bar from device....
+            int ret = ami_mem_bar_write(dev, bar, baseAddr - BASE_BAR_ADDR + offset, buf[0]);
             if(ret != AMI_STATUS_OK) {
                 throw std::runtime_error("Failed to write to device");
             }
@@ -24,7 +30,7 @@ namespace vrt {
     uint32_t Kernel::read(uint32_t offset) {
         uint32_t* buf = (uint32_t*) calloc(1, sizeof(uint32_t));
         if(buf) {
-            int ret = ami_mem_bar_read(dev, bar, offset, &buf[0]);
+            int ret = ami_mem_bar_read(dev, bar, baseAddr - BASE_BAR_ADDR + offset, &buf[0]);
             if(ret != AMI_STATUS_OK) {
                 throw std::runtime_error("Failed to read from device");
             }
@@ -34,8 +40,15 @@ namespace vrt {
         return value;
     }
 
+    void Kernel::setDevice(ami_device* device) {
+        this->dev = device;
+    }
+
     Kernel::~Kernel() {
-        ami_dev_delete(&dev);
+        // if(dev != nullptr) {
+        //     ami_dev_delete(&dev);
+        // }
+        //ami_dev_delete(&dev);
     }
 
 } // namespace vrt

@@ -30,7 +30,7 @@ namespace vrt {
     };
 
 } // namespace vrt
-#include "buffer.tpp"
+#include "api/buffer.tpp"
 
 
 #endif // BUFFER_HPP
