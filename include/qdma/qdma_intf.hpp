@@ -27,6 +27,7 @@ class QdmaIntf {
     static uint8_t queueIdx;
     std::string bdf;
     std::string queueName;
+    static bool queueExists;
     ssize_t write_from_buffer(const char* dev, char* buffer, uint64_t size, uint64_t base);
     ssize_t read_to_buffer(const char *fname, char *buffer, uint64_t size, uint64_t base);
     char* strip(const char* bdf);

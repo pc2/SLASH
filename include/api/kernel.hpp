@@ -30,6 +30,8 @@ namespace vrt {
         void setDevice(ami_device* device);
         void write(uint32_t offset, uint32_t value);
         uint32_t read(uint32_t offset);
+        void wait();
+        void start(bool autorestart);
         ~Kernel();
     };
 

@@ -62,15 +62,37 @@ namespace vrt {
         return startAddress;
     }
 
+    // template <typename T>
+    // void Buffer<T>::sync(SyncType syncType) {
+    //     auto& qdmaIntf = QdmaIntf::getInstance();
+    //     if(syncType == SyncType::HOST_TO_DEVICE) {
+    //         qdmaIntf.write_buff(reinterpret_cast<char*>(localBuffer), startAddress, size * sizeof(T));
+    //     } else if (syncType == SyncType::DEVICE_TO_HOST) {
+    //         qdmaIntf.read_buff(reinterpret_cast<char*>(localBuffer), startAddress, size * sizeof(T));
+    //     } else {
+    //             throw std::invalid_argument("Invalid sync type");
+    //     }
+    // }
+
     template <typename T>
-    void Buffer<T>::sync(SyncType syncType) {
-        auto& qdmaIntf = QdmaIntf::getInstance();
-        if(syncType == SyncType::HOST_TO_DEVICE) {
-            qdmaIntf.write_buff(reinterpret_cast<char*>(localBuffer), startAddress, size * sizeof(T));
+void Buffer<T>::sync(SyncType syncType) {
+    auto& qdmaIntf = QdmaIntf::getInstance();
+    size_t maxChunkSize = 1 << 22;
+    size_t totalSize = size * sizeof(T);
+    size_t chunkSize = maxChunkSize * sizeof(T);
+    size_t offset = 0;
+
+    while (totalSize > 0) {
+        size_t currentChunkSize = std::min(chunkSize, totalSize);
+        if (syncType == SyncType::HOST_TO_DEVICE) {
+            qdmaIntf.write_buff(reinterpret_cast<char*>(localBuffer) + offset, startAddress + offset, currentChunkSize);
         } else if (syncType == SyncType::DEVICE_TO_HOST) {
-            qdmaIntf.read_buff(reinterpret_cast<char*>(localBuffer), startAddress, size * sizeof(T));
+            qdmaIntf.read_buff(reinterpret_cast<char*>(localBuffer) + offset, startAddress + offset, currentChunkSize);
         } else {
-                throw std::invalid_argument("Invalid sync type");
+            throw std::invalid_argument("Invalid sync type");
         }
+        offset += currentChunkSize;
+        totalSize -= currentChunkSize;
     }
+}
 }  // namespace vrt

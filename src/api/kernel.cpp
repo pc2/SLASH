@@ -44,6 +44,21 @@ namespace vrt {
         this->dev = device;
     }
 
+    void Kernel::wait() {
+        while((read(0x00) >> 1) & 0x01 != 1) {
+            // wait for the kernel to finish
+        }
+
+    }
+
+    void Kernel::start(bool autorestart) {
+        if(autorestart) {
+            write(0x00, 0x81);
+        } else {
+            write(0x00, 0x01);
+        }
+    }
+
     Kernel::~Kernel() {
         // if(dev != nullptr) {
         //     ami_dev_delete(&dev);

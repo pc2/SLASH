@@ -1,10 +1,15 @@
 #include "qdma/qdma_intf.hpp"
 
+bool QdmaIntf::queueExists = false;
+
 QdmaIntf::QdmaIntf(const std::string& bdf) {
     this->bdf = bdf;
-    char* name = create_qdma_queue(bdf.c_str());
-    queueName = std::string(name);
-	free(name);
+	if(!queueExists) {
+		queueExists = true;
+		//char* name = "qdma21001-MM-0";//create_qdma_queue(bdf.c_str());
+		queueName = std::string("/dev/qdma21001-MM-0"); // name
+		//free(name);
+	}
 }
 
 QdmaIntf::QdmaIntf() {
@@ -18,7 +23,7 @@ QdmaIntf& QdmaIntf::getInstance(const std::string& bdf) {
 }
 
 QdmaIntf::~QdmaIntf() {
-    delete_qdma_queue(bdf.c_str());
+    //delete_qdma_queue(bdf.c_str());
 }
 
 char* QdmaIntf::strip(const char* bdf) {
@@ -51,7 +56,7 @@ char* QdmaIntf::create_qdma_queue(const char* bdf) {
     system(cmd_add);
 	usleep(1000);
     char cmd_start[256];
-    sprintf(cmd_start, "dma-ctl %s q start idx 0 dir bi > /dev/null", qdma_queue_name);
+    sprintf(cmd_start, "dma-ctl %s q start idx 0 idx_ringsz 15 dir bi > /dev/null", qdma_queue_name);
     system(cmd_start);
 	usleep(1000);
 	char* output = (char*) malloc(256 * sizeof(char));
