@@ -20,6 +20,8 @@ namespace vrt {
         T& operator[](size_t index);
         const T& operator[](size_t index) const;
         uint64_t getPhysAddr() const;
+        uint32_t getPhysAddrLow() const;
+        uint32_t getPhysAddrHigh() const;
         void sync(SyncType syncType);
     private:
         static void initializeMemoryRanges();

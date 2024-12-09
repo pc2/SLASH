@@ -62,6 +62,16 @@ namespace vrt {
         return startAddress;
     }
 
+    template <typename T>
+    uint32_t Buffer<T>::getPhysAddrLow() const {
+        return startAddress & 0xFFFFFFFF;
+    }
+
+    template <typename T>
+    uint32_t Buffer<T>::getPhysAddrHigh() const {
+        return (startAddress >> 32) & 0xFFFFFFFF;
+    }
+
     // template <typename T>
     // void Buffer<T>::sync(SyncType syncType) {
     //     auto& qdmaIntf = QdmaIntf::getInstance();
@@ -77,7 +87,7 @@ namespace vrt {
     template <typename T>
 void Buffer<T>::sync(SyncType syncType) {
     auto& qdmaIntf = QdmaIntf::getInstance();
-    size_t maxChunkSize = 1 << 22;
+    size_t maxChunkSize = 1 << 20; //22
     size_t totalSize = size * sizeof(T);
     size_t chunkSize = maxChunkSize * sizeof(T);
     size_t offset = 0;

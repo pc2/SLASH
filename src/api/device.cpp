@@ -11,7 +11,7 @@ namespace vrt {
         if(ami_dev_request_access(dev) != AMI_STATUS_OK) {
             throw std::runtime_error("Failed to request elevated access to device");
         }
-
+        // Add pcie hotplug via driver
         parseSystemMap();
     }
 
