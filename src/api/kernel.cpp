@@ -10,8 +10,9 @@ namespace vrt {
         this->registers = registers;
     }
 
-    Kernel::Kernel(Device device, const std::string& kernelName) {
-        *this = device.getKernel(kernelName);
+    Kernel::Kernel(Device device, const std::string& kernelName)
+        : Kernel(device.getKernel(kernelName)) {
+        // The body can be empty since the initialization is done in the initializer list
     }
 
     void Kernel::write(uint32_t offset, uint32_t value) {

@@ -8,7 +8,7 @@
 int main() {
     try {
         uint32_t size = 2048;
-        vrt::Device device("21:00.0", "system_map.xml");
+        vrt::Device device("21:00.0", "00_example.vrtbin", true);
         vrt::Kernel accumulate(device, "accumulate_0");
         vrt::Kernel increment(device, "increment_0");
         vrt::Buffer<float> buffer(size, vrt::MemoryRangeType::HBM);
@@ -19,7 +19,7 @@ int main() {
         float goldenModel = 0;
         for(uint32_t i = 0; i < size; i++) {
             buffer[i] = static_cast<float>(dis(gen));
-            goldenModel+=buffer[i];
+            goldenModel+=buffer[i] + 1;
         }
 
         buffer.sync(vrt::SyncType::HOST_TO_DEVICE);

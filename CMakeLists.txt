@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(vrt)
+project(vrt-api)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,16 +12,13 @@ ${CMAKE_SOURCE_DIR}/src/qdma/*.cpp ${CMAKE_SOURCE_DIR}/src/api/*.cpp
 ${CMAKE_SOURCE_DIR}/src/parser/*.cpp ${CMAKE_SOURCE_DIR}/src/register/*.cpp)
 
 # Create the shared library
-add_library(api SHARED ${LIB_SOURCES})
+add_library(vrt SHARED ${LIB_SOURCES})
 
 # Specify the output directory for the shared library
-set_target_properties(api PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set_target_properties(vrt PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Define sources for the executable
-file(GLOB EXE_SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp)
-
-# Create the executable
-add_executable(${PROJECT_NAME} ${EXE_SOURCES})
+#file(GLOB EXE_SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp)
 
 # Link the library to the executable
-target_link_libraries(${PROJECT_NAME} api ami xml2)
+# target_link_libraries(${PROJECT_NAME} vrt ami xml2)
