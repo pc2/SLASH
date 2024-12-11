@@ -1,7 +1,7 @@
 #!/bin/bash
 
 V80PP_GIT="git@gitenterprise.xilinx.com:aulmamei/v80-vitis-flow.git"
-AVED_GIT="https://github.com/Xilinx/AVED.git"
+AVED_GIT="git@gitenterprise.xilinx.com:aulmamei/aved-fork.git"
 AVED_COMMIT_ID="7497599d2b452846515d7f2f22ad6bea2ebef522"
 HLS_BUILD_DIR_ACCUMULATE=build_accumulate.xcv80-lsva4737-2MHP-e-S
 HLS_BUILD_DIR_INCREMENT=build_increment.xcv80-lsva4737-2MHP-e-S
@@ -17,9 +17,9 @@ VRT_DIR=$(realpath $HOME_DIR/../../.)
 mkdir -p build
 cd build
 git clone $AVED_GIT
-cd AVED
-git checkout $AVED_COMMIT_ID
-cd ..
+# cd AVED
+# git checkout $AVED_COMMIT_ID
+# cd ..
 git clone $V80PP_GIT
 
 VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
@@ -46,9 +46,11 @@ pushd ${BUILD_DIR}
     cp block_design.tcl $AVED_DIR/hw/amd_v80_gen5x8_24.1/src/bd/create_bd_design.tcl
     
 popd
+
 # hw build
 pushd ${AVED_HW}
     ./build_all.sh
+    python3 ./scripts/gen_version.py --log_file ../build/vivado.log --name $DESIGN_NAME
 popd
 
 # API build
@@ -69,6 +71,7 @@ popd
 # vrtbin creation
 pushd ${BUILD_DIR}
     cp $AVED_DIR/hw/amd_v80_gen5x8_24.1/build/amd_v80_gen5x8_24.1_nofpt.pdi design.pdi
+    cp $AVED_DIR/hw/amd_v80_gen5x8_24.1/scripts/version.json version.json
     cp $VPP_DIR/build/system_map.xml system_map.xml
-    tar -cvf $DESIGN_NAME.vrtbin system_map.xml design.pdi
+    tar -cvf $DESIGN_NAME.vrtbin system_map.xml design.pdi version.json
 popd
