@@ -22,7 +22,6 @@
 #define QDMA_DEFAULT_QUEUE "/dev/qdma%s001-MM-0"
 
 
-
 class QdmaIntf {
     static uint8_t queueIdx;
     std::string bdf;
@@ -33,17 +32,22 @@ class QdmaIntf {
     char* strip(const char* bdf);
     char* create_qdma_queue(const char* bdf);
     int delete_qdma_queue(const char* bdf);
-    QdmaIntf(const QdmaIntf&) = delete;
-    QdmaIntf& operator=(const QdmaIntf&) = delete;
-public:
-    static QdmaIntf& getInstance(const std::string& bdf = "21:00.0");
+
     QdmaIntf(const std::string& bdf);
     QdmaIntf();
+
+    static QdmaIntf* instance;
+
+public:
+    QdmaIntf(const QdmaIntf&) = delete;
+    QdmaIntf& operator=(const QdmaIntf&) = delete;
+
+    static QdmaIntf& getInstance(const std::string& bdf);
+    static QdmaIntf& getInstance();
+
     void write_buff(char* buffer, uint64_t start_addr, uint64_t size);
     void read_buff(char* buffer, uint64_t start_addr, uint64_t size);
     ~QdmaIntf();
 };
-
-
 
 #endif // QDMA_INTF_HPP

@@ -8,7 +8,7 @@
 int main() {
     try {
         uint32_t size = 2048;
-        vrt::Device device("21:00.0", "00_example.vrtbin", true);
+        vrt::Device device("21:00.0", "00_example_no_version.vrtbin", true);
         vrt::Kernel accumulate(device, "accumulate_0");
         vrt::Kernel increment(device, "increment_0");
         vrt::Buffer<float> buffer(size, vrt::MemoryRangeType::HBM);
@@ -32,7 +32,6 @@ int main() {
         increment.wait();
         accumulate.wait();
         uint32_t val = accumulate.read(0x18);
-        std::cout << std::hex << val << std::endl;
         float floatVal;
         std::memcpy(&floatVal, &val, sizeof(float));
         if(std::fabs(goldenModel - floatVal) > 0.0001) {
@@ -49,10 +48,6 @@ int main() {
             std::cout << "Expected: " << goldenModel << std::endl;
             std::cout << "Got: " << floatVal << std::endl;
             std::cout << "Test passed!" << std::endl;
-            for(uint32_t i = 0; i < size; i++) {
-                buffer[i] = 0.0;
-            }
-            buffer.sync(vrt::SyncType::HOST_TO_DEVICE);
         }
         
         device.cleanup();

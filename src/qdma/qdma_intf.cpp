@@ -1,25 +1,39 @@
 #include "qdma/qdma_intf.hpp"
 
+QdmaIntf* QdmaIntf::instance = nullptr;
+uint8_t QdmaIntf::queueIdx = 0;
 bool QdmaIntf::queueExists = false;
 
 QdmaIntf::QdmaIntf(const std::string& bdf) {
     this->bdf = bdf;
-	if(!queueExists) {
-		queueExists = true;
-		//char* name = "qdma21001-MM-0";//create_qdma_queue(bdf.c_str());
-		queueName = std::string("/dev/qdma21001-MM-0"); // name
-		//free(name);
+    if (!queueExists) {
+        queueExists = true;
+        char* bus = strip(bdf.c_str());
+
+        char formattedQueueName[256];
+        sprintf(formattedQueueName, QDMA_DEFAULT_QUEUE, bus);
+        queueName = std::string(formattedQueueName);
+        free(bus);
 	}
 }
 
 QdmaIntf::QdmaIntf() {
     this->bdf = "21:00.0";
-    create_qdma_queue(bdf.c_str());
+    //create_qdma_queue(bdf.c_str());
 }
 
 QdmaIntf& QdmaIntf::getInstance(const std::string& bdf) {
-    static QdmaIntf instance(bdf);
-    return instance;
+    if (instance == nullptr) {
+        instance = new QdmaIntf(bdf);
+    }
+    return *instance;
+}
+
+QdmaIntf& QdmaIntf::getInstance() {
+	if(instance == nullptr) {
+		instance = new QdmaIntf();
+	}
+	return *instance;
 }
 
 QdmaIntf::~QdmaIntf() {

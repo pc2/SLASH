@@ -11,9 +11,7 @@ namespace vrt {
     }
 
     Kernel::Kernel(Device device, const std::string& kernelName)
-        : Kernel(device.getKernel(kernelName)) {
-        // The body can be empty since the initialization is done in the initializer list
-    }
+        : Kernel(device.getKernel(kernelName)) {}
 
     void Kernel::write(uint32_t offset, uint32_t value) {
         uint32_t* buf = (uint32_t*) calloc(1, sizeof(uint32_t));
@@ -52,7 +50,7 @@ namespace vrt {
 
     }
 
-    void Kernel::start(bool autorestart) {
+    void Kernel::start(bool autorestart = false) {
         if(autorestart) {
             write(0x00, 0x81);
         } else {

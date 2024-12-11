@@ -13,6 +13,7 @@ namespace vrt {
         std::string vrtbinPath;
         std::string systemMapPath;
         std::string pdiPath;
+        std::string uuid;
         std::string tempExtractPath = "/tmp";
         void copy(const std::string& source, const std::string& destination);
     public:
@@ -20,6 +21,8 @@ namespace vrt {
         void extract();
         std::string getSystemMapPath();
         std::string getPdiPath();
+        std::string getUUID();
+        void extractUUID();
     };
 }
 

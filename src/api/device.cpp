@@ -6,6 +6,7 @@ namespace vrt {
         this->bdf = bdf;
         this->systemMap = this->vrtbin.getSystemMapPath();
         this->pdiPath = this->vrtbin.getPdiPath();
+        auto& qdmaIntf = QdmaIntf::getInstance(bdf);
         createAmiDev();
         if(program) {
             programDevice();
@@ -43,6 +44,21 @@ namespace vrt {
     }
 
     void Device::programDevice() {
+        char current_uuid[33];
+        std::string logic_uuid = vrtbin.getUUID();
+        int found_current_uuid = AMI_STATUS_ERROR;
+        found_current_uuid = ami_dev_read_uuid(dev, current_uuid);
+        if(found_current_uuid == AMI_STATUS_OK) {
+            std::string current_uuid_str(current_uuid);
+            current_uuid_str = current_uuid_str.substr(0, 32);
+            std::cout << "Current UUID: " << current_uuid_str << std::endl;
+            std::cout << "New UUID: " << logic_uuid << std::endl;
+            if(current_uuid_str == logic_uuid) {
+                std::cout << "Device already programmed with the same image" << std::endl;
+                bootDevice();
+                return;
+            }
+        }
         std::cout << "Programming device...This might take a while" << std::endl;
         if(ami_prog_download_pdi(dev, pdiPath.c_str(), 0, 1, nullptr) != AMI_STATUS_OK) {
             throw std::runtime_error("Failed to program device");
@@ -63,26 +79,26 @@ namespace vrt {
     }
 
     void Device::bootDevice() {
+        std::cout << "Booting device..." << std::endl;
         int ret = ami_prog_device_boot(&dev, 1);
         if(ret != AMI_STATUS_OK && geteuid() == 0) { // for root users this should not matter
             throw std::runtime_error("Failed to boot device");
         }
         else {
+            std::cout << "Booting into new PDI..." << std::endl;
             ami_mem_bar_write(dev, 0, 0x1040000, 1);
             destroyAmiDev();
             PcieDriverHandler& pcieHandler = PcieDriverHandler::getInstance();
             pcieHandler.execute(PcieDriverHandler::Command::REMOVE);
-            //sendPcieDriverCmd("remove");
             usleep(1000);
             pcieHandler.execute(PcieDriverHandler::Command::TOGGLE_SBR);
-            //sendPcieDriverCmd("toggle_sbr");
             usleep(5000000);
             pcieHandler.execute(PcieDriverHandler::Command::RESCAN);
-            //sendPcieDriverCmd("rescan");
             pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
-            //sendPcieDriverCmd("hotplug");
             createAmiDev();
+            std::cout << "New PDI booted successfully" << std::endl;
             system("sudo /usr/local/bin/setup_queues.sh");
+            std::cout << "QDMA queues setup successfully" << std::endl;
         }
     }
 

@@ -10,6 +10,7 @@
 #include "api/vrtbin.hpp"
 #include "api/kernel.hpp"
 #include "qdma/pcie_driver_handler.hpp"
+#include "qdma/qdma_intf.hpp"
 
 #include <map>
 #include <fcntl.h>

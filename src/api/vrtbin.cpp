@@ -6,6 +6,7 @@ namespace vrt {
         this->systemMapPath = getenv("AMI_HOME") + bdf + "/system_map.xml";
         this->pdiPath = tempExtractPath + "/design.pdi";
         extract();
+        extractUUID();
     }
 
     void Vrtbin::extract() {
@@ -63,6 +64,29 @@ namespace vrt {
     }
     std::string Vrtbin::getPdiPath() {
         return pdiPath;
+    }
+
+    std::string Vrtbin::getUUID() {
+        return uuid;
+    }
+
+    void Vrtbin::extractUUID() {
+        std::ifstream jsonFile(tempExtractPath + "/version.json");
+        if (!jsonFile.is_open()) {
+            uuid = "";
+        }
+        std::string line;
+        while (std::getline(jsonFile, line)) {
+            std::size_t pos = line.find("\"logic_uuid\":");
+            if (pos != std::string::npos) {
+                std::size_t start = line.find("\"", pos + 13) + 1;
+                std::size_t end = line.find("\"", start);
+                uuid = line.substr(start, end - start);
+                break;
+            }
+        }
+
+        jsonFile.close();
     }
 
 }
