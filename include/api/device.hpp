@@ -8,12 +8,15 @@
 
 #include "parser/xml_parser.hpp"
 #include "api/vrtbin.hpp"
+#include "api/kernel.hpp"
+#include "qdma/pcie_driver_handler.hpp"
+
 #include <map>
 #include <fcntl.h>
 #include <unistd.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-#include "api/kernel.hpp" // Include the Kernel class
+
 namespace vrt {
     class Device {
         ami_device* dev = nullptr;

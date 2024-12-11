@@ -64,18 +64,23 @@ namespace vrt {
 
     void Device::bootDevice() {
         int ret = ami_prog_device_boot(&dev, 1);
-        if(ret != AMI_STATUS_OK) {
+        if(ret != AMI_STATUS_OK && geteuid() == 0) { // for root users this should not matter
             throw std::runtime_error("Failed to boot device");
         }
         else {
             ami_mem_bar_write(dev, 0, 0x1040000, 1);
             destroyAmiDev();
-            sendPcieDriverCmd("remove");
+            PcieDriverHandler& pcieHandler = PcieDriverHandler::getInstance();
+            pcieHandler.execute(PcieDriverHandler::Command::REMOVE);
+            //sendPcieDriverCmd("remove");
             usleep(1000);
-            sendPcieDriverCmd("toggle_sbr");
+            pcieHandler.execute(PcieDriverHandler::Command::TOGGLE_SBR);
+            //sendPcieDriverCmd("toggle_sbr");
             usleep(5000000);
-            sendPcieDriverCmd("rescan");
-            sendPcieDriverCmd("hotplug");
+            pcieHandler.execute(PcieDriverHandler::Command::RESCAN);
+            //sendPcieDriverCmd("rescan");
+            pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
+            //sendPcieDriverCmd("hotplug");
             createAmiDev();
             system("sudo /usr/local/bin/setup_queues.sh");
         }
