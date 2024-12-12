@@ -15,11 +15,12 @@
 int main() {
     try {
         uint32_t size = 1000;
+        uint32_t m = 3;
+        uint32_t n = 2;
         vrt::Device device("21:00.0", "01_example.vrtbin", true);
         vrt::Kernel dma(device, "dma_0");
         vrt::Kernel offset(device, "offset_0");
         
-
         vrt::Buffer<uint32_t> in_buff(size, vrt::MemoryRangeType::HBM);
         vrt::Buffer<uint32_t> out_buff(size, vrt::MemoryRangeType::HBM);
         for(uint32_t i = 0; i < size; i++) {
@@ -30,8 +31,8 @@ int main() {
         offset.write(0x10, size);
         offset.write(0x18, in_buff.getPhysAddrLow());
         offset.write(0x1c, in_buff.getPhysAddrHigh());
-        offset.write(0x24, 3);
-        offset.write(0x2c, 2);
+        offset.write(0x24, m);
+        offset.write(0x2c, n);
         dma.write(0x10, size);
         dma.write(0x18, out_buff.getPhysAddrLow());
         dma.write(0x1c, out_buff.getPhysAddrHigh());
@@ -41,8 +42,14 @@ int main() {
         dma.wait();
         out_buff.sync(vrt::SyncType::DEVICE_TO_HOST);
         for(uint32_t i = 0; i < size; i++) {
-            std::cout << out_buff[i] << std::endl;
+            if(out_buff[i] != in_buff[i] * m + n) {
+                std::cerr << "Test failed" << std::endl;
+                std::cerr << "Error: " << i << " " << out_buff[i] << " " << in_buff[i] << std::endl;
+                device.cleanup();
+                return 1;
+            }
         }
+        std::cout << "Test passed" << std::endl;
         device.cleanup();
     } catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;

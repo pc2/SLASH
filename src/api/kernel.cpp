@@ -50,7 +50,7 @@ namespace vrt {
 
     }
 
-    void Kernel::start(bool autorestart = false) {
+    void Kernel::start(bool autorestart) {
         if(autorestart) {
             write(0x00, 0x81);
         } else {

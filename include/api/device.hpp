@@ -19,30 +19,89 @@
 #include <libxml/tree.h>
 
 namespace vrt {
+    /**
+     * @brief Class representing a device.
+     */
     class Device {
-        ami_device* dev = nullptr;
-        uint8_t bar = 0;
-        uint64_t offset = 0;
-        uint16_t pci_bdf = 0;
-        std::string systemMap;
-        std::string bdf;
-        std::string pdiPath;
-        Vrtbin vrtbin;
-        std::map<std::string, Kernel> kernels;
+        ami_device* dev = nullptr; ///< Pointer to the AMI device
+        uint8_t bar = 0; ///< Base Address Register (BAR)
+        uint64_t offset = 0; ///< Offset for memory operations
+        uint16_t pci_bdf = 0; ///< PCI Bus:Device.Function identifier
+        std::string systemMap; ///< Path to the system map file
+        std::string bdf; ///< Bus:Device.Function identifier
+        std::string pdiPath; ///< Path to the PDI file
+        Vrtbin vrtbin; ///< Vrtbin object for handling VRTBIN operations
+        std::map<std::string, Kernel> kernels; ///< Map of kernel names to Kernel objects
+
     public:
+        /**
+         * @brief Constructor for Device.
+         * @param bdf The Bus:Device.Function identifier.
+         * @param vrtbinPath The path to the VRTBIN file.
+         * @param program Flag indicating whether to program the device.
+         */
         Device(const std::string& bdf, const std::string& vrtbinPath, bool program);
+
+        /**
+         * @brief Gets a kernel by name.
+         * @param name The name of the kernel.
+         * @return The Kernel object.
+         */
         vrt::Kernel getKernel(const std::string& name);
+
+        /**
+         * @brief Gets the Bus:Device.Function identifier.
+         * @return The Bus:Device.Function identifier.
+         */
         std::string getBdf();
+
+        /**
+         * @brief Programs the device.
+         */
         void programDevice();
+
+        /**
+         * @brief Sends a command to the PCIe driver.
+         * @param cmd The command to send.
+         */
         void sendPcieDriverCmd(std::string cmd);
+
+        /**
+         * @brief Boots the device.
+         */
         void bootDevice();
+
+        /**
+         * @brief Gets a new handle for the device.
+         */
         void getNewHandle();
+
+        /**
+         * @brief Creates the AMI device.
+         */
         void createAmiDev();
+
+        /**
+         * @brief Destroys the AMI device.
+         */
         void destroyAmiDev();
+
+        /**
+         * @brief Destructor for Device.
+         */
         ~Device();
+
+        /**
+         * @brief Parses the system map file.
+         */
         void parseSystemMap();
+
+        /**
+         * @brief Cleans up the device.
+         */
         void cleanup();
     };
+
 } // namespace vrt
 
 #endif // DEVICE_HPP
