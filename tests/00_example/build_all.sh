@@ -23,7 +23,7 @@ git clone $AVED_GIT
 git clone $V80PP_GIT
 
 VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
-AVED_DIR=$(realpath $HOME_DIR/build/AVED)
+AVED_DIR=$(realpath $HOME_DIR/build/aved-fork)
 AVED_HW=$(realpath $AVED_DIR/hw/amd_v80_gen5x8_24.1)
 AVED_IPREPO=$(realpath $AVED_DIR/hw/amd_v80_gen5x8_24.1/src/iprepo)
 
@@ -50,7 +50,7 @@ popd
 # hw build
 pushd ${AVED_HW}
     ./build_all.sh
-    python3 ./scripts/gen_version.py --log_file ../build/vivado.log --name $DESIGN_NAME
+    python3 ./scripts/gen_version.py --log_file ./build/vivado.log --name $DESIGN_NAME
 popd
 
 # API build
@@ -71,7 +71,7 @@ popd
 # vrtbin creation
 pushd ${BUILD_DIR}
     cp $AVED_DIR/hw/amd_v80_gen5x8_24.1/build/amd_v80_gen5x8_24.1_nofpt.pdi design.pdi
-    cp $AVED_DIR/hw/amd_v80_gen5x8_24.1/scripts/version.json version.json
+    cp $AVED_DIR/hw/amd_v80_gen5x8_24.1/version.json version.json
     cp $VPP_DIR/build/system_map.xml system_map.xml
     tar -cvf $DESIGN_NAME.vrtbin system_map.xml design.pdi version.json
 popd

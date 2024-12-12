@@ -1,7 +1,7 @@
 #!/bin/bash
 
 V80PP_GIT="git@gitenterprise.xilinx.com:aulmamei/v80-vitis-flow.git"
-AVED_GIT="https://github.com/Xilinx/AVED.git"
+AVED_GIT="git@gitenterprise.xilinx.com:aulmamei/aved-fork.git"
 AVED_COMMIT_ID="7497599d2b452846515d7f2f22ad6bea2ebef522"
 HLS_BUILD_DIR_ACCUMULATE=build_offset.xcv80-lsva4737-2MHP-e-S
 HLS_BUILD_DIR_INCREMENT=build_dma.xcv80-lsva4737-2MHP-e-S
@@ -23,7 +23,7 @@ git clone $AVED_GIT
 git clone $V80PP_GIT
 
 VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
-AVED_DIR=$(realpath $HOME_DIR/build/AVED)
+AVED_DIR=$(realpath $HOME_DIR/build/aved-fork)
 AVED_HW=$(realpath $AVED_DIR/hw/amd_v80_gen5x8_24.1)
 AVED_IPREPO=$(realpath $AVED_DIR/hw/amd_v80_gen5x8_24.1/src/iprepo)
 
@@ -50,7 +50,7 @@ popd
 # hw build
 pushd ${AVED_HW}
     ./build_all.sh
-    python3 ./scripts/gen_version.py --log_file build/vivado.log --name $DESIGN_NAME
+    python3 ./scripts/gen_version.py --log_file ./build/vivado.log --name $DESIGN_NAME
 popd
 
 # API build
