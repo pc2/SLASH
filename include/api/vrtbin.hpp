@@ -16,6 +16,7 @@ namespace vrt {
     class Vrtbin {
         std::string vrtbinPath; ///< Path to the VRTBIN file
         std::string systemMapPath; ///< Path to the system map file
+        std::string versionPath; ///< Path to the version file
         std::string pdiPath; ///< Path to the PDI file
         std::string uuid; ///< UUID of the VRTBIN
         std::string tempExtractPath = "/tmp"; ///< Temporary extraction path

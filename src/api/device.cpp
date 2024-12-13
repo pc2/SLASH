@@ -11,7 +11,7 @@ namespace vrt {
         if(program) {
             programDevice();
         } else {
-            bootDevice();
+            //bootDevice();
         }
         // Add pcie hotplug via driver
         // sendPcieDriverCmd("hotplug");

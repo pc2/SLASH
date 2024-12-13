@@ -4,6 +4,7 @@ namespace vrt {
     Vrtbin::Vrtbin(std::string vrtbinPath, const std::string& bdf) {
         this->vrtbinPath = vrtbinPath;
         this->systemMapPath = getenv("AMI_HOME") + bdf + "/system_map.xml";
+        this->versionPath = getenv("AMI_HOME") + bdf + "/version.json";
         this->pdiPath = tempExtractPath + "/design.pdi";
         extract();
         extractUUID();
@@ -26,10 +27,10 @@ namespace vrt {
         int status = pclose(pipe.release());
         if (status == -1) {
             perror("pclose");
-        } else {
-            std::cout << "Command exited with status " << WEXITSTATUS(status) << std::endl;
-        }
+        } else {}
+        
         copy(tempExtractPath + "/system_map.xml", systemMapPath);
+        copy(tempExtractPath + "/version.json", versionPath);
 
     }
 
