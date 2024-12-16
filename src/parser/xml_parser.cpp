@@ -44,12 +44,19 @@ namespace vrt {
                 auto r = std::stoull(range, nullptr, 16);
                 Kernel kernel((ami_device*)nullptr, name, ba, r, registers);
                 kernels[name] = kernel;
+            } else if (kernelNode->type == XML_ELEMENT_NODE && xmlStrcmp(kernelNode->name, BAD_CAST "ClockFrequency") == 0) {
+                std::string clkFreq = (const char*)xmlNodeGetContent(kernelNode);
+                this->clockFrequency = std::stoull(clkFreq);
             }
         }
     }
 
     std::map<std::string, Kernel> XMLParser::getKernels() {
         return kernels;
+    }
+
+    uint64_t XMLParser::getClockFrequency() {
+        return this->clockFrequency;
     }
 
     XMLParser::~XMLParser() {

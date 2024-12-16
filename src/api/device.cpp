@@ -2,12 +2,13 @@
 
 namespace vrt {
 
-    Device::Device(const std::string& bdf, const std::string& vrtbinPath, bool program) : vrtbin(vrtbinPath, bdf) {
+    Device::Device(const std::string& bdf, const std::string& vrtbinPath, bool program) : vrtbin(vrtbinPath, bdf), clkWiz(nullptr, "", 0, 0, 0) {
         this->bdf = bdf;
         this->systemMap = this->vrtbin.getSystemMapPath();
         this->pdiPath = this->vrtbin.getPdiPath();
         auto& qdmaIntf = QdmaIntf::getInstance(bdf);
         createAmiDev();
+        
         if(program) {
             programDevice();
         } else {
@@ -17,6 +18,7 @@ namespace vrt {
         // sendPcieDriverCmd("hotplug");
         // system("sudo /usr/local/bin/setup_queues.sh"); // change this??
         parseSystemMap();
+        this->clkWiz.setRateHz(clockFreq, false);
     }
 
     Device::~Device() {
@@ -26,6 +28,8 @@ namespace vrt {
     void Device::parseSystemMap() {
         XMLParser parser(systemMap);
         parser.parseXML();
+        clockFreq = parser.getClockFrequency();
+        this->clkWiz = ClkWiz(dev, "clk_wiz", 0x20100010000, 0x10000, clockFreq);
         kernels = parser.getKernels();
         for(auto& kernel : kernels) {
             kernel.second.setDevice(dev);
@@ -126,7 +130,12 @@ namespace vrt {
             throw std::runtime_error("Failed to request elevated access to device");
         }
     }
+
     void Device::destroyAmiDev() {
         ami_dev_delete(&dev);
+    }
+
+    void Device::setFrequency(uint64_t freq) {
+        clkWiz.setRateHz(freq);
     }
 } // namespace vrt

@@ -33,7 +33,7 @@ namespace vrt {
          * @param range The address range of the kernel.
          * @param registers The list of registers in the kernel.
          */
-        Kernel(ami_device* device, const std::string& name, uint64_t baseAddr, uint64_t range, std::vector<Register>& registers);
+        Kernel(ami_device* device, const std::string& name, uint64_t baseAddr, uint64_t range, const std::vector<Register>& registers);
 
         /**
          * @brief Default constructor for Kernel.

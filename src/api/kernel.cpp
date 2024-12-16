@@ -2,7 +2,7 @@
 #include "api/device.hpp"
 namespace vrt {
 
-    Kernel::Kernel(ami_device* device, const std::string& name, uint64_t baseAddr, uint64_t range, std::vector<Register>& registers) {
+    Kernel::Kernel(ami_device* device, const std::string& name, uint64_t baseAddr, uint64_t range, const std::vector<Register>& registers) {
         this->dev = device;
         this->name = name;
         this->baseAddr = baseAddr;

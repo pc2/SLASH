@@ -3,6 +3,7 @@
 V80PP_GIT="git@gitenterprise.xilinx.com:aulmamei/v80-vitis-flow.git"
 AVED_GIT="git@gitenterprise.xilinx.com:aulmamei/aved-fork.git"
 AVED_COMMIT_ID="7497599d2b452846515d7f2f22ad6bea2ebef522"
+VPP_COMMIT_ID="20f491e903b2405d5777fd42f9584ab8c2669e29"
 HLS_BUILD_DIR_ACCUMULATE=build_offset.xcv80-lsva4737-2MHP-e-S
 HLS_BUILD_DIR_INCREMENT=build_dma.xcv80-lsva4737-2MHP-e-S
 DESIGN_NAME=01_example
@@ -21,6 +22,9 @@ git clone $AVED_GIT
 # git checkout $AVED_COMMIT_ID
 # cd ..
 git clone $V80PP_GIT
+cd v80-vitis-flow
+git checkout $VPP_COMMIT_ID # commit id for testing purposes
+cd ..
 
 VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
 AVED_DIR=$(realpath $HOME_DIR/build/aved-fork)
@@ -51,6 +55,8 @@ popd
 pushd ${AVED_HW}
     ./build_all.sh
     python3 ./scripts/gen_version.py --log_file ./build/vivado.log --name $DESIGN_NAME
+    vivado -source src/create_timing_reports.tcl -mode batch
+    python3 scripts/create_clk.py --system_map $VPP_DIR/build/system_map.xml --timing build/report_timing.txt
 popd
 
 # API build

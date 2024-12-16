@@ -11,6 +11,7 @@
 #include "api/kernel.hpp"
 #include "qdma/pcie_driver_handler.hpp"
 #include "qdma/qdma_intf.hpp"
+#include "driver/clk_wiz.hpp"
 
 #include <map>
 #include <fcntl.h>
@@ -31,6 +32,8 @@ namespace vrt {
         std::string bdf; ///< Bus:Device.Function identifier
         std::string pdiPath; ///< Path to the PDI file
         Vrtbin vrtbin; ///< Vrtbin object for handling VRTBIN operations
+        ClkWiz clkWiz; ///< Clock Wizard object for handling clock wizard operations
+        uint64_t clockFreq; ///< Clock frequency
         std::map<std::string, Kernel> kernels; ///< Map of kernel names to Kernel objects
 
     public:
@@ -100,6 +103,8 @@ namespace vrt {
          * @brief Cleans up the device.
          */
         void cleanup();
+
+        void setFrequency(uint64_t freq);
     };
 
 } // namespace vrt

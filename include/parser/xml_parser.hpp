@@ -19,6 +19,7 @@ namespace vrt {
         xmlNode* rootNode; ///< Pointer to the root node of the XML document.
         xmlNode* workingNode; ///< Pointer to the current working node in the XML document.
         std::map<std::string, Kernel> kernels; ///< Map of kernel names to Kernel objects.
+        uint64_t clockFrequency; ///< The clock frequency of the device.
 
     public:
         /**
@@ -44,6 +45,12 @@ namespace vrt {
          * @return The map of kernel names to Kernel objects.
          */
         std::map<std::string, Kernel> getKernels();
+
+        /**
+         * @brief Gets the clock frequency of the device.
+         * @return The clock frequency of the device.
+         */
+        uint64_t getClockFrequency();
 
         /**
          * @brief Destructor for XMLParser.
