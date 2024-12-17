@@ -1,9 +1,7 @@
 #!/bin/bash
-
 V80PP_GIT="git@gitenterprise.xilinx.com:aulmamei/v80-vitis-flow.git"
-AVED_GIT="git@gitenterprise.xilinx.com:aulmamei/aved-fork.git"
-AVED_COMMIT_ID="7497599d2b452846515d7f2f22ad6bea2ebef522"
-VPP_COMMIT_ID="20f491e903b2405d5777fd42f9584ab8c2669e29"
+VPP_COMMIT_ID="cbfcc9eea9a3e403e89a5028245ab7bccb96d050"
+
 HLS_BUILD_DIR_ACCUMULATE=build_accumulate.xcv80-lsva4737-2MHP-e-S
 HLS_BUILD_DIR_INCREMENT=build_increment.xcv80-lsva4737-2MHP-e-S
 DESIGN_NAME=00_example
@@ -13,54 +11,26 @@ HLS_DIR=$(realpath ./hls)
 RESOURCES_DIR=$(realpath ../resources)
 VRT_DIR=$(realpath $HOME_DIR/../../.)
 
-# cloning repositories step
-
-mkdir -p build
 cd build
-git clone $AVED_GIT
-# cd AVED
-# git checkout $AVED_COMMIT_ID
-# cd ..
 git clone $V80PP_GIT
 cd v80-vitis-flow
-git checkout $VPP_COMMIT_ID # commit id for testing purposes
-cd ..
+git checkout $VPP_COMMIT_ID
 
 VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
-AVED_DIR=$(realpath $HOME_DIR/build/aved-fork)
-AVED_HW=$(realpath $AVED_DIR/hw/amd_v80_gen5x8_24.1)
-AVED_IPREPO=$(realpath $AVED_DIR/hw/amd_v80_gen5x8_24.1/src/iprepo)
 
-# hls build step
+echo "Running HLS step"
 pushd ${HLS_DIR}
     make
-    cp -r $HLS_BUILD_DIR_ACCUMULATE/ $AVED_IPREPO
-    cp -r $HLS_BUILD_DIR_INCREMENT/ $AVED_IPREPO
-    cp -r $RESOURCES_DIR/smbus_v1_1-20240328 $AVED_IPREPO
 popd
 
-# v80++ build step & linking to AVED
-pushd ${BUILD_DIR}
-    
-    mkdir -p $VPP_DIR/build
-    cd $VPP_DIR/build
-    cmake ..
-    make -j9
-    ./v80++ --cfg $HOME_DIR/config.cfg --kernels $HLS_DIR/$HLS_BUILD_DIR_INCREMENT/sol1 $HLS_DIR/$HLS_BUILD_DIR_ACCUMULATE/sol1
-    cp block_design.tcl $AVED_DIR/hw/amd_v80_gen5x8_24.1/src/bd/create_bd_design.tcl
-    
+echo "Running HW step"
+pushd ${VPP_DIR}
+    ./scripts/v80++ --design-name $DESIGN_NAME --cfg $HOME_DIR/config.cfg --kernels $HLS_DIR/$HLS_BUILD_DIR_ACCUMULATE/sol1 $HLS_DIR/$HLS_BUILD_DIR_INCREMENT/sol1
+    cp build/$DESIGN_NAME.vrtbin $BUILD_DIR
 popd
-
-# hw build
-pushd ${AVED_HW}
-    ./build_all.sh
-    python3 ./scripts/gen_version.py --log_file ./build/vivado.log --name $DESIGN_NAME
-    vivado -source src/create_timing_reports.tcl -mode batch
-    python3 scripts/create_clk.py --system_map $VPP_DIR/build/system_map.xml --timing build/report_timing.txt
-popd
-
 
 # API build
+echo "Running API build step"
 pushd ${VRT_DIR}
     mkdir -p build && cd build
     cmake ..
@@ -68,17 +38,10 @@ pushd ${VRT_DIR}
 popd
 
 # user app build
+echo "Running user app build step"
 pushd ${HOME_DIR}
     mkdir -p build && cd build
     cmake ..
     make -j9
 #    cp $VPP_DIR/build/system_map.xml .
-popd
-
-# vrtbin creation
-pushd ${BUILD_DIR}
-    cp $AVED_DIR/hw/amd_v80_gen5x8_24.1/build/amd_v80_gen5x8_24.1_nofpt.pdi design.pdi
-    cp $AVED_DIR/hw/amd_v80_gen5x8_24.1/version.json version.json
-    cp $VPP_DIR/build/system_map.xml system_map.xml
-    tar -cvf $DESIGN_NAME.vrtbin system_map.xml design.pdi version.json
 popd
