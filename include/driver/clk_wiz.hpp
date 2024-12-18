@@ -55,11 +55,8 @@ namespace vrt {
                     going as input to the PLL/MMCM */
         uint8_t  EnablePll1;        /**< specify if this user clock is
                     going as input to the PLL/MMCM */
-    #ifndef SDT
-        double PrimInClkFreq;       /**< Input Clock */
-    #else
-        u64 PrimInClkFreq;       /**< Input Clock */
-    #endif
+
+        uint64_t PrimInClkFreq;       /**< Input Clock */
         uint32_t NumClocks;		/**< Number of clocks */
     #ifdef SDT
         u32 IntId;		/**< Interrupt ID on GIC **/

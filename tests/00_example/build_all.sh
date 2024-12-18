@@ -11,6 +11,7 @@ HLS_DIR=$(realpath ./hls)
 RESOURCES_DIR=$(realpath ../resources)
 VRT_DIR=$(realpath $HOME_DIR/../../.)
 
+mkdir -p build
 cd build
 git clone $V80PP_GIT
 cd v80-vitis-flow
