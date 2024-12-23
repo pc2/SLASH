@@ -2,10 +2,11 @@
 
 namespace vrt {
 
-    Device::Device(const std::string& bdf, const std::string& vrtbinPath, bool program) : vrtbin(vrtbinPath, bdf), clkWiz(nullptr, "", 0, 0, 0) {
+    Device::Device(const std::string& bdf, const std::string& vrtbinPath, bool program, ProgramType programType) : vrtbin(vrtbinPath, bdf), clkWiz(nullptr, "", 0, 0, 0) {
         this->bdf = bdf;
         this->systemMap = this->vrtbin.getSystemMapPath();
         this->pdiPath = this->vrtbin.getPdiPath();
+        this->programType = programType;
         auto& qdmaIntf = QdmaIntf::getInstance(bdf);
         createAmiDev();
         
@@ -20,6 +21,7 @@ namespace vrt {
         parseSystemMap();
         this->clkWiz.setRateHz(clockFreq, false);
     }
+
 
     Device::~Device() {
         //destroyAmiDev();
@@ -48,32 +50,54 @@ namespace vrt {
     }
 
     void Device::programDevice() {
-        char current_uuid[33];
-        std::string logic_uuid = vrtbin.getUUID();
-        int found_current_uuid = AMI_STATUS_ERROR;
-        found_current_uuid = ami_dev_read_uuid(dev, current_uuid);
-        if(found_current_uuid == AMI_STATUS_OK) {
-            std::string current_uuid_str(current_uuid);
-            current_uuid_str = current_uuid_str.substr(0, 32);
-            std::cout << "Current UUID: " << current_uuid_str << std::endl;
-            std::cout << "New UUID: " << logic_uuid << std::endl;
-            if(current_uuid_str == logic_uuid) {
-                std::cout << "Device already programmed with the same image" << std::endl;
-                bootDevice();
-                return;
+        if(programType == ProgramType::FLASH) {
+            char current_uuid[33];
+            std::string logic_uuid = vrtbin.getUUID();
+            int found_current_uuid = AMI_STATUS_ERROR;
+            found_current_uuid = ami_dev_read_uuid(dev, current_uuid);
+            if(found_current_uuid == AMI_STATUS_OK) {
+                std::string current_uuid_str(current_uuid);
+                current_uuid_str = current_uuid_str.substr(0, 32);
+                std::cout << "Current UUID: " << current_uuid_str << std::endl;
+                std::cout << "New UUID: " << logic_uuid << std::endl;
+                if(current_uuid_str == logic_uuid) {
+                    std::cout << "Device already programmed with the same image" << std::endl;
+                    bootDevice();
+                    return;
+                }
             }
+            std::cout << "Programming device in FLASH mode...This might take a while" << std::endl;
+            if(ami_prog_download_pdi(dev, pdiPath.c_str(), 0, 1, nullptr) != AMI_STATUS_OK) {
+                throw std::runtime_error("Failed to program device");
+            }
+            bootDevice();
+        } else {
+            int found_current_uuid = AMI_STATUS_ERROR;
+            char current_uuid[33];
+            std::string logic_uuid = vrtbin.getUUID();
+            found_current_uuid = ami_dev_read_uuid(dev, current_uuid);
+            if(found_current_uuid == AMI_STATUS_OK) {
+                std::string current_uuid_str(current_uuid);
+                current_uuid_str = current_uuid_str.substr(0, 32);
+                std::cout << "Current UUID: " << current_uuid_str << std::endl;
+                std::cout << "New UUID: " << logic_uuid << std::endl;
+                if(current_uuid_str == logic_uuid) {
+                    std::cout << "Device already programmed with the same image" << std::endl;
+                    bootDevice();
+                    return;
+                }
+            }
+            std::cout << "Programming device in JTAG mode...This might take a while" << std::endl;
+            std::string cmd = "/scratch/users/aulmamei/git/vrt-api/tests/scripts/fallback_program.sh " + pdiPath;
+            system(cmd.c_str());
+            bootDevice();
         }
-        std::cout << "Programming device...This might take a while" << std::endl;
-        if(ami_prog_download_pdi(dev, pdiPath.c_str(), 0, 1, nullptr) != AMI_STATUS_OK) {
-            throw std::runtime_error("Failed to program device");
-        }
-        bootDevice();
     }
 
     void Device::sendPcieDriverCmd(std::string cmd) {
         int fd = open("/dev/pcie_hotplug", O_WRONLY);
         if(fd < 0) {
-            throw std::runtime_error("Could not open device");
+            throw std::runtime_error("Could not open /dev/pcie_hotplug. Check if driver is loaded.");
         }
 
         if(write(fd, cmd.c_str(), cmd.size()) < 0) {
@@ -84,20 +108,31 @@ namespace vrt {
 
     void Device::bootDevice() {
         std::cout << "Booting device..." << std::endl;
-        int ret = ami_prog_device_boot(&dev, 1);
-        if(ret != AMI_STATUS_OK && geteuid() == 0) { // for root users this should not matter
-            throw std::runtime_error("Failed to boot device");
-        }
-        else {
+        if(programType == ProgramType::FLASH) {
+            int ret = ami_prog_device_boot(&dev, 1);
+            if(ret != AMI_STATUS_OK && geteuid() == 0) { // for root users this should not matter
+                throw std::runtime_error("Failed to boot device");
+            }
+            else {
+                std::cout << "Booting into new PDI..." << std::endl;
+                ami_mem_bar_write(dev, 0, 0x1040000, 1);
+                destroyAmiDev();
+                PcieDriverHandler& pcieHandler = PcieDriverHandler::getInstance();
+                pcieHandler.execute(PcieDriverHandler::Command::REMOVE);
+                usleep(1000);
+                pcieHandler.execute(PcieDriverHandler::Command::TOGGLE_SBR);
+                usleep(5000000);
+                pcieHandler.execute(PcieDriverHandler::Command::RESCAN);
+                pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
+                createAmiDev();
+                std::cout << "New PDI booted successfully" << std::endl;
+                system("sudo /usr/local/bin/setup_queues.sh");
+                std::cout << "QDMA queues setup successfully" << std::endl;
+            }
+        } else {
             std::cout << "Booting into new PDI..." << std::endl;
-            ami_mem_bar_write(dev, 0, 0x1040000, 1);
             destroyAmiDev();
             PcieDriverHandler& pcieHandler = PcieDriverHandler::getInstance();
-            pcieHandler.execute(PcieDriverHandler::Command::REMOVE);
-            usleep(1000);
-            pcieHandler.execute(PcieDriverHandler::Command::TOGGLE_SBR);
-            usleep(5000000);
-            pcieHandler.execute(PcieDriverHandler::Command::RESCAN);
             pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
             createAmiDev();
             std::cout << "New PDI booted successfully" << std::endl;

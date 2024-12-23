@@ -8,10 +8,11 @@
 int main() {
     try {
         uint32_t size = 2048;
-        vrt::Device device("21:00.0", "00_example.vrtbin", true);
+        vrt::Device device("21:00.0", "00_example.vrtbin", true, vrt::ProgramType::JTAG);
+        device.setFrequency(200000000);
         vrt::Kernel accumulate(device, "accumulate_0");
         vrt::Kernel increment(device, "increment_0");
-        vrt::Buffer<float> buffer(size, vrt::MemoryRangeType::HBM);
+        vrt::Buffer<float> buffer(size, vrt::MemoryRangeType::DDR);
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_real_distribution<> dis(0.0, 1.0);

@@ -17,10 +17,10 @@ int main() {
         uint32_t size = 1000;
         uint32_t m = 3;
         uint32_t n = 2;
-        vrt::Device device("21:00.0", "01_example.vrtbin", true);
+        vrt::Device device("21:00.0", "01_example.vrtbin", true, vrt::ProgramType::JTAG);
         vrt::Kernel dma(device, "dma_0");
         vrt::Kernel offset(device, "offset_0");
-        
+        device.setFrequency(233333333);
         vrt::Buffer<uint32_t> in_buff(size, vrt::MemoryRangeType::HBM);
         vrt::Buffer<uint32_t> out_buff(size, vrt::MemoryRangeType::HBM);
         for(uint32_t i = 0; i < size; i++) {

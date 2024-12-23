@@ -20,6 +20,12 @@
 #include <libxml/tree.h>
 
 namespace vrt {
+
+    enum class ProgramType {
+        FLASH,
+        JTAG
+    };
+
     /**
      * @brief Class representing a device.
      */
@@ -34,6 +40,7 @@ namespace vrt {
         Vrtbin vrtbin; ///< Vrtbin object for handling VRTBIN operations
         ClkWiz clkWiz; ///< Clock Wizard object for handling clock wizard operations
         uint64_t clockFreq; ///< Clock frequency
+        ProgramType programType; ///< Type of programming
         std::map<std::string, Kernel> kernels; ///< Map of kernel names to Kernel objects
 
     public:
@@ -43,7 +50,7 @@ namespace vrt {
          * @param vrtbinPath The path to the VRTBIN file.
          * @param program Flag indicating whether to program the device.
          */
-        Device(const std::string& bdf, const std::string& vrtbinPath, bool program);
+        Device(const std::string& bdf, const std::string& vrtbinPath, bool program, ProgramType programType);
 
         /**
          * @brief Gets a kernel by name.

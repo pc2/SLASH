@@ -3,8 +3,16 @@
 namespace vrt {
     Vrtbin::Vrtbin(std::string vrtbinPath, const std::string& bdf) {
         this->vrtbinPath = vrtbinPath;
-        this->systemMapPath = getenv("AMI_HOME") + bdf + "/system_map.xml";
-        this->versionPath = getenv("AMI_HOME") + bdf + "/version.json";
+        char* ami_home_cstr = getenv("AMI_HOME");
+        if(ami_home_cstr == nullptr) {
+            throw std::runtime_error("AMI_HOME environment variable not set");
+        }
+        std::string ami_home(getenv("AMI_HOME"));
+
+        std::string cmd = "mkdir -p " + ami_home + bdf;
+        system(cmd.c_str());
+        this->systemMapPath = ami_home + bdf + "/system_map.xml";
+        this->versionPath = ami_home + bdf + "/version.json";
         this->pdiPath = tempExtractPath + "/design.pdi";
         extract();
         extractUUID();
