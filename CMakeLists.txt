@@ -17,8 +17,15 @@ add_library(vrt SHARED ${LIB_SOURCES})
 # Specify the output directory for the shared library
 set_target_properties(vrt PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# Define sources for the executable
-#file(GLOB EXE_SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp)
+# Install the shared library
+install(TARGETS vrt
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
 
-# Link the library to the executable
-# target_link_libraries(${PROJECT_NAME} vrt ami xml2)
+# Install the header files into /usr/local/vrt/include
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION vrt/include)
+install(FILES ${CMAKE_SOURCE_DIR}/src/api/buffer.tpp DESTINATION vrt/include/api)
+
+# Install the contents of the scripts folder into /usr/local/vrt
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/scripts/ DESTINATION vrt
+        FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

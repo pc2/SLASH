@@ -1,17 +1,16 @@
 cmake_minimum_required(VERSION 3.10)
-project(01_example)
+project(02_example)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Include directories
 include_directories(/usr/local/include
                     /usr/local/include/vrt
                     /usr/include/ami
                     /usr/include/libxml2)
 
 # Define sources for the executable
-set(EXE_SOURCES 01_example.cpp)
+set(EXE_SOURCES 02_example.cpp)
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${EXE_SOURCES})

@@ -1,14 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
-project(example)
+project(00_example)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Include directories
-include_directories(${CMAKE_SOURCE_DIR}/../../include 
-                    ${CMAKE_SOURCE_DIR}/../../include/parser
-                    ${CMAKE_SOURCE_DIR}/../../include/api
-                    ${CMAKE_SOURCE_DIR}/../../src 
+include_directories(/usr/local/include
+                    /usr/local/include/vrt
                     /usr/include/ami
                     /usr/include/libxml2)
 
@@ -19,4 +17,4 @@ set(EXE_SOURCES 00_example.cpp)
 add_executable(${PROJECT_NAME} ${EXE_SOURCES})
 
 # Link the library to the executable
-target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/../../build/lib/libvrt.so /scratch/users/aulmamei/git/AVED_work/sw/AMI/api/build/libami.a xml2)
+target_link_libraries(${PROJECT_NAME} vrt /scratch/users/aulmamei/git/AVED_work/sw/AMI/api/build/libami.a xml2)

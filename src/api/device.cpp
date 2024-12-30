@@ -12,12 +12,7 @@ namespace vrt {
         
         if(program) {
             programDevice();
-        } else {
-            //bootDevice();
         }
-        // Add pcie hotplug via driver
-        // sendPcieDriverCmd("hotplug");
-        // system("sudo /usr/local/bin/setup_queues.sh"); // change this??
         parseSystemMap();
         this->clkWiz.setRateHz(clockFreq, false);
     }
@@ -88,7 +83,7 @@ namespace vrt {
                 }
             }
             std::cout << "Programming device in JTAG mode...This might take a while" << std::endl;
-            std::string cmd = "/scratch/users/aulmamei/git/vrt-api/tests/scripts/fallback_program.sh " + pdiPath;
+            std::string cmd = JTAG_PROGRAM_PATH + pdiPath;
             system(cmd.c_str());
             bootDevice();
         }
@@ -158,7 +153,7 @@ namespace vrt {
 
     void Device::createAmiDev() {
         if(ami_dev_find(bdf.c_str(), &dev) != AMI_STATUS_OK) {
-            throw std::runtime_error("Failed to find device");
+            throw std::runtime_error("Failed to find device " + bdf);
         }
         ami_dev_get_pci_bdf(dev, &pci_bdf);
         if(ami_dev_request_access(dev) != AMI_STATUS_OK) {

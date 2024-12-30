@@ -19,7 +19,7 @@ namespace vrt {
     }
 
     void Vrtbin::extract() {
-        std::string command = "tar -xvf " + vrtbinPath + " -C " + tempExtractPath;
+        std::string command = "tar -xvf " + vrtbinPath + " -C " + tempExtractPath + " 2>&1";
         std::array<char, 128> buffer;
         std::string result;
 
@@ -33,9 +33,9 @@ namespace vrt {
         }
 
         int status = pclose(pipe.release());
-        if (status == -1) {
-            perror("pclose");
-        } else {}
+    if (status != 0) {
+        throw std::runtime_error("Could not open vrtbin: " + vrtbinPath);
+    }
         
         copy(tempExtractPath + "/system_map.xml", systemMapPath);
         copy(tempExtractPath + "/version.json", versionPath);

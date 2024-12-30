@@ -9,6 +9,15 @@ This repository contains the VRT API implementation, along with 2 examples.
 
 ## How to build
 
+To build the API and install it, one must do the following:
+```bash
+mkdir -p build && cd build
+cmake ..
+cmake --build .
+sudo cmake --install .
+```
+This will add the library and headers to `/usr/local/vrt`.
+
 To build an example, one must do the following:
 
 ```bash

@@ -26,6 +26,8 @@ namespace vrt {
         JTAG
     };
 
+    #define JTAG_PROGRAM_PATH "/usr/local/vrt/jtag_program.sh "
+
     /**
      * @brief Class representing a device.
      */
