@@ -27,7 +27,6 @@ namespace vrt {
     };
 
     #define JTAG_PROGRAM_PATH "/usr/local/vrt/jtag_program.sh "
-
     /**
      * @brief Class representing a device.
      */
@@ -112,8 +111,15 @@ namespace vrt {
          * @brief Cleans up the device.
          */
         void cleanup();
-
+        /**
+         * @brief Sets clk_wiz frequency.
+         */
         void setFrequency(uint64_t freq);
+
+        /**
+         * @brief Gets ami device.
+         */
+        ami_device* getAmiDev();
     };
 
 } // namespace vrt

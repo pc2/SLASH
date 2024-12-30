@@ -89,18 +89,6 @@ namespace vrt {
         }
     }
 
-    void Device::sendPcieDriverCmd(std::string cmd) {
-        int fd = open("/dev/pcie_hotplug", O_WRONLY);
-        if(fd < 0) {
-            throw std::runtime_error("Could not open /dev/pcie_hotplug. Check if driver is loaded.");
-        }
-
-        if(write(fd, cmd.c_str(), cmd.size()) < 0) {
-            throw std::runtime_error("Could not write to device");
-        }
-        close(fd);
-    }
-
     void Device::bootDevice() {
         std::cout << "Booting device..." << std::endl;
         if(programType == ProgramType::FLASH) {
@@ -168,4 +156,9 @@ namespace vrt {
     void Device::setFrequency(uint64_t freq) {
         clkWiz.setRateHz(freq);
     }
+
+    ami_device* Device::getAmiDev() {
+        return dev;
+    }
+    
 } // namespace vrt

@@ -9,7 +9,7 @@ namespace vrt{
 
     void PcieDriverHandler::execute(Command cmd) {
         std::string cmdStr = commandToString(cmd);
-        int fd = open("/dev/pcie_hotplug", O_WRONLY);
+        int fd = open(PCIE_HOTPLUG, O_WRONLY);
         if (fd < 0) {
             throw std::runtime_error("Could not open device");
         }

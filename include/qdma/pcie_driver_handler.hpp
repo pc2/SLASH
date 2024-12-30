@@ -10,6 +10,7 @@ namespace vrt {
     /**
      * @brief Class for handling PCIe driver commands.
      */
+    #define PCIE_HOTPLUG "/dev/pcie_hotplug"
     class PcieDriverHandler {
     public:
         /**
