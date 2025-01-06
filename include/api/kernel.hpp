@@ -6,7 +6,8 @@
 #include <ami_mem_access.h>
 #include <stdexcept>
 #include <vector>
-
+#include <iostream>
+#include <regex>
 #include "register/register.hpp"
 
 namespace vrt {
@@ -23,7 +24,7 @@ namespace vrt {
         uint64_t baseAddr; ///< Base address of the kernel
         uint64_t range; ///< Address range of the kernel
         std::vector<Register> registers; ///< List of registers in the kernel
-
+        size_t currentRegisterIndex = 4; ///< Index of the current register being processed
     public:
         /**
          * @brief Constructor for Kernel.
@@ -77,6 +78,37 @@ namespace vrt {
          * @param autorestart Flag indicating whether to enable autorestart.
          */
         void start(bool autorestart=false);
+
+        /**
+         * @brief Calls the kernel.
+         */
+        template<typename... Args>
+            void call(Args... args) {
+                currentRegisterIndex = 4;
+                (processArg(args), ...);
+                this->start();
+                this->wait();
+            }
+
+        template<typename T>
+        void processArg(T arg) {
+            if (currentRegisterIndex < registers.size()) {
+                std::regex re(".*_\\d+$"); // Regular expression to match strings ending with _nr
+                if (std::regex_match(registers.at(currentRegisterIndex).getRegisterName(), re)) {
+                    this->write(registers.at(currentRegisterIndex).getOffset(), arg & 0xFFFFFFFF);
+                    this->write(registers.at(currentRegisterIndex + 1).getOffset(), static_cast<uint32_t>((static_cast<uint64_t>(arg) >> 32) & 0xFFFFFFFF));
+                    // std::cout << "Register: " << registers.at(currentRegisterIndex).getRegisterName() << " Value: " << std::hex << (arg & 0xFFFFFFFF) << std::endl;
+                    // std::cout << "Register: " << registers.at(currentRegisterIndex + 1).getRegisterName() << " Value: " << std::hex <<((arg >> 32) & 0xFFFFFFFF) << std::endl;
+                    currentRegisterIndex+=2;
+                } else {
+                    this->write(registers.at(currentRegisterIndex).getOffset(), arg);
+                    currentRegisterIndex++;
+                }
+                
+            } else {
+                std::cerr << "Error: Not enough registers to process all arguments." << std::endl;
+            }
+        }
 
         /**
          * @brief Destructor for Kernel.
