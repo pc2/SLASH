@@ -5,7 +5,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cstdint>
-
+#include <algorithm>
 namespace vrt {
 
     /**
@@ -20,6 +20,8 @@ namespace vrt {
     constexpr uint64_t HBM_START = 0x4000000000;
     /// Size of HBM (32 GB)
     constexpr uint64_t HBM_SIZE = 32L * 1024 * 1024 * 1024; // 32G
+    /// Size of HBM Port (1 GB)
+    constexpr uint64_t HBM_PORT_SIZE = 1L * 1024 * 1024 * 1024; // 1G
 
     /// Starting address of DDR
     constexpr uint64_t DDR_START = 0x50080000000;
@@ -51,8 +53,8 @@ namespace vrt {
          */
         void deallocate(uint64_t addr);
 
-    private:
         uint64_t startAddress; ///< The starting address of the superblock.
+    private:
         uint64_t size; ///< The size of the superblock.
         uint64_t offset; ///< The current offset for allocation.
         std::vector<uint64_t> freeList; ///< List of free memory blocks.
@@ -67,7 +69,7 @@ namespace vrt {
         uint64_t offset; ///< The current offset for allocation.
         std::vector<Superblock> superblocks; ///< List of superblocks in the memory range.
         std::vector<uint64_t> freeList; ///< List of free memory blocks.
-
+        std::vector<std::pair<uint64_t, uint64_t>> usedMemoryBlocks; ///< List of used memory blocks.
         /**
          * @brief Constructor for MemoryRange.
          * @param startAddress The starting address of the memory range.
@@ -110,6 +112,15 @@ namespace vrt {
          */
         void deallocate(uint64_t addr);
 
+        /**
+         * @brief Allocates a block of memory from the specified port.
+         * @param size The size of the memory block to allocate.
+         * @param type The type of memory range to allocate from (HBM or DDR).
+         * @param port The port to allocate from.
+         * @return The starting address of the allocated memory block.
+         */
+        uint64_t allocate(uint64_t size, MemoryRangeType type, uint8_t port);
+        
         /**
          * @brief Gets the size of the specified memory range type.
          * @param type The type of memory range (HBM or DDR).

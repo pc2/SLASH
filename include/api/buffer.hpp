@@ -29,6 +29,14 @@ namespace vrt {
         Buffer(size_t size, MemoryRangeType type);
 
         /**
+         * @brief Constructor for Buffer.
+         * @param size The size of the buffer.
+         * @param type The type of memory range.
+         * @param port The HBM port number. This would not have any effect if the type is DDR.
+         */
+        Buffer(size_t size, MemoryRangeType type, uint8_t port);
+        
+        /**
          * @brief Destructor for Buffer.
          */
         ~Buffer();

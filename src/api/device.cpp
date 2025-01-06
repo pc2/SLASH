@@ -108,6 +108,7 @@ namespace vrt {
                 pcieHandler.execute(PcieDriverHandler::Command::RESCAN);
                 pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
                 createAmiDev();
+                //getNewHandle();
                 std::cout << "New PDI booted successfully" << std::endl;
                 system("sudo /usr/local/bin/setup_queues.sh");
                 std::cout << "QDMA queues setup successfully" << std::endl;
@@ -116,8 +117,12 @@ namespace vrt {
             std::cout << "Booting into new PDI..." << std::endl;
             destroyAmiDev();
             PcieDriverHandler& pcieHandler = PcieDriverHandler::getInstance();
+            pcieHandler.execute(PcieDriverHandler::Command::REMOVE);
+            usleep(1000);
+            pcieHandler.execute(PcieDriverHandler::Command::RESCAN);
             pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
             createAmiDev();
+            //getNewHandle();
             std::cout << "New PDI booted successfully" << std::endl;
             system("sudo /usr/local/bin/setup_queues.sh");
             std::cout << "QDMA queues setup successfully" << std::endl;

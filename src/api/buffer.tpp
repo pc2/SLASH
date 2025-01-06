@@ -28,6 +28,21 @@ namespace vrt {
     }
 
     template <typename T>
+    Buffer<T>::Buffer(size_t size, MemoryRangeType type, uint8_t port)
+        : size(size), type(type) {
+        // Initialize memory ranges if not already done
+        initializeMemoryRanges();
+        Allocator& allocator = Allocator::getInstance();
+        startAddress = allocator.allocate(size * sizeof(T), type, port);
+        if (startAddress == 0) {
+            throw std::bad_alloc();
+        }
+
+        // Allocate local buffer
+        localBuffer = new T[size];
+    }
+
+    template <typename T>
     Buffer<T>::~Buffer() {
         // Deallocate memory using the allocator
         Allocator& allocator = Allocator::getInstance();

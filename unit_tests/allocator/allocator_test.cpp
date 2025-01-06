@@ -45,3 +45,23 @@ TEST_F(AllocatorTest, AllocateFromDifferentRanges) {
     EXPECT_GE(addr2, vrt::DDR_START);
     EXPECT_LT(addr2, vrt::DDR_START + vrt::DDR_SIZE);
 }
+
+TEST_F(AllocatorTest, AllocateMultipleRanges) {
+    uint64_t addr1 = allocator->allocate(1024, vrt::MemoryRangeType::HBM, 0);
+    uint64_t addr2 = allocator->allocate(512, vrt::MemoryRangeType::HBM, 0);
+    uint64_t addr3 = allocator->allocate(512, vrt::MemoryRangeType::HBM, 5);
+    uint64_t addr4 = allocator->allocate(512, vrt::MemoryRangeType::HBM, 5);
+    EXPECT_NE(addr1, addr2);
+    EXPECT_NE(addr1, addr3);
+    EXPECT_NE(addr1, addr4);
+    EXPECT_NE(addr2, addr3);
+    EXPECT_NE(addr2, addr4);
+    EXPECT_NE(addr3, addr4);
+}
+
+TEST_F(AllocatorTest, AllocateWithOverlappingPorts) {
+    uint64_t addr1 = allocator->allocate(4L * 1024 * 1024 * 1024, vrt::MemoryRangeType::HBM, 0);
+    uint64_t addr2 = allocator->allocate(4L * 1024 * 1024 * 1024, vrt::MemoryRangeType::HBM, 1);
+    EXPECT_NE(addr1, addr2);
+    EXPECT_GE(addr2, addr1);
+}
