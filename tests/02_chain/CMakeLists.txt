@@ -4,8 +4,7 @@ project(02_example)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(/usr/local/include
-                    /usr/local/include/vrt
+include_directories(/usr/local/vrt/include
                     /usr/include/ami
                     /usr/include/libxml2)
 

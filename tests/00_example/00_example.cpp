@@ -1,14 +1,14 @@
 #include <iostream>
 #include <cstring> // for std::memcpy
 #include <random>
-#include "../../include/api/device.hpp"
-#include "../../include/api/buffer.hpp"
-#include "../../include/api/kernel.hpp"
+#include <api/device.hpp>
+#include <api/buffer.hpp>
+#include <api/kernel.hpp>
 
 int main() {
     try {
         uint32_t size = 2048;
-        vrt::Device device("21:00.0", "00_example.vrtbin", true, vrt::ProgramType::JTAG);
+        vrt::Device device("21:00.0", "00_example.vrtbin", false, vrt::ProgramType::JTAG);
         device.setFrequency(200000000);
         vrt::Kernel accumulate(device, "accumulate_0");
         vrt::Kernel increment(device, "increment_0");

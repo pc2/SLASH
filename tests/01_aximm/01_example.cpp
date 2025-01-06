@@ -8,9 +8,9 @@
 #include <iostream>
 
 
-#include "../../include/api/device.hpp"
-#include "../../include/api/buffer.hpp"
-#include "../../include/api/kernel.hpp"
+#include <api/device.hpp>
+#include <api/buffer.hpp>
+#include <api/kernel.hpp>
 
 int main() {
     try {
