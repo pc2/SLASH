@@ -1,6 +1,9 @@
 #ifndef KERNEL_HPP
 #define KERNEL_HPP
 
+#include "register/register.hpp"
+#include "utils/logger.hpp"
+
 #include <string>
 #include <ami.h>
 #include <ami_mem_access.h>
@@ -8,7 +11,7 @@
 #include <vector>
 #include <iostream>
 #include <regex>
-#include "register/register.hpp"
+
 
 namespace vrt {
     class Device;

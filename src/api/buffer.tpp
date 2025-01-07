@@ -13,9 +13,8 @@ namespace vrt {
     }
 
     template <typename T>
-    Buffer<T>::Buffer(size_t size, MemoryRangeType type)
-        : size(size), type(type) {
-        // Initialize memory ranges if not already done
+    Buffer<T>::Buffer(Device device, size_t size, MemoryRangeType type)
+        : device(device), size(size), type(type) {
         initializeMemoryRanges();
         Allocator& allocator = Allocator::getInstance();
         startAddress = allocator.allocate(size * sizeof(T), type);
@@ -28,9 +27,9 @@ namespace vrt {
     }
 
     template <typename T>
-    Buffer<T>::Buffer(size_t size, MemoryRangeType type, uint8_t port)
-        : size(size), type(type) {
-        // Initialize memory ranges if not already done
+    Buffer<T>::Buffer(Device device, size_t size, MemoryRangeType type, uint8_t port)
+        : device(device), size(size), type(type) {
+        this->device = device;
         initializeMemoryRanges();
         Allocator& allocator = Allocator::getInstance();
         startAddress = allocator.allocate(size * sizeof(T), type, port);
@@ -100,24 +99,23 @@ namespace vrt {
     // }
 
     template <typename T>
-void Buffer<T>::sync(SyncType syncType) {
-    auto& qdmaIntf = QdmaIntf::getInstance();
-    size_t maxChunkSize = 1 << 20; //22
-    size_t totalSize = size * sizeof(T);
-    size_t chunkSize = maxChunkSize * sizeof(T);
-    size_t offset = 0;
+    void Buffer<T>::sync(SyncType syncType) {
+        size_t maxChunkSize = 1 << 20; //22
+        size_t totalSize = size * sizeof(T);
+        size_t chunkSize = maxChunkSize * sizeof(T);
+        size_t offset = 0;
 
-    while (totalSize > 0) {
-        size_t currentChunkSize = std::min(chunkSize, totalSize);
-        if (syncType == SyncType::HOST_TO_DEVICE) {
-            qdmaIntf.write_buff(reinterpret_cast<char*>(localBuffer) + offset, startAddress + offset, currentChunkSize);
-        } else if (syncType == SyncType::DEVICE_TO_HOST) {
-            qdmaIntf.read_buff(reinterpret_cast<char*>(localBuffer) + offset, startAddress + offset, currentChunkSize);
-        } else {
-            throw std::invalid_argument("Invalid sync type");
+        while (totalSize > 0) {
+            size_t currentChunkSize = std::min(chunkSize, totalSize);
+            if (syncType == SyncType::HOST_TO_DEVICE) {
+                this->device.qdmaIntf.write_buff(reinterpret_cast<char*>(localBuffer) + offset, startAddress + offset, currentChunkSize);
+            } else if (syncType == SyncType::DEVICE_TO_HOST) {
+                this->device.qdmaIntf.read_buff(reinterpret_cast<char*>(localBuffer) + offset, startAddress + offset, currentChunkSize);
+            } else {
+                throw std::invalid_argument("Invalid sync type");
+            }
+            offset += currentChunkSize;
+            totalSize -= currentChunkSize;
         }
-        offset += currentChunkSize;
-        totalSize -= currentChunkSize;
     }
-}
 }  // namespace vrt

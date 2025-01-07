@@ -1,6 +1,8 @@
 #ifndef VRTBIN_HPP
 #define VRTBIN_HPP
 
+#include "utils/logger.hpp"
+
 #include <string>
 #include <cstdlib>
 #include <array>

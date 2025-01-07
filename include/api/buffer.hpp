@@ -2,6 +2,7 @@
 #define BUFFER_HPP
 
 #include "allocator/allocator.hpp"
+#include "api/device.hpp"
 #include "qdma/qdma_intf.hpp"
 
 namespace vrt {
@@ -23,18 +24,20 @@ namespace vrt {
     public:
         /**
          * @brief Constructor for Buffer.
+         * @param device VRT Device of the buffer.
          * @param size The size of the buffer.
          * @param type The type of memory range.
          */
-        Buffer(size_t size, MemoryRangeType type);
+        Buffer(Device device, size_t size, MemoryRangeType type);
 
         /**
          * @brief Constructor for Buffer.
+         * @param device VRT Device of the buffer.
          * @param size The size of the buffer.
          * @param type The type of memory range.
          * @param port The HBM port number. This would not have any effect if the type is DDR.
          */
-        Buffer(size_t size, MemoryRangeType type, uint8_t port);
+        Buffer(Device device, size_t size, MemoryRangeType type, uint8_t port);
         
         /**
          * @brief Destructor for Buffer.
@@ -95,6 +98,7 @@ namespace vrt {
         T* localBuffer; ///< Pointer to the local buffer
         size_t size; ///< The size of the buffer
         MemoryRangeType type; ///< The type of memory range
+        Device device; ///< The device associated with the buffer
     };
 
 } // namespace vrt

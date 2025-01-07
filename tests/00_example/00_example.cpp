@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstring> // for std::memcpy
 #include <random>
+
+#include <utils/logger.hpp>
 #include <api/device.hpp>
 #include <api/buffer.hpp>
 #include <api/kernel.hpp>
@@ -8,11 +10,12 @@
 int main() {
     try {
         uint32_t size = 2048;
-        vrt::Device device("21:00.0", "00_example.vrtbin", true, vrt::ProgramType::JTAG);
+        vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
+        vrt::Device device("e2:00.0", "00_example.vrtbin", true, vrt::ProgramType::FLASH);
         device.setFrequency(200000000);
         vrt::Kernel accumulate(device, "accumulate_0");
         vrt::Kernel increment(device, "increment_0");
-        vrt::Buffer<float> buffer(size, vrt::MemoryRangeType::HBM);
+        vrt::Buffer<float> buffer(device, size, vrt::MemoryRangeType::HBM);
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_real_distribution<> dis(0.0, 1.0);
@@ -25,15 +28,7 @@ int main() {
 
         buffer.sync(vrt::SyncType::HOST_TO_DEVICE);
         increment.call(size, buffer.getPhysAddr());
-        // increment.write(0x10, size);
-        // increment.write(0x18, buffer.getPhysAddr() & 0xFFFFFFFF);
-        // increment.write(0x1c, (buffer.getPhysAddr() >> 32) & 0xFFFFFFFF);
         accumulate.call(size);
-        //accumulate.write(0x10, size);
-        // increment.start(false);
-        // accumulate.start(false);
-        // increment.wait();
-        // accumulate.wait();
         uint32_t val = accumulate.read(0x18);
         float floatVal;
         std::memcpy(&floatVal, &val, sizeof(float));

@@ -2,21 +2,23 @@
 
 namespace vrt{
 
-    PcieDriverHandler& PcieDriverHandler::getInstance() {
-        static PcieDriverHandler instance;
-        return instance;
+    PcieDriverHandler::PcieDriverHandler(const std::string& bdf) {
+        this->bdf = bdf;
+        utils::Logger::log(utils::LogLevel::DEBUG,__PRETTY_FUNCTION__, "Creating PCIe Hotplug Driver with BDF: {}", bdf);
+        driverPath = pcieHotplugRootPath + "_0000:" + bdf;
     }
 
     void PcieDriverHandler::execute(Command cmd) {
+        utils::Logger::log(utils::LogLevel::DEBUG,__PRETTY_FUNCTION__, "Executing command: {} for PCIe device {}", commandToString(cmd), bdf);
         std::string cmdStr = commandToString(cmd);
-        int fd = open(PCIE_HOTPLUG, O_WRONLY);
+        int fd = open(driverPath.c_str(), O_WRONLY);
         if (fd < 0) {
             throw std::runtime_error("Could not open device");
         }
 
         if (write(fd, cmdStr.c_str(), cmdStr.size()) < 0) {
             close(fd);
-            throw std::runtime_error("Could not write to device");
+            throw std::runtime_error("Could not write to device " + driverPath);
         }
         close(fd);
     }

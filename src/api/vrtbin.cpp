@@ -4,12 +4,13 @@ namespace vrt {
     Vrtbin::Vrtbin(std::string vrtbinPath, const std::string& bdf) {
         this->vrtbinPath = vrtbinPath;
         char* ami_home_cstr = getenv("AMI_HOME");
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "AMI_HOME: {}", ami_home_cstr);
         if(ami_home_cstr == nullptr) {
             throw std::runtime_error("AMI_HOME environment variable not set");
         }
         std::string ami_home(getenv("AMI_HOME"));
-
         std::string cmd = "mkdir -p " + ami_home + bdf;
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Running command: {}", cmd);
         system(cmd.c_str());
         this->systemMapPath = ami_home + bdf + "/system_map.xml";
         this->versionPath = ami_home + bdf + "/version.json";
@@ -19,6 +20,7 @@ namespace vrt {
     }
 
     void Vrtbin::extract() {
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Extracting vrtbin: {}", vrtbinPath);
         std::string command = "tar -xvf " + vrtbinPath + " -C " + tempExtractPath + " 2>&1";
         std::array<char, 128> buffer;
         std::string result;
@@ -43,27 +45,28 @@ namespace vrt {
     }
 
     void Vrtbin::copy(const std::string& source, const std::string& destination) {
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Copying file {} to {}", source, destination);
         std::ifstream src(source, std::ios::binary);
         if (!src) {
-            std::cerr << "Error opening source file: " << source << std::endl;
+            utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Error opening source file: {}", source);
             throw std::runtime_error("Error opening source file");
         }
 
         std::ofstream dest(destination, std::ios::binary);
         if (!dest) {
-            std::cerr << "Error opening destination file: " << destination << std::endl;
+            utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Error opening destination file: {}", destination);
             throw std::runtime_error("Error opening destination file");
         }
 
         dest << src.rdbuf();
 
         if (!src) {
-            std::cerr << "Error reading from source file: " << source << std::endl;
+            utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Error reading from source file: {}", source);
             throw std::runtime_error("Error reading from source file");
         }
 
         if (!dest) {
-            std::cerr << "Error writing to destination file: " << destination << std::endl;
+            utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Error writing to destination file: {}", destination);
             throw std::runtime_error("Error writing to destination file");
         }
     }
@@ -80,6 +83,7 @@ namespace vrt {
     }
 
     void Vrtbin::extractUUID() {
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Extracting UUID from version.json");
         std::ifstream jsonFile(tempExtractPath + "/version.json");
         if (!jsonFile.is_open()) {
             uuid = "";
@@ -94,7 +98,7 @@ namespace vrt {
                 break;
             }
         }
-
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "UUID is: {}", uuid);
         jsonFile.close();
     }
 

@@ -12,6 +12,7 @@
 #include "qdma/pcie_driver_handler.hpp"
 #include "qdma/qdma_intf.hpp"
 #include "driver/clk_wiz.hpp"
+#include "utils/logger.hpp"
 
 #include <map>
 #include <fcntl.h>
@@ -31,6 +32,8 @@ namespace vrt {
      * @brief Class representing a device.
      */
     class Device {
+        static constexpr uint64_t CLK_WIZ_BASE = 0x20100010000; ///< Base address for the clock wizard
+        static constexpr uint32_t CLK_WIZ_OFFSET = 0x10000;
         ami_device* dev = nullptr; ///< Pointer to the AMI device
         uint8_t bar = 0; ///< Base Address Register (BAR)
         uint64_t offset = 0; ///< Offset for memory operations
@@ -43,8 +46,12 @@ namespace vrt {
         uint64_t clockFreq; ///< Clock frequency
         ProgramType programType; ///< Type of programming
         std::map<std::string, Kernel> kernels; ///< Map of kernel names to Kernel objects
+        PcieDriverHandler pcieHandler; ///< PCIe driver handler object
 
     public:
+
+        QdmaIntf qdmaIntf; ///< QDMA interface object
+
         /**
          * @brief Constructor for Device.
          * @param bdf The Bus:Device.Function identifier.

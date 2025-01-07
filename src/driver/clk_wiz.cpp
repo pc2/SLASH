@@ -32,6 +32,7 @@ namespace vrt{
         if (!Mult) Mult = 1;
         if (!Div) Div = 1;
         Fvco = instancePtr->Config.PrimInClkFreq * Mult / Div;
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "VCO value is: {}", Fvco);
         return Fvco;
     }
 
@@ -114,6 +115,7 @@ namespace vrt{
                             instancePtr->MVal = m;
                             instancePtr->DVal = d;
                             instancePtr->OVal = Div;
+                            utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "M: {}, D: {}, O: {}", m, d, Div);
                             return;
                         }
 
@@ -150,6 +152,7 @@ namespace vrt{
         Reg = HighTime | HighTime << 8;
         RegisterOffset = RegisterOffset + 4;
         write(RegisterOffset, Reg);
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "O value is: {}", instancePtr->OVal);
     }
 
     void ClkWiz::updateD() {
@@ -165,7 +168,7 @@ namespace vrt{
         write(XCLK_WIZ_REG12_OFFSET, Reg);
         Reg = HighTime | HighTime << 8;
         write(XCLK_WIZ_REG13_OFFSET, Reg);
-
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "D value is: {}", instancePtr->DVal);
     }
 
     void ClkWiz::updateM() {
@@ -186,12 +189,12 @@ namespace vrt{
             Reg = Reg & ~(1 << XCLK_WIZ_REG1_EDGE_SHIFT);
         }
         write(XCLK_WIZ_REG1_OFFSET, Reg);
-
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "M value is: {}", instancePtr->MVal);
     }
 
     uint32_t ClkWiz::waitForLock() {
         uint32_t count = 0;
-        
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Waiting for clock lock");
         while(!read(XCLK_WIZ_REG4_OFFSET) & 1) {
             if(count == 1000) {
                 throw std::runtime_error("Error: Timeout waiting for clock lock. Probably values not set correctly");
@@ -219,28 +222,30 @@ namespace vrt{
     }
     void ClkWiz::setRateHz(uint64_t rate_, bool verbose) {
         if(verbose)
-            std::cout << "Trying setting clock at " <<std::fixed << std::setprecision(2) <<(double) rate_ / 1000000.0f << std::endl;
+            utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Setting clock at: {} MHz", std::to_string((double) rate_ / 1000000.0f));
         if(rate_ > clockFrequency) {
-            std::cout << "Error: Requested rate is higher than the maximum rate" << std::endl;
-            std::cout << "Setting frequency to maximum rate" << std::endl;
+            utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Requested rate is higher than the maximum rate");
+            utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Setting frequency to maximum rate");
             setRateHz(clockFrequency, false);
             uint64_t rate = getClockRate();
-            std::cout << "User clock frequency set at: " << (double) rate / 1000000.0f << " MHz" << std::endl;
+            utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "User clock frequency set at: {} MHz", std::to_string((double) rate / 1000000.0f));
             return;
         }
 
         // start dynamic reconfig
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Starting dynamic reconfiguration");
         write(XCLK_WIZ_REG25_OFFSET, 0);
         setRateHzInternal(rate_);
         write(XCLK_WIZ_RECONFIG_OFFSET, (XCLK_WIZ_RECONFIG_LOAD | XCLK_WIZ_RECONFIG_SADDR));
         uint32_t status = waitForLock();
         if(status != 0) {
             uint32_t reg = read(XCLK_WIZ_REG4_OFFSET);
-            std::cout << "Error: Clock not locked : 0x" << std::hex << reg << std::endl;
+            utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Error: Clock not locked : {x}", reg);
+            throw std::runtime_error("Clock not locked");
         }
         uint64_t rate = getClockRate();
         if(verbose)
-            std::cout << "User clock frequency set at: " << (double) rate / 1000000.0f << " MHz" << std::endl;
+            utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "User clock frequency set at: {} MHz", std::to_string((double) rate / 1000000.0f));
 
     }
 } // namespace vrt

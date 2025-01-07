@@ -1,6 +1,8 @@
 #ifndef QDMA_INTF_HPP
 #define QDMA_INTF_HPP
 
+#include "utils/logger.hpp"
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
@@ -68,37 +70,17 @@ namespace vrt {
          */
         int delete_qdma_queue(const char* bdf);
 
-        /**
-         * @brief Private constructor to prevent direct instantiation.
-         * @param bdf The BDF (Bus:Device.Function) of the device.
-         */
-        QdmaIntf(const std::string& bdf);
-
-        /**
-         * @brief Private constructor to prevent direct instantiation.
-         */
-        QdmaIntf();
-
         // Static instance pointer
         static QdmaIntf* instance;
 
     public:
-        // Delete copy constructor and assignment operator
-        QdmaIntf(const QdmaIntf&) = delete;
-        QdmaIntf& operator=(const QdmaIntf&) = delete;
-
         /**
-         * @brief Gets the singleton instance of the QdmaIntf.
+         * @brief Constructor of the QdmaIntf class
          * @param bdf The BDF (Bus:Device.Function) of the device.
-         * @return The singleton instance of the QdmaIntf.
          */
-        static QdmaIntf& getInstance(const std::string& bdf);
+        QdmaIntf(const std::string& bdf);
 
-        /**
-         * @brief Gets the singleton instance of the QdmaIntf.
-         * @return The singleton instance of the QdmaIntf.
-         */
-        static QdmaIntf& getInstance();
+        QdmaIntf() = default;
 
         /**
          * @brief Writes a buffer to the device.

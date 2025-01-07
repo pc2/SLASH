@@ -1,7 +1,6 @@
 #include "qdma/qdma_intf.hpp"
 
 namespace vrt {
-	QdmaIntf* QdmaIntf::instance = nullptr;
 	uint8_t QdmaIntf::queueIdx = 0;
 	bool QdmaIntf::queueExists = false;
 
@@ -16,25 +15,6 @@ namespace vrt {
 			queueName = std::string(formattedQueueName);
 			free(bus);
 		}
-	}
-
-	QdmaIntf::QdmaIntf() {
-		this->bdf = "21:00.0";
-		//create_qdma_queue(bdf.c_str());
-	}
-
-	QdmaIntf& QdmaIntf::getInstance(const std::string& bdf) {
-		if (instance == nullptr) {
-			instance = new QdmaIntf(bdf);
-		}
-		return *instance;
-	}
-
-	QdmaIntf& QdmaIntf::getInstance() {
-		if(instance == nullptr) {
-			instance = new QdmaIntf();
-		}
-		return *instance;
 	}
 
 	QdmaIntf::~QdmaIntf() {
@@ -116,16 +96,11 @@ namespace vrt {
 			if (offset) {
 				rc = lseek(fd, offset, SEEK_SET);
 				if (rc < 0) {
-					fprintf(stderr,
-						"%s, seek off 0x%lx failed %zd.\n",
-						fname, offset, rc);
-					perror("seek file");
+					utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Could not write to {}", fname);
 					return -EIO;
 				}
 				if (rc != offset) {
-					fprintf(stderr,
-						"%s, seek off 0x%lx != 0x%lx.\n",
-						fname, rc, offset);
+					utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Could not write to {}", fname);
 					return -EIO;
 				}
 			}
@@ -133,14 +108,11 @@ namespace vrt {
 			/* write data to file from memory buffer */
 			rc = write(fd, buf, bytes);
 			if (rc < 0) {
-				fprintf(stderr, "%s, W off 0x%lx, 0x%lx failed %zd.\n",
-					fname, offset, bytes, rc);
-				perror("write file");
+				utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Could not write to {}", fname);
 				return -EIO;
 			}
 			if (rc != bytes) {
-				fprintf(stderr, "%s, W off 0x%lx, 0x%lx != 0x%lx.\n",
-					fname, offset, rc, bytes);
+				utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Could not write to {}", fname);
 				return -EIO;
 			}
 
@@ -150,8 +122,7 @@ namespace vrt {
 		} while (count < size);
 
 		if (count != size) {
-			fprintf(stderr, "%s, R failed 0x%lx != 0x%lx.\n",
-					fname, count, size);
+			utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Could not write to {}", fname);
 			return -EIO;
 		}
 		close(fd);
@@ -176,16 +147,11 @@ namespace vrt {
 			if (offset) {
 				rc = lseek(fd, offset, SEEK_SET);
 				if (rc < 0) {
-					fprintf(stderr,
-						"%s, seek off 0x%lx failed %zd.\n",
-						fname, offset, rc);
-					perror("seek file");
+					utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Could not read from {}", fname);
 					return -EIO;
 				}
 				if (rc != offset) {
-					fprintf(stderr,
-						"%s, seek off 0x%lx != 0x%lx.\n",
-						fname, rc, offset);
+					utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Could not read from {}", fname);
 					return -EIO;
 				}
 			}
@@ -193,16 +159,11 @@ namespace vrt {
 			/* read data from file into memory buffer */
 			rc = read(fd, buf, bytes);
 			if (rc < 0) {
-				fprintf(stderr,
-					"%s, read off 0x%lx + 0x%lx failed %zd.\n",
-					fname, offset, bytes, rc);
-				perror("read file");
+				utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Could not read from {}", fname);
 				return -EIO;
 			}
 			if (rc != bytes) {
-				fprintf(stderr,
-					"%s, R off 0x%lx, 0x%lx != 0x%lx.\n",
-					fname, count, rc, bytes);
+				utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Could not read from {}", fname);
 				return -EIO;
 			}
 
@@ -212,8 +173,7 @@ namespace vrt {
 		} while (count < size);
 
 		if (count != size) {
-			fprintf(stderr, "%s, R failed 0x%lx != 0x%lx.\n",
-					fname, count, size);
+			utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Could not read from {}", fname);
 			return -EIO;
 		}
 		close(fd);
@@ -221,10 +181,12 @@ namespace vrt {
 	}
 
 	void QdmaIntf::write_buff(char* buffer, uint64_t start_addr, uint64_t size) {
+		utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Writing buffer with size: {x} to {} at address {x}", size, queueName, start_addr);
 		write_from_buffer(queueName.c_str(), buffer, size, start_addr);
 	}
 
 	void QdmaIntf::read_buff(char* buffer, uint64_t start_addr, uint64_t size) {
+		utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Reading buffer with size: {x} to {} at address {x}", size, queueName, start_addr);
 		read_to_buffer(queueName.c_str(), buffer, size, start_addr);
 	}
 

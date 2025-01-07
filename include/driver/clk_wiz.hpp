@@ -2,6 +2,7 @@
 #define CLK_WIZ_HPP
 
 #include "api/kernel.hpp"
+#include "utils/logger.hpp"
 #include <unistd.h>
 
 #include <iostream>

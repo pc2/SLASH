@@ -1,16 +1,16 @@
 #ifndef PCIE_DRIVER_HANDLER_HPP
 #define PCIE_DRIVER_HANDLER_HPP
 
+#include "utils/logger.hpp"
+
 #include <string>
 #include <stdexcept>
 #include <fcntl.h>
 #include <unistd.h>
-
 namespace vrt {
     /**
      * @brief Class for handling PCIe driver commands.
      */
-    #define PCIE_HOTPLUG "/dev/pcie_hotplug"
     class PcieDriverHandler {
     public:
         /**
@@ -24,20 +24,10 @@ namespace vrt {
         };
 
         /**
-         * @brief Gets the singleton instance of the PcieDriverHandler.
-         * @return The singleton instance of the PcieDriverHandler.
+         * @brief Constructor for PcieDriverHandler.
+         * @param bdf The BDF of the PCIe device.
          */
-        static PcieDriverHandler& getInstance();
-
-        /**
-         * @brief Deletes the copy constructor.
-         */
-        PcieDriverHandler(const PcieDriverHandler&) = delete;
-
-        /**
-         * @brief Deletes the assignment operator.
-         */
-        PcieDriverHandler& operator=(const PcieDriverHandler&) = delete;
+        PcieDriverHandler(const std::string& bdf);
 
         /**
          * @brief Sends a command to the PCIe driver.
@@ -52,10 +42,6 @@ namespace vrt {
         void execute(Command cmd);
 
     private:
-        /**
-         * @brief Private constructor to prevent instantiation.
-         */
-        PcieDriverHandler() {}
 
         /**
          * @brief Helper method to convert enum to string.
@@ -63,6 +49,9 @@ namespace vrt {
          * @return The string representation of the command.
          */
         std::string commandToString(Command cmd);
+        std::string bdf; ///< The BDF of the PCIe device.
+        std::string driverPath; ///< The path to the PCIe driver.
+        std::string pcieHotplugRootPath = "/dev/pcie_hotplug"; ///< The root path for PCIe hotplug.
     };
 
 } // namespace vrt
