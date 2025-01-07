@@ -28,6 +28,7 @@ namespace vrt {
     };
 
     #define JTAG_PROGRAM_PATH "/usr/local/vrt/jtag_program.sh "
+    #define QDMA_SETUP_QUEUES "/usr/local/vrt/setup_queues.sh "
     /**
      * @brief Class representing a device.
      */
