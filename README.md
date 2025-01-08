@@ -5,8 +5,7 @@ This repository contains the VRT API implementation, along with 2 examples.
 
 - AVED software stack (https://github.com/Xilinx/AVED)
 - PCIe hotplug driver (https://gitenterprise.xilinx.com/aulmamei/pcie-hotplug-drv)
-- Custom QDMA queue creator script (to be added to git)
-
+- libxml2
 ## How to build
 
 To build the API and install it, one must do the following:
