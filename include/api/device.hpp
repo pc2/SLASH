@@ -7,6 +7,7 @@
 #include <ami_sensor.h>
 
 #include "parser/xml_parser.hpp"
+#include "allocator/allocator.hpp"
 #include "api/vrtbin.hpp"
 #include "api/kernel.hpp"
 #include "qdma/pcie_driver_handler.hpp"
@@ -48,7 +49,7 @@ namespace vrt {
         ProgramType programType; ///< Type of programming
         std::map<std::string, Kernel> kernels; ///< Map of kernel names to Kernel objects
         PcieDriverHandler pcieHandler; ///< PCIe driver handler object
-
+        Allocator allocator;
     public:
 
         QdmaIntf qdmaIntf; ///< QDMA interface object
@@ -128,6 +129,8 @@ namespace vrt {
          * @brief Gets ami device.
          */
         ami_device* getAmiDev();
+
+        Allocator& getAllocator();
     };
 
 } // namespace vrt

@@ -2,19 +2,15 @@
 
 namespace vrt {
 	uint8_t QdmaIntf::queueIdx = 0;
-	bool QdmaIntf::queueExists = false;
 
 	QdmaIntf::QdmaIntf(const std::string& bdf) {
 		this->bdf = bdf;
-		if (!queueExists) {
-			queueExists = true;
-			char* bus = strip(bdf.c_str());
+		char* bus = strip(bdf.c_str());
 
-			char formattedQueueName[256];
-			sprintf(formattedQueueName, QDMA_DEFAULT_QUEUE, bus);
-			queueName = std::string(formattedQueueName);
-			free(bus);
-		}
+		char formattedQueueName[256];
+		sprintf(formattedQueueName, QDMA_DEFAULT_QUEUE, bus);
+		queueName = std::string(formattedQueueName);
+		free(bus);
 	}
 
 	QdmaIntf::~QdmaIntf() {

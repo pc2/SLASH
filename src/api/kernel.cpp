@@ -1,5 +1,6 @@
 #include "api/kernel.hpp"
 #include "api/device.hpp"
+
 namespace vrt {
 
     Kernel::Kernel(ami_device* device, const std::string& name, uint64_t baseAddr, uint64_t range, const std::vector<Register>& registers) {
@@ -11,10 +12,12 @@ namespace vrt {
     }
 
     Kernel::Kernel(Device device, const std::string& kernelName)
-        : Kernel(device.getKernel(kernelName)) {}
+        : Kernel(device.getKernel(kernelName)) {
+            deviceBdf = device.getBdf();
+        }
 
     void Kernel::write(uint32_t offset, uint32_t value) {
-        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Writing to kernel: {} at offset: {x} value: {x}", name, offset, value);
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Writing to device {} kernel: {} at offset: {x} value: {x}", deviceBdf, name, offset, value);
         uint32_t* buf = (uint32_t*) calloc(1, sizeof(uint32_t));
         *buf = value;
         if(buf) {
@@ -29,7 +32,7 @@ namespace vrt {
 
     uint32_t Kernel::read(uint32_t offset) {
         if(offset != 0)
-            utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Reading from kernel: {} at offset: {x}", name, offset);
+            utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Reading from device {} kernel: {} at offset: {x}", deviceBdf, name, offset);
         uint32_t* buf = (uint32_t*) calloc(1, sizeof(uint32_t));
         if(buf) {
             int ret = ami_mem_bar_read(dev, bar, baseAddr - BASE_BAR_ADDR + offset, &buf[0]);

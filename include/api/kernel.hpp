@@ -11,6 +11,7 @@
 #include <vector>
 #include <iostream>
 #include <regex>
+#include <string>
 
 
 namespace vrt {
@@ -28,6 +29,7 @@ namespace vrt {
         uint64_t range; ///< Address range of the kernel
         std::vector<Register> registers; ///< List of registers in the kernel
         size_t currentRegisterIndex = 4; ///< Index of the current register being processed
+        std::string deviceBdf; ///< BDF of the device
     public:
         /**
          * @brief Constructor for Kernel.

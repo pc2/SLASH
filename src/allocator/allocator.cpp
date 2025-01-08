@@ -25,13 +25,12 @@ namespace vrt {
     MemoryRange::MemoryRange(uint64_t startAddress, uint64_t size)
         : startAddress(startAddress), size(size), offset(0) {}
 
-    Allocator& Allocator::getInstance(uint64_t superblockSize) {
-        static Allocator instance(superblockSize);
-        return instance;
-    }
 
     Allocator::Allocator(uint64_t superblockSize)
-        : superblockSize(superblockSize) {}
+        : superblockSize(superblockSize) {
+            addMemoryRange(MemoryRangeType::HBM, HBM_START, HBM_SIZE);
+            addMemoryRange(MemoryRangeType::DDR, DDR_START, DDR_SIZE);
+        }
 
     void Allocator::addMemoryRange(MemoryRangeType type, uint64_t startAddress, uint64_t size) {
         memoryRanges.emplace(type, MemoryRange(startAddress, size));
@@ -244,4 +243,5 @@ namespace vrt {
         }
         return it->second.size;
     }
-}
+
+} // namespace vrt

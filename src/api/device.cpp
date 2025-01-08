@@ -2,7 +2,7 @@
 
 namespace vrt {
 
-    Device::Device(const std::string& bdf, const std::string& vrtbinPath, bool program, ProgramType programType) : vrtbin(vrtbinPath, bdf), clkWiz(nullptr, "", 0, 0, 0), pcieHandler(bdf) {
+    Device::Device(const std::string& bdf, const std::string& vrtbinPath, bool program, ProgramType programType) : vrtbin(vrtbinPath, bdf), clkWiz(nullptr, "", 0, 0, 0), pcieHandler(bdf), allocator(4096) {
         this->bdf = bdf;
         this->systemMap = this->vrtbin.getSystemMapPath();
         this->pdiPath = this->vrtbin.getPdiPath();
@@ -61,7 +61,7 @@ namespace vrt {
                     return;
                 }
             }
-            utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Programming device in FLASH mode...This might take a while");
+            utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Programming device {} in FLASH mode...This might take a while", bdf);
             if(ami_prog_download_pdi(dev, pdiPath.c_str(), 0, 1, nullptr) != AMI_STATUS_OK) {
                 throw std::runtime_error("Failed to program device");
             }
@@ -82,7 +82,7 @@ namespace vrt {
                     return;
                 }
             }
-            utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Programming device in JTAG mode...This might take a while");
+            utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Programming device {} in JTAG mode...This might take a while", bdf);
             std::string cmd = JTAG_PROGRAM_PATH + pdiPath;
             system(cmd.c_str());
             bootDevice();
@@ -163,6 +163,10 @@ namespace vrt {
 
     ami_device* Device::getAmiDev() {
         return dev;
+    }
+
+    Allocator& Device::getAllocator() {
+        return allocator;
     }
     
 } // namespace vrt

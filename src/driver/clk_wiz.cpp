@@ -202,6 +202,7 @@ namespace vrt{
             usleep(100);
             count++;
         }
+        utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Clock locked");
         return 0;
     }
 

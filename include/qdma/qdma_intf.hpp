@@ -27,7 +27,6 @@ namespace vrt {
         static uint8_t queueIdx; ///< Queue index
         std::string bdf; ///< Bus:Device.Function identifier
         std::string queueName; ///< Queue name
-        static bool queueExists; ///< Flag indicating if the queue exists
 
         /**
          * @brief Writes data from a buffer to a device.

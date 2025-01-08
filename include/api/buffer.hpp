@@ -89,10 +89,6 @@ namespace vrt {
         void sync(SyncType syncType);
 
     private:
-        /**
-         * @brief Initializes the memory ranges.
-         */
-        static void initializeMemoryRanges();
 
         uint64_t startAddress; ///< The starting address of the buffer
         T* localBuffer; ///< Pointer to the local buffer

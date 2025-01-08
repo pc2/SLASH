@@ -1,23 +1,13 @@
 #include "api/buffer.hpp"
 
 namespace vrt {
-    template <typename T>
-    void Buffer<T>::initializeMemoryRanges() {
-        static bool memoryRangesInitialized = false;
-        if (!memoryRangesInitialized) {
-            Allocator& allocator = Allocator::getInstance();
-            allocator.addMemoryRange(MemoryRangeType::HBM, HBM_START, HBM_SIZE);
-            allocator.addMemoryRange(MemoryRangeType::DDR, DDR_START, DDR_SIZE);
-            memoryRangesInitialized = true;
-        }
-    }
+
 
     template <typename T>
     Buffer<T>::Buffer(Device device, size_t size, MemoryRangeType type)
         : device(device), size(size), type(type) {
-        initializeMemoryRanges();
-        Allocator& allocator = Allocator::getInstance();
-        startAddress = allocator.allocate(size * sizeof(T), type);
+
+        startAddress = device.getAllocator().allocate(size * sizeof(T), type);
         if (startAddress == 0) {
             throw std::bad_alloc();
         }
@@ -30,9 +20,8 @@ namespace vrt {
     Buffer<T>::Buffer(Device device, size_t size, MemoryRangeType type, uint8_t port)
         : device(device), size(size), type(type) {
         this->device = device;
-        initializeMemoryRanges();
-        Allocator& allocator = Allocator::getInstance();
-        startAddress = allocator.allocate(size * sizeof(T), type, port);
+
+        startAddress = device.getAllocator().allocate(size * sizeof(T), type, port);
         if (startAddress == 0) {
             throw std::bad_alloc();
         }
@@ -43,9 +32,7 @@ namespace vrt {
 
     template <typename T>
     Buffer<T>::~Buffer() {
-        // Deallocate memory using the allocator
-        Allocator& allocator = Allocator::getInstance();
-        allocator.deallocate(startAddress);
+        device.getAllocator().deallocate(startAddress);
         // Deallocate local buffer
         delete[] localBuffer;
     }

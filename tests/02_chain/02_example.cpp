@@ -1,12 +1,14 @@
 #include <iostream>
 #include <cstdint>
+#include <utils/logger.hpp>
 #include <api/device.hpp>
 #include <api/buffer.hpp>
 #include <api/kernel.hpp>
 int main() {
     try {
         uint32_t size = 2048;
-        vrt::Device device("21:00.0", "02_example.vrtbin", false, vrt::ProgramType::JTAG);
+        vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
+        vrt::Device device("21:00.0", "02_example.vrtbin", true, vrt::ProgramType::JTAG);
         vrt::Kernel dma_in(device, "dma_in_0");
         vrt::Kernel dma_out(device, "dma_out_0");
         vrt::Buffer<uint64_t> buffer_in(device, size, vrt::MemoryRangeType::HBM);
@@ -30,12 +32,12 @@ int main() {
         buffer_out.sync(vrt::SyncType::DEVICE_TO_HOST);
         for(uint32_t i = 0; i < size; i++) {
             if(buffer_in[i] != buffer_out[i]) {
-                std::cout << "Test failed\n";
+                vrt::utils::Logger::log(vrt::utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Test failed");
                 device.cleanup();
                 return 0;
             }
         }
-        std::cout << "Test passed\n";
+        vrt::utils::Logger::log(vrt::utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Test passed");
         device.cleanup();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;

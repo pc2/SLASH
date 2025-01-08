@@ -84,11 +84,12 @@ namespace vrt {
     class Allocator {
     public:
         /**
-         * @brief Gets the singleton instance of the Allocator.
+         * @brief Constructor for Allocator.
          * @param superblockSize The size of the superblocks to use.
-         * @return The singleton instance of the Allocator.
          */
-        static Allocator& getInstance(uint64_t superblockSize = 0x1000);
+        Allocator(uint64_t superblockSize = 4096);
+
+        Allocator() : Allocator(4096) {}
 
         /**
          * @brief Adds a memory range to the allocator.
@@ -129,15 +130,6 @@ namespace vrt {
         uint64_t getSize(MemoryRangeType type) const;
 
     private:
-        /**
-         * @brief Private constructor for Allocator.
-         * @param superblockSize The size of the superblocks to use.
-         */
-        Allocator(uint64_t superblockSize);
-
-        // Delete copy constructor and assignment operator
-        Allocator(const Allocator&) = delete;
-        Allocator& operator=(const Allocator&) = delete;
 
         uint64_t superblockSize; ///< The size of the superblocks.
         std::unordered_map<MemoryRangeType, MemoryRange> memoryRanges; ///< Map of memory ranges by type.
