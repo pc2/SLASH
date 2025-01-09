@@ -1,4 +1,3 @@
-// filepath: /scratch/users/aulmamei/git/vrt-api/include/utils/logger.hpp
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
