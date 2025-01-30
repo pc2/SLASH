@@ -28,6 +28,7 @@ cmake_install.cmake
 *.app
 
 # Ignore logs and databases
+*.jou
 *.log
 *.sql
 *.sqlite
