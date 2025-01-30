@@ -47,6 +47,9 @@ namespace vrt {
             } else if (kernelNode->type == XML_ELEMENT_NODE && xmlStrcmp(kernelNode->name, BAD_CAST "ClockFrequency") == 0) {
                 std::string clkFreq = (const char*)xmlNodeGetContent(kernelNode);
                 this->clockFrequency = std::stoull(clkFreq);
+            } else if (kernelNode->type == XML_ELEMENT_NODE && xmlStrcmp(kernelNode->name, BAD_CAST "Type") == 0) {
+                std::string type = (const char*)xmlNodeGetContent(kernelNode);
+                this->vrtbinType = (type == "Full") ? VrtbinType::FLAT : VrtbinType::SEGMENTED;
             }
         }
     }
@@ -57,6 +60,10 @@ namespace vrt {
 
     uint64_t XMLParser::getClockFrequency() {
         return this->clockFrequency;
+    }
+
+    VrtbinType XMLParser::getVrtbinType() {
+        return this->vrtbinType;
     }
 
     XMLParser::~XMLParser() {

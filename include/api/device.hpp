@@ -30,6 +30,7 @@ namespace vrt {
 
     #define JTAG_PROGRAM_PATH "/usr/local/vrt/jtag_program.sh "
     #define QDMA_SETUP_QUEUES "/usr/local/vrt/setup_queues.sh "
+    #define DELAY_PARTIAL_BOOT (4 * 1000 * 1000)
     /**
      * @brief Class representing a device.
      */
@@ -49,7 +50,8 @@ namespace vrt {
         ProgramType programType; ///< Type of programming
         std::map<std::string, Kernel> kernels; ///< Map of kernel names to Kernel objects
         PcieDriverHandler pcieHandler; ///< PCIe driver handler object
-        Allocator allocator;
+        Allocator allocator; ///< Allocator object
+        VrtbinType vrtbinType; ///< Type of VRTBIN
     public:
 
         QdmaIntf qdmaIntf; ///< QDMA interface object
@@ -130,7 +132,16 @@ namespace vrt {
          */
         ami_device* getAmiDev();
 
+        /**
+         * @brief Finds the VRTBIN type from system map.
+         */
+        void findVrtbinType();
+
+        /**
+         * @brief Gets the Allocator instance.
+         */
         Allocator& getAllocator();
+
     };
 
 } // namespace vrt

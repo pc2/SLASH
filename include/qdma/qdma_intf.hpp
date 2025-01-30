@@ -79,6 +79,9 @@ namespace vrt {
          */
         QdmaIntf(const std::string& bdf);
 
+        /**
+         * @brief Default constructor for QdmaIntf.
+         */
         QdmaIntf() = default;
 
         /**

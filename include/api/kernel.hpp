@@ -94,7 +94,11 @@ namespace vrt {
                 this->start();
                 this->wait();
             }
-
+        /**
+         * @brief Helper method which processes an argument.
+         * @tparam T The type of the argument.
+         * @param arg The argument to process.
+         */
         template<typename T>
         void processArg(T arg) {
             if (currentRegisterIndex < registers.size()) {
@@ -111,7 +115,8 @@ namespace vrt {
                 }
                 
             } else {
-                std::cerr << "Error: Not enough registers to process all arguments." << std::endl;
+                //utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Not enough registers to process all arguments.");
+                throw std::runtime_error("Not enough registers to process all arguments.");
             }
         }
 
