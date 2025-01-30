@@ -2,12 +2,12 @@
 **/build/
 /cmake-build-debug/
 /cmake-build-release/
-
+**/build_*
 # Ignore CMake generated files
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
-Makefile
+#Makefile
 
 # Ignore compiled dynamic libraries
 *.dll
