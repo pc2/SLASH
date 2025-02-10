@@ -35,10 +35,14 @@ int main() {
 
         buffer0.sync(vrt::SyncType::HOST_TO_DEVICE);
         buffer1.sync(vrt::SyncType::HOST_TO_DEVICE);
-        increment0.call(size, buffer0.getPhysAddr());
-        accumulate0.call(size);
-        increment1.call(size, buffer1.getPhysAddr());
-        accumulate1.call(size);
+        increment0.start(size, buffer0.getPhysAddr());
+        accumulate0.start(size);
+        increment0.wait();
+        accumulate0.wait();
+        increment1.start(size, buffer1.getPhysAddr());
+        accumulate1.start(size);
+        increment1.wait();
+        accumulate1.wait();
         uint32_t val0 = accumulate0.read(0x18);
         uint32_t val1 = accumulate1.read(0x18);
         float floatVal0, floatVal1;

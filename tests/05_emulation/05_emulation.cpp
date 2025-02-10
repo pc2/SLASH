@@ -27,8 +27,10 @@ int main() {
             in_buff[i] = 1;
         }
         in_buff.sync(vrt::SyncType::HOST_TO_DEVICE);
-        offset.call(size, in_buff.getPhysAddr(), m, n);
-        dma.call(size, out_buff.getPhysAddr());
+        offset.start(size, in_buff.getPhysAddr(), m, n);
+        dma.start(size, out_buff.getPhysAddr());
+        offset.wait();
+        dma.wait();
         out_buff.sync(vrt::SyncType::DEVICE_TO_HOST);
         for(uint32_t i = 0; i < size; i++) {
             if(out_buff[i] != in_buff[i] * m + n) {

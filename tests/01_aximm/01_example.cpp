@@ -17,7 +17,7 @@ int main() {
         uint32_t size = 1000;
         uint32_t m = 3;
         uint32_t n = 2;
-        vrt::Device device("21:00.0", "01_example.vrtbin", true, vrt::ProgramType::JTAG);
+        vrt::Device device("21:00.0", "01_example_emu.vrtbin", true, vrt::ProgramType::JTAG);
         vrt::Kernel dma(device, "dma_0");
         vrt::Kernel offset(device, "offset_0");
         device.setFrequency(233333333);
@@ -27,8 +27,10 @@ int main() {
             in_buff[i] = 1;
         }
         in_buff.sync(vrt::SyncType::HOST_TO_DEVICE);
-        offset.call(size, in_buff.getPhysAddr(), m, n);
-        dma.call(size, out_buff.getPhysAddr());
+        offset.start(size, in_buff.getPhysAddr(), m, n);
+        dma.start(size, out_buff.getPhysAddr());
+        offset.wait();
+        dma.wait();
         out_buff.sync(vrt::SyncType::DEVICE_TO_HOST);
         for(uint32_t i = 0; i < size; i++) {
             if(out_buff[i] != in_buff[i] * m + n) {

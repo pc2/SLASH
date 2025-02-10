@@ -17,18 +17,10 @@ int main() {
             buffer_in[i] = static_cast<uint64_t>(i);
         }
         buffer_in.sync(vrt::SyncType::HOST_TO_DEVICE);
-        dma_in.call(buffer_in.getPhysAddr(), size);
-        dma_out.call(buffer_out.getPhysAddr(), size);
-        // dma_in.write(0x10, buffer_in.getPhysAddrLow());
-        // dma_in.write(0x14, buffer_in.getPhysAddrHigh());
-        // dma_in.write(0x1c, size);
-        // dma_out.write(0x18, buffer_out.getPhysAddrLow());
-        // dma_out.write(0x1c, buffer_out.getPhysAddrHigh());
-        // dma_out.write(0x10, size);
-        // dma_in.start();
-        // dma_out.start();
-        // dma_in.wait();
-        // dma_out.wait();
+        dma_in.start(buffer_in.getPhysAddr(), size);
+        dma_out.start(buffer_out.getPhysAddr(), size);
+        dma_in.wait();
+        dma_out.wait();
         buffer_out.sync(vrt::SyncType::DEVICE_TO_HOST);
         for(uint32_t i = 0; i < size; i++) {
             if(buffer_in[i] != buffer_out[i]) {
