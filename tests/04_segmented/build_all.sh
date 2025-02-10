@@ -13,8 +13,6 @@ HLS_DIR=$(realpath ./hls)
 mkdir -p build
 cd build
 git clone $V80PP_GIT
-cd v80-vitis-flow
-git checkout refactor
 
 VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
 
