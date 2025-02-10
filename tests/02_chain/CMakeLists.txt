@@ -16,4 +16,4 @@ set(EXE_SOURCES 02_example.cpp)
 add_executable(${PROJECT_NAME} ${EXE_SOURCES})
 
 # Link the library to the executable
-target_link_libraries(${PROJECT_NAME} vrt /scratch/users/aulmamei/git/AVED_work/sw/AMI/api/build/libami.a xml2 zmq jsoncpp)
+target_link_libraries(${PROJECT_NAME} vrt ami xml2 zmq jsoncpp)
