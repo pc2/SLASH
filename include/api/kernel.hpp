@@ -3,6 +3,8 @@
 
 #include "register/register.hpp"
 #include "utils/logger.hpp"
+#include "utils/platform.hpp"
+#include "utils/zmq_server.hpp"
 
 #include <string>
 #include <ami.h>
@@ -12,10 +14,14 @@
 #include <iostream>
 #include <regex>
 #include <string>
+#include <memory>
+#include <json/json.h>
+#include <type_traits>
 
 
 namespace vrt {
     class Device;
+    template<typename T> class Buffer;
 
     /**
      * @brief Class representing a kernel.
@@ -30,6 +36,8 @@ namespace vrt {
         std::vector<Register> registers; ///< List of registers in the kernel
         size_t currentRegisterIndex = 4; ///< Index of the current register being processed
         std::string deviceBdf; ///< BDF of the device
+        Platform platform; ///< Platform of the device
+        ZmqServer* server; ///< Pointer to ZeroMQ server for communication
     public:
         /**
          * @brief Constructor for Kernel.
@@ -82,7 +90,13 @@ namespace vrt {
          * @brief Starts the kernel.
          * @param autorestart Flag indicating whether to enable autorestart.
          */
-        void start(bool autorestart=false);
+        void startKernel(bool autorestart=false);
+
+        /**
+         * @brief Sets the platform for the kernel.
+         * @param platform The platform to set.
+         */
+        void setPlatform(Platform platform);
 
         /**
          * @brief Calls the kernel.
@@ -90,9 +104,38 @@ namespace vrt {
         template<typename... Args>
             void call(Args... args) {
                 currentRegisterIndex = 4;
-                (processArg(args), ...);
-                this->start();
-                this->wait();
+                if(platform == Platform::HARDWARE) {
+                    (processArg(args), ...);
+                    this->startKernel();
+                    this->wait();
+                } else if(platform == Platform::EMULATION) {
+                    Json::Value command;
+                    command["command"] = "call";
+                    command["function"] = name;
+                    int argIdx = 0;
+                    (processEmuArg(args, command, argIdx), ...);
+                    server->sendCommand(command);
+                }
+            }
+
+        /**
+         * @brief Async kernel call.
+         */
+        template<typename... Args>
+            void start(Args... args) {
+                currentRegisterIndex = 4;
+                if(platform == Platform::HARDWARE) {
+                    (processArg(args), ...);
+                    this->startKernel();
+
+                } else if(platform == Platform::EMULATION) {
+                    Json::Value command;
+                    command["command"] = "call";
+                    command["function"] = name;
+                    int argIdx = 0;
+                    (processEmuArg(args, command, argIdx), ...);
+                    server->sendCommand(command);
+                }
             }
         /**
          * @brief Helper method which processes an argument.
@@ -121,6 +164,32 @@ namespace vrt {
         }
 
         /**
+         * @brief Helper method which processes an argument for emulation.
+         * @tparam T The type of the argument.
+         * @param arg The argument to process.
+         * @param command The JSON command to update.
+         * @param argIndex The index of the argument.
+         */
+        template<typename T>
+        void processEmuArg(T arg, Json::Value& command, int& argIndex) {
+            if (currentRegisterIndex < registers.size()) {
+                std::regex re(".*_\\d+$"); // Regular expression to match strings ending with _nr
+                if (std::regex_match(registers.at(currentRegisterIndex).getRegisterName(), re)) {
+                    command["args"]["arg" + std::to_string(argIndex)]["type"] = "buffer";
+                    command["args"]["arg" + std::to_string(argIndex)]["name"] = std::to_string(arg);
+                    currentRegisterIndex+=2;
+                } else {
+                    command["args"]["arg" + std::to_string(argIndex)]["type"] = "scalar";
+                    command["args"]["arg" + std::to_string(argIndex)]["value"] = arg;
+                    currentRegisterIndex++;
+                }
+                argIndex++;
+            } else {
+                throw std::runtime_error("Not enough registers to process all arguments.");
+            }
+        }
+
+         /**
          * @brief Destructor for Kernel.
          */
         ~Kernel();

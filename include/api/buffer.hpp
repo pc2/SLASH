@@ -4,6 +4,8 @@
 #include "allocator/allocator.hpp"
 #include "api/device.hpp"
 #include "qdma/qdma_intf.hpp"
+#include "utils/platform.hpp"
+#include "utils/zmq_server.hpp"
 
 namespace vrt {
 
@@ -88,6 +90,8 @@ namespace vrt {
          */
         void sync(SyncType syncType);
 
+        std::string getName();
+
     private:
 
         uint64_t startAddress; ///< The starting address of the buffer
@@ -95,6 +99,8 @@ namespace vrt {
         size_t size; ///< The size of the buffer
         MemoryRangeType type; ///< The type of memory range
         Device device; ///< The device associated with the buffer
+        std::size_t index; // Member variable to store the index of the buffer
+        static std::size_t bufferIndex; // Static variable to track the buffer index
     };
 
 } // namespace vrt

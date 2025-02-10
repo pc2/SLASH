@@ -2,6 +2,8 @@
 #define VRTBIN_HPP
 
 #include "utils/logger.hpp"
+#include "parser/xml_parser.hpp"
+#include "utils/platform.hpp"
 
 #include <string>
 #include <cstdlib>
@@ -9,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+
 
 namespace vrt {
 
@@ -22,7 +25,8 @@ namespace vrt {
         std::string pdiPath; ///< Path to the PDI file
         std::string uuid; ///< UUID of the VRTBIN
         std::string tempExtractPath = "/tmp"; ///< Temporary extraction path
-
+        std::string emulationExecPath; ///< Path to the emulation executable
+        Platform platform; ///< Platform type
         /**
          * @brief Copies a file from source to destination.
          * @param source The source file path.
@@ -65,6 +69,12 @@ namespace vrt {
          * @brief Extracts the UUID from the VRTBIN file.
          */
         void extractUUID();
+
+        /**
+         * @brief Gets the emulation executable file.
+         * @return The path to the emulation executable file.
+         */
+        std::string getEmulationExec();
 
     };
 

@@ -13,10 +13,24 @@ namespace vrt {
         utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Running command: {}", cmd);
         system(cmd.c_str());
         this->systemMapPath = ami_home + bdf + "/system_map.xml";
-        this->versionPath = ami_home + bdf + "/version.json";
-        this->pdiPath = tempExtractPath + "/design.pdi";
         extract();
-        extractUUID();
+        std::string tempSystemMapPath = tempExtractPath + "/system_map.xml";
+        XMLParser parser(tempSystemMapPath);
+        parser.parseXML();
+        this->platform = parser.getPlatform();
+        if(this->platform == Platform::HARDWARE) {
+            this->versionPath = ami_home + bdf + "/version.json";
+            this->pdiPath = tempExtractPath + "/design.pdi";
+            copy(tempExtractPath + "/system_map.xml", systemMapPath);
+            copy(tempExtractPath + "/version.json", versionPath);
+            extractUUID();
+        } else if(this->platform == Platform::EMULATION) {
+            copy(tempExtractPath + "/system_map.xml", systemMapPath);
+            emulationExecPath =  tempExtractPath + "/vpp_emu";
+
+        } else {
+            throw std::runtime_error("Simulation platform not supported yet.");
+        }
     }
 
     void Vrtbin::extract() {
@@ -35,13 +49,14 @@ namespace vrt {
         }
 
         int status = pclose(pipe.release());
-    if (status != 0) {
-        throw std::runtime_error("Could not open vrtbin: " + vrtbinPath);
-    }
+        if (status != 0) {
+            throw std::runtime_error("Could not open vrtbin: " + vrtbinPath);
+        }
         
-        copy(tempExtractPath + "/system_map.xml", systemMapPath);
-        copy(tempExtractPath + "/version.json", versionPath);
-
+        // copy(tempExtractPath + "/system_map.xml", systemMapPath);
+        // if(this->platform == Platform::HARDWARE) {
+        //     copy(tempExtractPath + "/version.json", versionPath);
+        // }
     }
 
     void Vrtbin::copy(const std::string& source, const std::string& destination) {
@@ -102,4 +117,7 @@ namespace vrt {
         jsonFile.close();
     }
 
+    std::string Vrtbin::getEmulationExec() {
+        return emulationExecPath;
+    }
 }

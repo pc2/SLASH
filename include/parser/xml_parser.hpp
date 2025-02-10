@@ -4,11 +4,14 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <vector>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include "api/kernel.hpp" // Include the Kernel class
+#include "utils/platform.hpp"
 
 namespace vrt {
+    class Kernel;
 
     /**
      * @brief Enum class for the different types of VRT bins.
@@ -30,6 +33,7 @@ namespace vrt {
         std::map<std::string, Kernel> kernels; ///< Map of kernel names to Kernel objects.
         uint64_t clockFrequency; ///< The clock frequency of the device.
         VrtbinType vrtbinType; ///< The VRT bin type of the device.
+        Platform platform; ///< The platform of the device.
 
     public:
         /**
@@ -67,6 +71,13 @@ namespace vrt {
          * @return The VRT bin type of the device.
          */
         VrtbinType getVrtbinType();
+
+        /**
+         * @brief Gets the platform of the device.
+         * @return The platform of the device.
+         */
+        Platform getPlatform();
+
         /**
          * @brief Destructor for XMLParser.
          */

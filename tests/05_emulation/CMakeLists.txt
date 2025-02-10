@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(01_example)
+project(05_emulation)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,7 +11,7 @@ include_directories(/usr/local/vrt/include
                     /usr/include/jsoncpp)
 
 # Define sources for the executable
-set(EXE_SOURCES 01_example.cpp)
+set(EXE_SOURCES 05_emulation.cpp)
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${EXE_SOURCES})

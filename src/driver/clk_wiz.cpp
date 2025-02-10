@@ -197,7 +197,9 @@ namespace vrt{
         utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Waiting for clock lock");
         while(!read(XCLK_WIZ_REG4_OFFSET) & 1) {
             if(count == 1000) {
-                throw std::runtime_error("Error: Timeout waiting for clock lock. Probably values not set correctly");
+                utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Error: Timeout waiting for clock lock. Probably values not set correctly");
+                utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Trying default frequency, 200MHz");
+                //throw std::runtime_error("Error: Timeout waiting for clock lock. Probably values not set correctly");
             }
             usleep(100);
             count++;

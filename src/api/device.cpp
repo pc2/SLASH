@@ -8,14 +8,27 @@ namespace vrt {
         this->pdiPath = this->vrtbin.getPdiPath();
         this->programType = programType;
         this->qdmaIntf = QdmaIntf(bdf);
-        createAmiDev();
-        findVrtbinType();
-        if(program) {
-            programDevice();
-        }
-        parseSystemMap();
-        this->clkWiz.setRateHz(clockFreq, false);
+        this->zmqServer = new ZmqServer();
+        findPlatform();
+        if(platform == Platform::HARDWARE) {
+            createAmiDev();
+            findVrtbinType();
+            if(program) {
+                programDevice();
+            }
+            parseSystemMap();
+            this->clkWiz.setRateHz(clockFreq, false);
+        } else if(platform == Platform::EMULATION) {
+            parseSystemMap();
+            std::string emulationExecPath = this->vrtbin.getEmulationExec() + " >/dev/null";
 
+            std::thread([emulationExecPath]() {
+                std::system(emulationExecPath.c_str());
+            }).detach();
+
+        } else {
+            throw std::runtime_error("Unsupported platform simulation");
+        }
     }
 
     Device::~Device() {
@@ -26,7 +39,9 @@ namespace vrt {
         XMLParser parser(systemMap);
         parser.parseXML();
         clockFreq = parser.getClockFrequency();
+        this->platform = parser.getPlatform();
         this->clkWiz = ClkWiz(dev, "clk_wiz", CLK_WIZ_BASE, CLK_WIZ_OFFSET, clockFreq);
+        this->clkWiz.setPlatform(platform);
         kernels = parser.getKernels();
         for(auto& kernel : kernels) {
             kernel.second.setDevice(dev);
@@ -38,7 +53,13 @@ namespace vrt {
     }
 
     void Device::cleanup() {
-        ami_dev_delete(&dev);
+        if(platform == Platform::HARDWARE) {
+            ami_dev_delete(&dev);
+        } else if(platform == Platform::EMULATION) {
+            Json::Value exit;
+            exit["command"] = "exit";
+            zmqServer->sendCommand(exit);
+        }
     }
 
     std::string Device::getBdf() {
@@ -207,7 +228,9 @@ namespace vrt {
     }
 
     void Device::setFrequency(uint64_t freq) {
-        clkWiz.setRateHz(freq);
+        if(platform == Platform::HARDWARE) {
+            clkWiz.setRateHz(freq);
+        }
     }
 
     ami_device* Device::getAmiDev() {
@@ -218,6 +241,20 @@ namespace vrt {
         XMLParser parser(systemMap);
         parser.parseXML();
         this->vrtbinType = parser.getVrtbinType();
+    }
+
+    void Device::findPlatform() {
+        XMLParser parser(systemMap);
+        parser.parseXML();
+        this->platform = parser.getPlatform();
+    }
+
+    Platform Device::getPlatform() {
+        return platform;
+    }
+
+    ZmqServer* Device::getZmqServer() {
+        return zmqServer;
     }
 
     Allocator& Device::getAllocator() {
