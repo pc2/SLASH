@@ -36,6 +36,7 @@ namespace vrt {
 
     uint32_t Kernel::read(uint32_t offset) {
         if(platform == Platform::HARDWARE) {
+            //usleep(1000000); // sometimes sync takes some time
             if(offset != 0)
                 utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Reading from device {} kernel: {} at offset: {x}", deviceBdf, name, offset);
             uint32_t* buf = (uint32_t*) calloc(1, sizeof(uint32_t));
@@ -73,11 +74,26 @@ namespace vrt {
     }
 
     void Kernel::wait() {
-        while((read(0x00) >> 1) & 0x01 != 1) {
+        if(platform == Platform::EMULATION) {
+            return;
+        }
+        while(read(0x00) != 4) {
+            //usleep(1);
             // wait for the kernel to finish
         }
 
     }
+
+    // void Kernel::wait() {
+    //     // uint32_t val = read(0x00); // read status register
+    //     // std::cout << "Val: " << std::hex << val << std::endl;
+    //     // while(((val >> 1) & 0x01) == 0) {
+    //     //     // wait for the kernel to finish
+    //     //     val = read(0x00);
+    //     //     std::cout << "Val: " << std::hex << val << std::endl;
+    //     // }
+
+    // }
 
     void Kernel::startKernel(bool autorestart) {
         if(autorestart) {

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring> // for std::memcpy
 #include <random>
+#include <chrono>
 
 #include <utils/logger.hpp>
 #include <api/device.hpp>
@@ -9,10 +10,10 @@
 
 int main() {
     try {
-        uint32_t size = 2048;
+        uint32_t size = 1024 * 1024;
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
-        vrt::Device device("e2:00.0", "00_example.vrtbin", true, vrt::ProgramType::FLASH);
-        device.setFrequency(200000000);
+        vrt::Device device("21:00.0", "00_example_hw.vrtbin", true, vrt::ProgramType::JTAG);
+        device.setFrequency(100000000);
         vrt::Kernel accumulate(device, "accumulate_0");
         vrt::Kernel increment(device, "increment_0");
         vrt::Buffer<float> buffer(device, size, vrt::MemoryRangeType::HBM);
@@ -21,14 +22,23 @@ int main() {
         std::uniform_real_distribution<> dis(0.0, 1.0);
 
         float goldenModel = 0;
+        std::cout << "Generating data...\n";
         for(uint32_t i = 0; i < size; i++) {
             buffer[i] = static_cast<float>(dis(gen));
             goldenModel+=buffer[i] + 1;
         }
 
         buffer.sync(vrt::SyncType::HOST_TO_DEVICE);
-        increment.call(size, buffer.getPhysAddr());
-        accumulate.call(size);
+        increment.start(size, buffer.getPhysAddr());
+        accumulate.start(size);
+        auto start = std::chrono::high_resolution_clock::now();
+        increment.wait();
+        accumulate.wait();
+        auto end = std::chrono::high_resolution_clock::now();
+
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        std::cout << "Time taken for waits: " << duration << " us" << std::endl;
+
         uint32_t val = accumulate.read(0x18);
         float floatVal;
         std::memcpy(&floatVal, &val, sizeof(float));

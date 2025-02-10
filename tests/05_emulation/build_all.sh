@@ -24,10 +24,12 @@ VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
 #     make
 # popd
 
+PLATFORM="emu"
+
 echo "Running HW step"
 pushd ${VPP_DIR}
-    ./scripts/v80++ --design-name $DESIGN_NAME --cfg $HOME_DIR/config.cfg --segmented --platform emu --kernels $HLS_DIR/$HLS_BUILD_DIR_ACCUMULATE/sol1 $HLS_DIR/$HLS_BUILD_DIR_INCREMENT/sol1
-    cp build/$DESIGN_NAME.vrtbin $BUILD_DIR
+    ./scripts/v80++ --design-name $DESIGN_NAME --cfg $HOME_DIR/config.cfg --segmented --platform $PLATFORM --kernels $HLS_DIR/$HLS_BUILD_DIR_ACCUMULATE/sol1 $HLS_DIR/$HLS_BUILD_DIR_INCREMENT/sol1
+    cp build/${DESIGN_NAME}_${PLATFORM}.vrtbin $BUILD_DIR
 popd
 
 # user app build

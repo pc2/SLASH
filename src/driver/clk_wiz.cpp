@@ -226,14 +226,14 @@ namespace vrt{
     void ClkWiz::setRateHz(uint64_t rate_, bool verbose) {
         if(verbose)
             utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Setting clock at: {} MHz", std::to_string((double) rate_ / 1000000.0f));
-        if(rate_ > clockFrequency) {
-            utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Requested rate is higher than the maximum rate");
-            utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Setting frequency to maximum rate");
-            setRateHz(clockFrequency, false);
-            uint64_t rate = getClockRate();
-            utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "User clock frequency set at: {} MHz", std::to_string((double) rate / 1000000.0f));
-            return;
-        }
+        // if(rate_ > clockFrequency) {
+        //     utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Requested rate is higher than the maximum rate");
+        //     utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Setting frequency to maximum rate");
+        //     setRateHz(clockFrequency, false);
+        //     uint64_t rate = getClockRate();
+        //     utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "User clock frequency set at: {} MHz", std::to_string((double) rate / 1000000.0f));
+        //     return;
+        // }
 
         // start dynamic reconfig
         utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Starting dynamic reconfiguration");
