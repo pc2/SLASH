@@ -15,8 +15,7 @@ VRT_DIR=$(realpath $HOME_DIR/../../.)
 mkdir -p build
 cd build
 git clone $V80PP_GIT
-cd v80-vitis-flow
-git checkout sw_emu
+
 
 VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
 
