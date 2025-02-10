@@ -36,7 +36,7 @@ switch $command {
 
 
 open_project build_${ipname}.${device}
-
+file copy $ipname.cpp build_${ipname}.${device}/$ipname.cpp
 add_files $ipname.cpp -cflags "-std=c++14"
 
 set_top $ipname

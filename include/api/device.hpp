@@ -14,12 +14,16 @@
 #include "qdma/qdma_intf.hpp"
 #include "driver/clk_wiz.hpp"
 #include "utils/logger.hpp"
+#include "utils/platform.hpp"
+#include "utils/zmq_server.hpp"
 
 #include <map>
 #include <fcntl.h>
 #include <unistd.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <thread>
+#include <json/json.h>
 
 namespace vrt {
 
@@ -27,6 +31,7 @@ namespace vrt {
         FLASH,
         JTAG
     };
+
 
     #define JTAG_PROGRAM_PATH "/usr/local/vrt/jtag_program.sh "
     #define QDMA_SETUP_QUEUES "/usr/local/vrt/setup_queues.sh "
@@ -52,6 +57,8 @@ namespace vrt {
         PcieDriverHandler pcieHandler; ///< PCIe driver handler object
         Allocator allocator; ///< Allocator object
         VrtbinType vrtbinType; ///< Type of VRTBIN
+        Platform platform; ///< Platform information
+        ZmqServer* zmqServer; ///< ZeroMQ server object
     public:
 
         QdmaIntf qdmaIntf; ///< QDMA interface object
@@ -64,6 +71,7 @@ namespace vrt {
          */
         Device(const std::string& bdf, const std::string& vrtbinPath, bool program, ProgramType programType);
 
+        Device() = default;
         /**
          * @brief Gets a kernel by name.
          * @param name The name of the kernel.
@@ -136,6 +144,21 @@ namespace vrt {
          * @brief Finds the VRTBIN type from system map.
          */
         void findVrtbinType();
+
+        /**
+         * @brief Finds the platform from system map.
+         */
+        void findPlatform();
+
+        /**
+         * @brief Gets the platform.
+         */
+        Platform getPlatform();
+
+        /**
+         * @brief Gets the ZMQ server.
+         */
+        ZmqServer* getZmqServer();
 
         /**
          * @brief Gets the Allocator instance.

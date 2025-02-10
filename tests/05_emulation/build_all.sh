@@ -5,7 +5,7 @@ VPP_COMMIT_ID="cbfcc9eea9a3e403e89a5028245ab7bccb96d050"
 
 HLS_BUILD_DIR_ACCUMULATE=build_offset.xcv80-lsva4737-2MHP-e-S
 HLS_BUILD_DIR_INCREMENT=build_dma.xcv80-lsva4737-2MHP-e-S
-DESIGN_NAME=01_example
+DESIGN_NAME=05_emulation
 HOME_DIR=$(realpath .)
 BUILD_DIR=$(realpath ./build)
 HLS_DIR=$(realpath ./hls)
@@ -15,17 +15,19 @@ VRT_DIR=$(realpath $HOME_DIR/../../.)
 mkdir -p build
 cd build
 git clone $V80PP_GIT
+cd v80-vitis-flow
+git checkout sw_emu
 
 VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
 
-echo "Running HLS step"
-pushd ${HLS_DIR}
-    make
-popd
+# echo "Running HLS step"
+# pushd ${HLS_DIR}
+#     make
+# popd
 
 echo "Running HW step"
 pushd ${VPP_DIR}
-    ./scripts/v80++ --design-name $DESIGN_NAME --cfg $HOME_DIR/config.cfg --platform hw --kernels $HLS_DIR/$HLS_BUILD_DIR_ACCUMULATE/sol1 $HLS_DIR/$HLS_BUILD_DIR_INCREMENT/sol1
+    ./scripts/v80++ --design-name $DESIGN_NAME --cfg $HOME_DIR/config.cfg --segmented --platform emu --kernels $HLS_DIR/$HLS_BUILD_DIR_ACCUMULATE/sol1 $HLS_DIR/$HLS_BUILD_DIR_INCREMENT/sol1
     cp build/$DESIGN_NAME.vrtbin $BUILD_DIR
 popd
 

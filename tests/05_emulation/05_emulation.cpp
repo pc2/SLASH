@@ -14,11 +14,10 @@
 
 int main() {
     try {
-        vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
-        uint32_t size = 4096;
+        uint32_t size = 1000;
         uint32_t m = 3;
         uint32_t n = 2;
-        vrt::Device device("21:00.0", "04_example.vrtbin", true, vrt::ProgramType::FLASH);
+        vrt::Device device("21:00.0", "05_emulation.vrtbin", true, vrt::ProgramType::JTAG);
         vrt::Kernel dma(device, "dma_0");
         vrt::Kernel offset(device, "offset_0");
         device.setFrequency(233333333);

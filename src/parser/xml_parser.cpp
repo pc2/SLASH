@@ -50,6 +50,12 @@ namespace vrt {
             } else if (kernelNode->type == XML_ELEMENT_NODE && xmlStrcmp(kernelNode->name, BAD_CAST "Type") == 0) {
                 std::string type = (const char*)xmlNodeGetContent(kernelNode);
                 this->vrtbinType = (type == "Full") ? VrtbinType::FLAT : VrtbinType::SEGMENTED;
+            } else if (kernelNode->type == XML_ELEMENT_NODE && xmlStrcmp(kernelNode->name, BAD_CAST "Platform") == 0) {
+                std::string platform_ = (const char*)xmlNodeGetContent(kernelNode);
+                this->platform = (platform_ == "Hardware") ? Platform::HARDWARE : (platform_ == "Emulation") ? Platform::EMULATION : (platform_ == "Simulation") ? Platform::SIMULATION : Platform::UNKNOWN;
+                if(this->platform == Platform::UNKNOWN) {
+                    throw std::runtime_error("Unknown platform type");
+                }
             }
         }
     }
@@ -64,6 +70,10 @@ namespace vrt {
 
     VrtbinType XMLParser::getVrtbinType() {
         return this->vrtbinType;
+    }
+
+    Platform XMLParser::getPlatform() {
+        return this->platform;
     }
 
     XMLParser::~XMLParser() {

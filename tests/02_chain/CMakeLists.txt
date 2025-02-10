@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(/usr/local/vrt/include
                     /usr/include/ami
-                    /usr/include/libxml2)
+                    /usr/include/libxml2
+                    /usr/include/jsoncpp)
 
 # Define sources for the executable
 set(EXE_SOURCES 02_example.cpp)
@@ -15,4 +16,4 @@ set(EXE_SOURCES 02_example.cpp)
 add_executable(${PROJECT_NAME} ${EXE_SOURCES})
 
 # Link the library to the executable
-target_link_libraries(${PROJECT_NAME} vrt /scratch/users/aulmamei/git/AVED_work/sw/AMI/api/build/libami.a xml2)
+target_link_libraries(${PROJECT_NAME} vrt /scratch/users/aulmamei/git/AVED_work/sw/AMI/api/build/libami.a xml2 zmq jsoncpp)
