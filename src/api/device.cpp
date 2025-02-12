@@ -2,8 +2,9 @@
 
 namespace vrt {
 
-    Device::Device(const std::string& bdf, const std::string& vrtbinPath, bool program, ProgramType programType) : vrtbin(vrtbinPath, bdf), clkWiz(nullptr, "", 0, 0, 0), pcieHandler(bdf), allocator(4096) {
+    Device::Device(const std::string& bdf, const std::string& vrtbinPath, bool program, ProgramType programType) : vrtbin(vrtbinPath, bdf), clkWiz(nullptr, "", 0, 0, 0), pcieHandler(bdf) {
         this->bdf = bdf;
+        this->allocator = new Allocator(4096);
         this->systemMap = this->vrtbin.getSystemMapPath();
         this->pdiPath = this->vrtbin.getPdiPath();
         this->programType = programType;
@@ -257,7 +258,7 @@ namespace vrt {
         return zmqServer;
     }
 
-    Allocator& Device::getAllocator() {
+    Allocator* Device::getAllocator() {
         return allocator;
     }
     

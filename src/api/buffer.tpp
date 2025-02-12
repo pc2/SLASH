@@ -9,13 +9,23 @@ namespace vrt {
     Buffer<T>::Buffer(Device device, size_t size, MemoryRangeType type)
         : device(device), size(size), type(type), index(bufferIndex++) {
 
-        startAddress = device.getAllocator().allocate(size * sizeof(T), type);
+        startAddress = device.getAllocator()->allocate(size * sizeof(T), type);
         if (startAddress == 0) {
             throw std::bad_alloc();
         }
 
         // Allocate local buffer
         localBuffer = new T[size];
+        Platform platform = device.getPlatform();
+        if(platform == Platform::EMULATION) {
+            // send initial buffer so it is populated in the emulation environment
+            ZmqServer* server = device.getZmqServer();
+            std::vector<uint8_t> sendData;
+            std::size_t dataSize = size * sizeof(T);
+            sendData.resize(dataSize);
+            std::memcpy(sendData.data(), localBuffer, dataSize);
+            server->sendBuffer(std::to_string(getPhysAddr()), sendData);
+        }
     }
 
     template <typename T>
@@ -23,7 +33,7 @@ namespace vrt {
         : device(device), size(size), type(type), index(bufferIndex++) {
         this->device = device;
 
-        startAddress = device.getAllocator().allocate(size * sizeof(T), type, port);
+        startAddress = device.getAllocator()->allocate(size * sizeof(T), type, port);
         if (startAddress == 0) {
             throw std::bad_alloc();
         }
@@ -34,7 +44,7 @@ namespace vrt {
 
     template <typename T>
     Buffer<T>::~Buffer() {
-        device.getAllocator().deallocate(startAddress);
+        device.getAllocator()->deallocate(startAddress);
         // Deallocate local buffer
         delete[] localBuffer;
     }

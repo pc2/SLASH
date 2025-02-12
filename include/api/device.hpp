@@ -55,7 +55,7 @@ namespace vrt {
         ProgramType programType; ///< Type of programming
         std::map<std::string, Kernel> kernels; ///< Map of kernel names to Kernel objects
         PcieDriverHandler pcieHandler; ///< PCIe driver handler object
-        Allocator allocator; ///< Allocator object
+        Allocator* allocator; ///< Allocator object
         VrtbinType vrtbinType; ///< Type of VRTBIN
         Platform platform; ///< Platform information
         ZmqServer* zmqServer; ///< ZeroMQ server object
@@ -163,7 +163,7 @@ namespace vrt {
         /**
          * @brief Gets the Allocator instance.
          */
-        Allocator& getAllocator();
+        Allocator* getAllocator();
 
     };
 
