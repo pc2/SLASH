@@ -4,7 +4,7 @@
 class AllocatorTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        allocator = &vrt::Allocator::getInstance(1024);
+        allocator = new vrt::Allocator(1024);
         allocator->addMemoryRange(vrt::MemoryRangeType::HBM, vrt::HBM_START, vrt::HBM_SIZE);
         allocator->addMemoryRange(vrt::MemoryRangeType::DDR, vrt::DDR_START, vrt::DDR_SIZE);
     }

@@ -47,8 +47,10 @@ namespace vrt {
         for(auto& kernel : kernels) {
             kernel.second.setDevice(dev);
         }
+        this->qdmaConnections = parser.getQdmaConnections();
         //this->vrtbinType = parser.getVrtbinType();
     }
+
     Kernel Device::getKernel(const std::string& name) {
         return kernels[name];
     }
@@ -124,6 +126,10 @@ namespace vrt {
                 utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "New UUID: {}", logic_uuid);
                 if(current_uuid_str == logic_uuid) {
                     utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Device already programmed with the same image");
+                    utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Refreshing qdma handle");
+                    pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
+                    std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf;
+                    system(cmd.c_str());
                     //bootDevice();
                     return;
                 }
@@ -256,6 +262,10 @@ namespace vrt {
 
     ZmqServer* Device::getZmqServer() {
         return zmqServer;
+    }
+
+    std::vector<QdmaConnection> Device::getQdmaConnections() {
+        return qdmaConnections;
     }
 
     Allocator* Device::getAllocator() {

@@ -16,6 +16,7 @@
 #include "utils/logger.hpp"
 #include "utils/platform.hpp"
 #include "utils/zmq_server.hpp"
+#include "qdma/qdma_connection.hpp"
 
 #include <map>
 #include <fcntl.h>
@@ -59,6 +60,7 @@ namespace vrt {
         VrtbinType vrtbinType; ///< Type of VRTBIN
         Platform platform; ///< Platform information
         ZmqServer* zmqServer; ///< ZeroMQ server object
+        std::vector<QdmaConnection> qdmaConnections; ///< Vector of QDMA connections
     public:
 
         QdmaIntf qdmaIntf; ///< QDMA interface object
@@ -164,6 +166,11 @@ namespace vrt {
          * @brief Gets the Allocator instance.
          */
         Allocator* getAllocator();
+
+        /**
+         * @brief Gets the QDMA connections.
+         */
+        std::vector<QdmaConnection> getQdmaConnections();
 
     };
 

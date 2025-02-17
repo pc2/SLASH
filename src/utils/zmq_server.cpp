@@ -93,4 +93,42 @@ namespace vrt {
         return byteArray;
     }
 
+    void ZmqServer::sendStream(const std::string& name, const std::vector<uint8_t>& buffer) {
+        Json::Value command;
+        command["command"] = "stream_in";
+        command["name"] = name;
+
+        zmq::message_t request(command.toStyledString().size());
+        memcpy(request.data(), command.toStyledString().c_str(), command.toStyledString().size());
+        socket.send(request, zmq::send_flags::sndmore);
+
+        zmq::message_t data(buffer.size());
+        memcpy(data.data(), buffer.data(), buffer.size());
+        socket.send(data, zmq::send_flags::none);
+
+        zmq::message_t reply;
+        socket.recv(reply);
+        std::string replyStr(static_cast<char*>(reply.data()), reply.size());
+    }
+
+    std::vector<uint8_t> ZmqServer::fetchStream(const std::string& name, size_t size) {
+        Json::Value command;
+        command["command"] = "stream_out";
+        command["name"] = name;
+        command["size"] = static_cast<Json::UInt64>(size);
+
+        Json::StreamWriterBuilder writer;
+        std::string commandStr = Json::writeString(writer, command);
+
+        zmq::message_t request(commandStr.size());
+        memcpy(request.data(), commandStr.c_str(), commandStr.size());
+        socket.send(request, zmq::send_flags::none);
+
+        zmq::message_t reply;
+        socket.recv(reply);
+        std::vector<uint8_t> buffer(reply.size());
+        memcpy(buffer.data(), reply.data(), reply.size());
+        return buffer;
+    }
+
 } // namespace vrt

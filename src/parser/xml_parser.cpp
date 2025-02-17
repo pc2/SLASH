@@ -56,6 +56,23 @@ namespace vrt {
                 if(this->platform == Platform::UNKNOWN) {
                     throw std::runtime_error("Unknown platform type");
                 }
+            } else if (kernelNode->type == XML_ELEMENT_NODE && xmlStrcmp(kernelNode->name, BAD_CAST "Qdma") == 0) {
+                std::string kernelName, qdmaStream, syncTypeStr;
+                uint32_t qid;
+                for (xmlNode* childNode = kernelNode->children; childNode; childNode = childNode->next) {
+                    if (childNode->type == XML_ELEMENT_NODE) {
+                        if(xmlStrcmp(childNode->name, BAD_CAST "kernel") == 0) {
+                            kernelName = (const char*) xmlNodeGetContent(childNode);
+                        } else if (xmlStrcmp(childNode->name, BAD_CAST "interface") == 0) {
+                            qdmaStream = (const char*) xmlNodeGetContent(childNode);
+                        } else if (xmlStrcmp(childNode->name, BAD_CAST "direction") == 0) {
+                            syncTypeStr = (const char*) xmlNodeGetContent(childNode);
+                        } else if (xmlStrcmp(childNode->name, BAD_CAST "qid") == 0) {
+                            qid = std::stoi(std::string((const char*) xmlNodeGetContent(childNode)));
+                        }
+                    }
+                }
+                qdmaConnections.push_back({kernelName, qid, qdmaStream, syncTypeStr});
             }
         }
     }
@@ -74,6 +91,10 @@ namespace vrt {
 
     Platform XMLParser::getPlatform() {
         return this->platform;
+    }
+
+    std::vector<QdmaConnection> XMLParser::getQdmaConnections() {
+        return this->qdmaConnections;
     }
 
     XMLParser::~XMLParser() {
