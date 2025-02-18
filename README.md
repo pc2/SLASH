@@ -6,7 +6,10 @@ This repository contains the VRT API implementation, along with 2 examples.
 - AVED software stack (https://github.com/Xilinx/AVED)
 - PCIe hotplug driver (https://gitenterprise.xilinx.com/aulmamei/pcie-hotplug-drv)
 - libxml2
-## How to build
+- ZeroMQ (zmq) for emulation
+- jsoncpp for emulation
+
+## How to build and install the API
 
 To build the API and install it, one must do the following:
 ```bash
@@ -17,10 +20,12 @@ sudo cmake --install .
 ```
 This will add the library and headers to `/usr/local/vrt`.
 
+## How to build the examples
+
 To build an example, one must do the following:
 
 ```bash
-cd tests/<0X>_example/
+cd tests/<XX>_example/
 ./build_all.sh
 ```
 
@@ -52,7 +57,7 @@ lspci -vd 10ee:
 Then, in the example C++ code (`tests/<0X_example/<0X>_example.cpp>`), change the following line with the found BDF number:
 
 ```C++
-vrt::Device device("21:00.0", "00_example.vrtbin", true);
+vrt::Device device("21:00.0", "00_example_hw.vrtbin", true, vrt::ProgramType::JTAG);
 ```
 
 Navigate to the `build` directory, then run:
@@ -64,4 +69,6 @@ This will re-build the host application. After that, run the example.
 
 
 ## Notes
+The program type can be either FLASH or JTAG. We recommend using JTAG. Example 04 shows segmented configuration build, which is a dynamic PL reconfiguration example. For that, the flag doesn't have any attribute.
+
 This software depends on the PCIe hotplug driver (https://gitenterprise.xilinx.com/aulmamei/pcie-hotplug-drv) being installed prior to the running of the software.
