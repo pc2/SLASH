@@ -18,7 +18,7 @@ namespace vrt {
                 programDevice();
             }
             parseSystemMap();
-            this->clkWiz.setRateHz(clockFreq, false);
+            // this->clkWiz.setRateHz(clockFreq, false);
         } else if(platform == Platform::EMULATION) {
             parseSystemMap();
             std::string emulationExecPath = this->vrtbin.getEmulationExec() + " >/dev/null";
@@ -30,10 +30,12 @@ namespace vrt {
         } else {
             throw std::runtime_error("Unsupported platform simulation");
         }
+        for(auto& qdmaCon : qdmaConnections) {
+            qdmaIntfs.emplace_back(new QdmaIntf(bdf, qdmaCon.getQid()));
+        }
     }
 
     Device::~Device() {
-        //destroyAmiDev();
     }
 
     void Device::parseSystemMap() {
@@ -42,13 +44,13 @@ namespace vrt {
         clockFreq = parser.getClockFrequency();
         this->platform = parser.getPlatform();
         this->clkWiz = ClkWiz(dev, "clk_wiz", CLK_WIZ_BASE, CLK_WIZ_OFFSET, clockFreq);
+        this->qdmaLogic = new QdmaLogic(dev, "qdma_logic", QDMA_LOGIC_BASE, QDMA_LOGIC_OFFSET);
         this->clkWiz.setPlatform(platform);
         kernels = parser.getKernels();
         for(auto& kernel : kernels) {
             kernel.second.setDevice(dev);
         }
         this->qdmaConnections = parser.getQdmaConnections();
-        //this->vrtbinType = parser.getVrtbinType();
     }
 
     Kernel Device::getKernel(const std::string& name) {
@@ -58,6 +60,12 @@ namespace vrt {
     void Device::cleanup() {
         if(platform == Platform::HARDWARE) {
             ami_dev_delete(&dev);
+            delete allocator;
+            delete zmqServer;
+            delete qdmaLogic;
+            for(auto qdmaIntf_ : qdmaIntfs) {
+                delete qdmaIntf_;
+            }
         } else if(platform == Platform::EMULATION) {
             Json::Value exit;
             exit["command"] = "exit";
@@ -128,9 +136,16 @@ namespace vrt {
                     utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Device already programmed with the same image");
                     utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Refreshing qdma handle");
                     pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
-                    std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf;
+                    XMLParser parser(systemMap);
+                    parser.parseXML();
+                    auto qdmaConns = parser.getQdmaConnections();
+                    std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
+                    for(auto& qdmaConn : qdmaConns) {
+                        uint32_t qid = qdmaConn.getQid();
+                        std::string direction = (qdmaConn.getDirection() == StreamDirection::HOST_TO_DEVICE ? "h2c" : "c2h");
+                        cmd += " --st " + std::to_string(qid) + " --dir " + direction;
+                    }
                     system(cmd.c_str());
-                    //bootDevice();
                     return;
                 }
             }
@@ -157,7 +172,15 @@ namespace vrt {
                     pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
                     createAmiDev();
                     utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "New PDI booted successfully");
-                    std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf;
+                    XMLParser parser(systemMap);
+                    parser.parseXML();
+                    auto qdmaConns = parser.getQdmaConnections();
+                    std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
+                    for(auto& qdmaConn : qdmaConns) {
+                        uint32_t qid = qdmaConn.getQid();
+                        std::string direction = (qdmaConn.getDirection() == StreamDirection::HOST_TO_DEVICE ? "h2c" : "c2h");
+                        cmd += " --st " + std::to_string(qid) + " --dir " + direction;
+                    }
                     system(cmd.c_str());
                     utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "QDMA queues setup successfully");
                 }
@@ -169,7 +192,15 @@ namespace vrt {
                 pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
                 createAmiDev();
                 utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "New PDI booted successfully");
-                std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf;
+                XMLParser parser(systemMap);
+                parser.parseXML();
+                auto qdmaConns = parser.getQdmaConnections();
+                std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
+                for(auto& qdmaConn : qdmaConns) {
+                    uint32_t qid = qdmaConn.getQid();
+                    std::string direction = (qdmaConn.getDirection() == StreamDirection::HOST_TO_DEVICE ? "h2c" : "c2h");
+                    cmd += " --st " + std::to_string(qid) + " --dir " + direction;
+                }
                 system(cmd.c_str());
                 utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "QDMA queues setup successfully");
             }
@@ -180,7 +211,7 @@ namespace vrt {
             } else {
                 utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Booting into base segmented PDI...");
                 utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Writing PMC GPIO...");
-                ami_mem_bar_write(dev, 0, 0x1040000, 1);
+                ami_mem_bar_write(dev, 0, 0x1040000, 1); // PMC GPIO. this is needed for reset PDI into partition 1
                 destroyAmiDev();
                 pcieHandler.execute(PcieDriverHandler::Command::REMOVE);
                 pcieHandler.execute(PcieDriverHandler::Command::TOGGLE_SBR);
@@ -198,7 +229,15 @@ namespace vrt {
                 pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
                 createAmiDev();
                 utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "PLD PDI booted successfully");
-                std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf;
+                 XMLParser parser(systemMap);
+                parser.parseXML();
+                auto qdmaConns = parser.getQdmaConnections();
+                std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
+                for(auto& qdmaConn : qdmaConns) {
+                    uint32_t qid = qdmaConn.getQid();
+                    std::string direction = (qdmaConn.getDirection() == StreamDirection::HOST_TO_DEVICE ? "h2c" : "c2h");
+                    cmd += " --st " + std::to_string(qid) + " --dir " + direction;
+                }
                 system(cmd.c_str());
                 utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "QDMA queues setup successfully");
             }
@@ -270,6 +309,14 @@ namespace vrt {
 
     Allocator* Device::getAllocator() {
         return allocator;
+    }
+
+    QdmaLogic* Device::getQdmaLogic() {
+        return qdmaLogic;
+    }
+
+    std::vector<QdmaIntf*> Device::getQdmaInterfaces() {
+        return qdmaIntfs;
     }
     
 } // namespace vrt

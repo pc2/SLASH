@@ -1,9 +1,9 @@
 #include "qdma/qdma_intf.hpp"
 
 namespace vrt {
-	uint8_t QdmaIntf::queueIdx = 0;
 
 	QdmaIntf::QdmaIntf(const std::string& bdf) {
+		this->queueIdx = 0;
 		this->bdf = bdf;
 		char* bus = strip(bdf.c_str());
 
@@ -11,6 +11,18 @@ namespace vrt {
 		sprintf(formattedQueueName, QDMA_DEFAULT_QUEUE, bus);
 		queueName = std::string(formattedQueueName);
 		free(bus);
+	}
+
+	QdmaIntf::QdmaIntf(const std::string& bdf, const uint32_t queueIdx) {
+		this->bdf = bdf;
+		char* bus = strip(bdf.c_str());
+
+		char formattedQueueName[256];
+		sprintf(formattedQueueName, QDMA_DEFAULT_ST_QUEUE, bus, queueIdx);
+		queueName = std::string(formattedQueueName);
+		free(bus);
+
+		this->queueIdx = queueIdx;
 	}
 
 	QdmaIntf::~QdmaIntf() {
@@ -27,19 +39,6 @@ namespace vrt {
 
 	char* QdmaIntf::create_qdma_queue(const char* bdf) {
 		char* id = strip(bdf);
-		// char qmax_string[256];
-		// sprintf(qmax_string, QMAX_PATH, id);
-		// int qmax_fd = open(qmax_string, O_WRONLY);
-		// if(qmax_fd < 0) {
-		//     fprintf(stderr, "Could not open qmax file.\n");
-		// } else {
-		//     ssize_t bytes = write(qmax_fd, "100", 3);
-		//     if(bytes == -1) {
-		//         fprintf(stderr, "Could not write to qmax file.\n");
-		//         close(qmax_fd);
-		//     }
-		// }
-		// create qdma queue
 		char qdma_queue_name[12];
 		sprintf(qdma_queue_name, QDMA_QUEUE_NAME, id);
 		char cmd_add[256];
@@ -184,6 +183,10 @@ namespace vrt {
 	void QdmaIntf::read_buff(char* buffer, uint64_t start_addr, uint64_t size) {
 		utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Reading buffer with size: {x} to {} at address {x}", size, queueName, start_addr);
 		read_to_buffer(queueName.c_str(), buffer, size, start_addr);
+	}
+
+	uint32_t QdmaIntf::getQueueIdx() {
+		return queueIdx;
 	}
 
 } // namespace vrt

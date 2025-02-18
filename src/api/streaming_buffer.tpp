@@ -20,13 +20,19 @@ namespace vrt {
         name = (syncType == StreamDirection::HOST_TO_DEVICE) ? ("streamingBuffer_" + std::to_string(index)) : ("outputStreamingBuffer_" + std::to_string(index));
         localBuffer = new T[size];
         Platform platform = device.getPlatform();
-        // setup qdma queue
+        if(platform == Platform::HARDWARE) {
+            for(auto& qdmaIntf : device.getQdmaInterfaces()) {
+                if(qdmaIntf->getQueueIdx() == index) {
+                    qdmaInterface = qdmaIntf;
+                }
+            }
+        }
     }
 
     template <typename T>
     StreamingBuffer<T>::~StreamingBuffer() {
         delete[] localBuffer;
-        // cleanup qdma queue
+
     }
     
     template <typename T>
@@ -57,13 +63,19 @@ namespace vrt {
                 std::memcpy(sendData.data(), localBuffer, dataSize);
                 server->sendStream(name, sendData);
             } else {
-                std::vector<uint8_t> recvData = server->fetchStream(name, size * sizeof(T)); // ????
+                std::vector<uint8_t> recvData = server->fetchStream(name, size * sizeof(T));
                 size = recvData.size() / sizeof(T);
                 localBuffer = reinterpret_cast<T*>(realloc(localBuffer, recvData.size()));
                 std::memcpy(localBuffer, recvData.data(), recvData.size());
             }
+        } else if (platform == Platform::HARDWARE) {
+            if(syncType == StreamDirection::HOST_TO_DEVICE) {
+                qdmaInterface->write_buff(reinterpret_cast<char*>(localBuffer), 0, size * sizeof(T));
+            } else {
+                throw std::runtime_error("C2H streaming buffer not implemented in hardware.");
+            }
         } else {
-            throw std::runtime_error("Streaming buffer not implemented for this platform");
+            throw std::runtime_error("Streaming buffer not implemented for this platform.");
         }
     }
 
