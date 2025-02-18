@@ -18,13 +18,14 @@
 #define QMAX_PATH "/sys/bus/pci/devices/0000:%s:00.1/qdma/qmax" ///< Path for QMAX
 #define QDMA_QUEUE_NAME "qdma%s001" ///< Format for QDMA queue name
 #define QDMA_DEFAULT_QUEUE "/dev/qdma%s001-MM-0" ///< Default QDMA queue
+#define QDMA_DEFAULT_ST_QUEUE "/dev/qdma%s001-ST-%u" ///< Default stream queue
 
 namespace vrt {
     /**
      * @brief Class for interfacing with QDMA.
      */
     class QdmaIntf {
-        static uint8_t queueIdx; ///< Queue index
+        uint8_t queueIdx; ///< Queue index
         std::string bdf; ///< Bus:Device.Function identifier
         std::string queueName; ///< Queue name
 
@@ -80,6 +81,14 @@ namespace vrt {
         QdmaIntf(const std::string& bdf);
 
         /**
+         * @brief Constructor of the QdmaIntf class with queue index
+         * @brief Assumes all queues are stream type
+         * @param bdf The BDF (Bus:Device.Function) of the device.
+         * @param queueIdx The index of the queue.
+         */
+        QdmaIntf(const std::string& bdf, const uint32_t queueIdx);
+
+        /**
          * @brief Default constructor for QdmaIntf.
          */
         QdmaIntf() = default;
@@ -100,6 +109,11 @@ namespace vrt {
          */
         void read_buff(char* buffer, uint64_t start_addr, uint64_t size);
 
+        /**
+         * @brief Gets the queue index.
+         * @return The queue index.
+         */
+        uint32_t getQueueIdx();
         /**
          * @brief Destructor for QdmaIntf.
          */

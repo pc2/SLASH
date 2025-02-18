@@ -9,6 +9,7 @@
 #include <libxml/tree.h>
 #include "api/kernel.hpp" // Include the Kernel class
 #include "utils/platform.hpp"
+#include "qdma/qdma_connection.hpp"
 
 namespace vrt {
     class Kernel;
@@ -34,6 +35,7 @@ namespace vrt {
         uint64_t clockFrequency; ///< The clock frequency of the device.
         VrtbinType vrtbinType; ///< The VRT bin type of the device.
         Platform platform; ///< The platform of the device.
+        std::vector<QdmaConnection> qdmaConnections; ///< Vector of QDMA connections.
 
     public:
         /**
@@ -77,6 +79,12 @@ namespace vrt {
          * @return The platform of the device.
          */
         Platform getPlatform();
+
+        /**
+         * @brief Gets the vector of QDMA connections.
+         * @return The vector of QDMA connections.
+         */
+        std::vector<QdmaConnection> getQdmaConnections();
 
         /**
          * @brief Destructor for XMLParser.

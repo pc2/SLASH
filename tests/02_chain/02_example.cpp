@@ -6,9 +6,10 @@
 #include <api/kernel.hpp>
 int main() {
     try {
-        uint32_t size = 2048;
+        uint32_t size = 512 * 1024 * 1024;
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
-        vrt::Device device("21:00.0", "02_example.vrtbin", true, vrt::ProgramType::JTAG);
+        vrt::Device device("21:00.0", "02_example_hw.vrtbin", true, vrt::ProgramType::JTAG);
+        device.setFrequency(500000000);
         vrt::Kernel dma_in(device, "dma_in_0");
         vrt::Kernel dma_out(device, "dma_out_0");
         vrt::Buffer<uint64_t> buffer_in(device, size, vrt::MemoryRangeType::HBM);
@@ -18,7 +19,7 @@ int main() {
         }
         buffer_in.sync(vrt::SyncType::HOST_TO_DEVICE);
         dma_in.start(buffer_in.getPhysAddr(), size);
-        dma_out.start(buffer_out.getPhysAddr(), size);
+        dma_out.start(size, buffer_out.getPhysAddr());
         dma_in.wait();
         dma_out.wait();
         buffer_out.sync(vrt::SyncType::DEVICE_TO_HOST);

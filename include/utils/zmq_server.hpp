@@ -22,11 +22,11 @@ namespace vrt {
         void sendCommand(const Json::Value& command);
         uint32_t fetchScalar(const std::string& function, const std::string& argIdx);
         std::vector<uint8_t> fetchBuffer(const std::string& name);
-        // Delete copy constructor and copy assignment operator
+        void sendStream(const std::string& name, const std::vector<uint8_t>& buffer);
+        std::vector<uint8_t> fetchStream(const std::string& name, size_t size);
         ZmqServer(const ZmqServer&) = delete;
         ZmqServer& operator=(const ZmqServer&) = delete;
 
-        // Allow move constructor and move assignment operator
         ZmqServer(ZmqServer&&) = default;
         ZmqServer& operator=(ZmqServer&&) = default;
     };

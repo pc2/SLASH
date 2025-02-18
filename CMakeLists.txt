@@ -26,7 +26,7 @@ install(TARGETS vrt
 # Install the header files into /usr/local/vrt/include
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION vrt/include)
 install(FILES ${CMAKE_SOURCE_DIR}/src/api/buffer.tpp DESTINATION vrt/include/api)
-
+install(FILES ${CMAKE_SOURCE_DIR}/src/api/streaming_buffer.tpp DESTINATION vrt/include/api)
 # Install the contents of the scripts folder into /usr/local/vrt
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/scripts/ DESTINATION vrt
         FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

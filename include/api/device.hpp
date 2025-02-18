@@ -16,6 +16,8 @@
 #include "utils/logger.hpp"
 #include "utils/platform.hpp"
 #include "utils/zmq_server.hpp"
+#include "qdma/qdma_connection.hpp"
+#include "driver/qdma_logic.hpp"
 
 #include <map>
 #include <fcntl.h>
@@ -42,6 +44,8 @@ namespace vrt {
     class Device {
         static constexpr uint64_t CLK_WIZ_BASE = 0x20100010000; ///< Base address for the clock wizard
         static constexpr uint32_t CLK_WIZ_OFFSET = 0x10000;
+        static constexpr uint64_t QDMA_LOGIC_BASE = 0x20100020000; ///< Base address for QDMA logic
+        static constexpr uint32_t QDMA_LOGIC_OFFSET = 0x1000; /// Offset for QDMA logic
         ami_device* dev = nullptr; ///< Pointer to the AMI device
         uint8_t bar = 0; ///< Base Address Register (BAR)
         uint64_t offset = 0; ///< Offset for memory operations
@@ -59,6 +63,9 @@ namespace vrt {
         VrtbinType vrtbinType; ///< Type of VRTBIN
         Platform platform; ///< Platform information
         ZmqServer* zmqServer; ///< ZeroMQ server object
+        std::vector<QdmaConnection> qdmaConnections; ///< Vector of QDMA connections
+        QdmaLogic* qdmaLogic; ///< QDMA logic object
+        std::vector<QdmaIntf*> qdmaIntfs; ///< Vector of QDMA interfaces for streaming
     public:
 
         QdmaIntf qdmaIntf; ///< QDMA interface object
@@ -165,6 +172,20 @@ namespace vrt {
          */
         Allocator* getAllocator();
 
+        /**
+         * @brief Gets the QDMA connections.
+         */
+        std::vector<QdmaConnection> getQdmaConnections();
+
+        /**
+         * @brief Gets the QDMA logic instance.
+         */
+        QdmaLogic* getQdmaLogic();
+
+        /**
+         * @brief Gets the QDMA streaming interfaces.
+         */
+        std::vector<QdmaIntf*> getQdmaInterfaces();
     };
 
 } // namespace vrt

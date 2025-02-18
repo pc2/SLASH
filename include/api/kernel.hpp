@@ -189,6 +189,7 @@ namespace vrt {
             }
         }
 
+        std::string getName() const;
          /**
          * @brief Destructor for Kernel.
          */

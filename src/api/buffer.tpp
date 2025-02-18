@@ -106,7 +106,7 @@ namespace vrt {
     void Buffer<T>::sync(SyncType syncType) {
         Platform platform = device.getPlatform();
         if(platform == Platform::HARDWARE) {
-            size_t maxChunkSize = 1 << 20; //22
+            size_t maxChunkSize = 1 << 24; //22
             size_t totalSize = size * sizeof(T);
             size_t chunkSize = maxChunkSize * sizeof(T);
             size_t offset = 0;

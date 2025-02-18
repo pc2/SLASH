@@ -1,5 +1,4 @@
 #!/bin/bash
-# cbfcc9eea9a3e403e89a5028245ab7bccb96d050
 V80PP_GIT="git@gitenterprise.xilinx.com:aulmamei/v80-vitis-flow.git"
 VPP_COMMIT_ID="cbfcc9eea9a3e403e89a5028245ab7bccb96d050"
 
@@ -35,5 +34,4 @@ pushd ${HOME_DIR}
     mkdir -p build && cd build
     cmake ..
     make -j9
-#    cp $VPP_DIR/build/system_map.xml .
 popd

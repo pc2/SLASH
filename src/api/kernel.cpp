@@ -114,4 +114,8 @@ namespace vrt {
         this->platform = platform;
     }
 
+    std::string Kernel::getName() const {
+        return name;
+    }
+
 } // namespace vrt
