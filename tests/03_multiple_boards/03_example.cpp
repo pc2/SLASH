@@ -11,8 +11,8 @@ int main() {
     try {
         uint32_t size = 2048;
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::INFO);
-        vrt::Device fpga0("e2:00.0", "03_example.vrtbin", false, vrt::ProgramType::FLASH);
-        vrt::Device fpga1("21:00.0", "03_example.vrtbin", false, vrt::ProgramType::FLASH);
+        vrt::Device fpga0("e2:00.0", "03_example_hw.vrtbin", false, vrt::ProgramType::FLASH);
+        vrt::Device fpga1("21:00.0", "03_example_hw.vrtbin", false, vrt::ProgramType::FLASH);
         fpga0.setFrequency(200000000);
         fpga1.setFrequency(200000000);
         vrt::Kernel accumulate0(fpga0, "accumulate_0");

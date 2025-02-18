@@ -13,7 +13,7 @@ int main() {
         uint32_t size = 1024 * 1024;
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
         vrt::Device device("21:00.0", "00_example_hw.vrtbin", true, vrt::ProgramType::JTAG);
-        device.setFrequency(100000000);
+        device.setFrequency(200000000);
         vrt::Kernel accumulate(device, "accumulate_0");
         vrt::Kernel increment(device, "increment_0");
         vrt::Buffer<float> buffer(device, size, vrt::MemoryRangeType::HBM);
