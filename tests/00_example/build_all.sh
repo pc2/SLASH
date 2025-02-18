@@ -22,7 +22,7 @@ pushd ${HLS_DIR}
     make
 popd
 
-PLATFORM="emu"
+PLATFORM="hw"
 
 echo "Running HW step"
 pushd ${VPP_DIR}
