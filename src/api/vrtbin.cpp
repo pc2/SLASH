@@ -9,6 +9,9 @@ namespace vrt {
             throw std::runtime_error("AMI_HOME environment variable not set");
         }
         std::string ami_home(getenv("AMI_HOME"));
+        if(!ami_home.empty() && ami_home.back() != '/') {
+            ami_home += '/';
+        }
         std::string cmd = "mkdir -p " + ami_home + bdf;
         utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Running command: {}", cmd);
         system(cmd.c_str());
