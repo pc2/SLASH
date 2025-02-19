@@ -17,7 +17,7 @@ int main() {
         uint32_t size = 1000;
         uint32_t m = 3;
         uint32_t n = 2;
-        vrt::Device device("21:00.0", "01_example_emu.vrtbin", true, vrt::ProgramType::JTAG);
+        vrt::Device device("21:00.0", "01_example_hw.vrtbin", true, vrt::ProgramType::JTAG);
         vrt::Kernel dma(device, "dma_0");
         vrt::Kernel offset(device, "offset_0");
         device.setFrequency(233333333);
