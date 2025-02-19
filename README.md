@@ -22,6 +22,7 @@ This will add the library and headers to `/usr/local/vrt`.
 
 ## How to build the examples
 
+
 To build an example, one must do the following:
 
 ```bash
@@ -32,6 +33,14 @@ cd tests/<XX>_example/
 This will build the hardware design for the FPGA, using the HLS kernels provided in the `hls/` directory. Beware, this takes around one hour to finish.
 
 ## How to run
+
+The following environment variable needs to be set prior to running any examples:
+
+```
+mkdir -p /home/<user>/.ami
+export AMI_HOME="/home/<user>/.ami"
+```
+To make the changes persistent, add the commands to .bashrc.
 
 In order to run one of the built examples, one must identify the BDF for the V80 and input it into the software.
 
