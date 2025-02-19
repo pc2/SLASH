@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(vrt-api)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/src/ /usr/include/ami/ /usr/include/libxml2 /usr/include/jsoncpp)
