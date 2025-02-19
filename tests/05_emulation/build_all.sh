@@ -19,10 +19,10 @@ git clone $V80PP_GIT
 
 VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
 
-# echo "Running HLS step"
-# pushd ${HLS_DIR}
-#     make
-# popd
+echo "Running HLS step"
+pushd ${HLS_DIR}
+    make
+popd
 
 PLATFORM="emu"
 
