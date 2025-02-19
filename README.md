@@ -1,6 +1,6 @@
 # VRT (V80 RunTime) API
 
-This repository contains the VRT API implementation, along with 2 examples.
+This repository contains the VRT API implementation, along with examples.
 ## Dependencies
 
 - AVED software stack (https://github.com/Xilinx/AVED)
