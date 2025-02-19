@@ -3,11 +3,31 @@
 This repository contains the VRT API implementation, along with examples.
 ## Dependencies
 
-- AVED software stack (https://github.com/Xilinx/AVED)
+- AVED software stack (https://gitenterprise.xilinx.com/aulmamei/aved-fork)
 - PCIe hotplug driver (https://gitenterprise.xilinx.com/aulmamei/pcie-hotplug-drv)
 - libxml2
 - ZeroMQ (zmq) for emulation
 - jsoncpp for emulation
+
+To install the dependencies:
+
+```bash
+sudo apt install libxml2-dev libzmq3-dev libjsoncpp-dev
+```
+
+### AVED software stack
+To install the AVED software stack, one must run the following:
+
+```bash
+git clone git@gitenterprise.xilinx.com:aulmamei/aved-fork.git
+cd aved-fork/deploy
+sudo apt install ./ami_<version>_<arch>_<os version>.deb
+```
+
+### PCIe hotplug driver
+
+Please consult the driver's Github page for instructions.
+
 
 ## How to build and install the API
 
