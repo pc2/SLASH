@@ -66,7 +66,7 @@ lspci -vd 10ee:
 Then, in the example C++ code (`tests/<0X_example/<0X>_example.cpp>`), change the following line with the found BDF number:
 
 ```C++
-vrt::Device device("21:00.0", "00_example_hw.vrtbin", true, vrt::ProgramType::JTAG);
+vrt::Device device("21:00.0", "0X_example_hw.vrtbin", true, vrt::ProgramType::JTAG);
 ```
 
 Navigate to the `build` directory, then run:
