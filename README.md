@@ -59,8 +59,10 @@ The following environment variable needs to be set prior to running any examples
 ```
 mkdir -p /home/<user>/.ami
 export AMI_HOME="/home/<user>/.ami"
+source <VIVADO>
+source <VITIS>
 ```
-To make the changes persistent, add the commands to .bashrc.
+To make the changes persistent, add the commands to .bashrc. Sourcing the Vivado scripts are needed for the hardware builds, whereas vitis is needed for emulation.
 
 In order to run one of the built examples, one must identify the BDF for the V80 and input it into the software.
 
