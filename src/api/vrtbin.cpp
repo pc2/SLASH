@@ -51,10 +51,10 @@ namespace vrt {
             result += buffer.data();
         }
 
-        int status = pclose(pipe.release());
-        if (status != 0) {
-            throw std::runtime_error("Could not open vrtbin: " + vrtbinPath);
-        }
+        // int status = pclose(pipe.release());
+        // if (status != 0) {
+        //     throw std::runtime_error("Could not open vrtbin: " + vrtbinPath);
+        // }
         
         // copy(tempExtractPath + "/system_map.xml", systemMapPath);
         // if(this->platform == Platform::HARDWARE) {
