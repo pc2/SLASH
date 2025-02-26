@@ -77,23 +77,13 @@ namespace vrt {
         if(platform == Platform::EMULATION) {
             return;
         }
-        while(read(0x00) != 4) {
+        while(read(0x00) == 1 || read(0x00) == 0x81) {
             //usleep(1);
             // wait for the kernel to finish
         }
 
     }
 
-    // void Kernel::wait() {
-    //     // uint32_t val = read(0x00); // read status register
-    //     // std::cout << "Val: " << std::hex << val << std::endl;
-    //     // while(((val >> 1) & 0x01) == 0) {
-    //     //     // wait for the kernel to finish
-    //     //     val = read(0x00);
-    //     //     std::cout << "Val: " << std::hex << val << std::endl;
-    //     // }
-
-    // }
 
     void Kernel::startKernel(bool autorestart) {
         if(autorestart) {
@@ -114,6 +104,17 @@ namespace vrt {
         this->platform = platform;
     }
 
+    void Kernel::writeBatch() {
+        uint32_t noOfPhysicalRegisters = (registers.at(registers.size() - 1).getOffset() + sizeof(uint32_t)) / sizeof(uint32_t);
+        uint32_t* buf = (uint32_t*) calloc(noOfPhysicalRegisters, sizeof(uint32_t));
+        for(std::size_t i = 4; i < noOfPhysicalRegisters; i++) {
+            buf[i] = registerMap[i * sizeof(uint32_t)];
+            // buf[i] = registerMap[registers.at(i).getOffset()];
+            utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Kernel {}, reg at offset {x}, value: {x}", name, i * sizeof(uint32_t), buf[i]);
+        }
+        ami_mem_bar_write_range(dev, bar, baseAddr - BASE_BAR_ADDR, noOfPhysicalRegisters, buf);
+        free(buf);
+    }
     std::string Kernel::getName() const {
         return name;
     }

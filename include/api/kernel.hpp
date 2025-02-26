@@ -38,6 +38,7 @@ namespace vrt {
         std::string deviceBdf; ///< BDF of the device
         Platform platform; ///< Platform of the device
         ZmqServer* server; ///< Pointer to ZeroMQ server for communication
+        std::map<uint32_t, uint32_t> registerMap; ///< Map of register offsets to values
     public:
         /**
          * @brief Constructor for Kernel.
@@ -99,6 +100,11 @@ namespace vrt {
         void setPlatform(Platform platform);
 
         /**
+         * @brief Writes batch register to PCIe BAR.
+         */
+        void writeBatch();
+
+        /**
          * @brief Calls the kernel.
          */
         template<typename... Args>
@@ -106,6 +112,7 @@ namespace vrt {
                 currentRegisterIndex = 4;
                 if(platform == Platform::HARDWARE) {
                     (processArg(args), ...);
+                    this->writeBatch();
                     this->startKernel();
                     this->wait();
                 } else if(platform == Platform::EMULATION) {
@@ -126,6 +133,7 @@ namespace vrt {
                 currentRegisterIndex = 4;
                 if(platform == Platform::HARDWARE) {
                     (processArg(args), ...);
+                    this->writeBatch();
                     this->startKernel();
 
                 } else if(platform == Platform::EMULATION) {
@@ -147,13 +155,16 @@ namespace vrt {
             if (currentRegisterIndex < registers.size()) {
                 std::regex re(".*_\\d+$"); // Regular expression to match strings ending with _nr
                 if (std::regex_match(registers.at(currentRegisterIndex).getRegisterName(), re)) {
-                    this->write(registers.at(currentRegisterIndex).getOffset(), arg & 0xFFFFFFFF);
-                    this->write(registers.at(currentRegisterIndex + 1).getOffset(), static_cast<uint32_t>((static_cast<uint64_t>(arg) >> 32) & 0xFFFFFFFF));
+                    this->registerMap[registers.at(currentRegisterIndex).getOffset()] = arg & 0xFFFFFFFF;
+                    this->registerMap[registers.at(currentRegisterIndex + 1).getOffset()] = static_cast<uint32_t>((static_cast<uint64_t>(arg) >> 32) & 0xFFFFFFFF);
+                    // this->write(registers.at(currentRegisterIndex).getOffset(), arg & 0xFFFFFFFF);
+                    // this->write(registers.at(currentRegisterIndex + 1).getOffset(), static_cast<uint32_t>((static_cast<uint64_t>(arg) >> 32) & 0xFFFFFFFF));
                     // std::cout << "Register: " << registers.at(currentRegisterIndex).getRegisterName() << " Value: " << std::hex << (arg & 0xFFFFFFFF) << std::endl;
                     // std::cout << "Register: " << registers.at(currentRegisterIndex + 1).getRegisterName() << " Value: " << std::hex <<((arg >> 32) & 0xFFFFFFFF) << std::endl;
                     currentRegisterIndex+=2;
                 } else {
-                    this->write(registers.at(currentRegisterIndex).getOffset(), arg);
+                    this->registerMap[registers.at(currentRegisterIndex).getOffset()] = arg;
+                    //this->write(registers.at(currentRegisterIndex).getOffset(), arg);
                     currentRegisterIndex++;
                 }
                 
