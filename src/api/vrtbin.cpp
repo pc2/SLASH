@@ -3,6 +3,9 @@
 namespace vrt {
     Vrtbin::Vrtbin(std::string vrtbinPath, const std::string& bdf) {
         this->vrtbinPath = vrtbinPath;
+        if(!std::filesystem::exists(vrtbinPath)) {
+            throw std::runtime_error(vrtbinPath + " does not exist");
+        }
         char* ami_home_cstr = getenv("AMI_HOME");
         utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "AMI_HOME: {}", ami_home_cstr);
         if(ami_home_cstr == nullptr) {

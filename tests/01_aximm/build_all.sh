@@ -1,7 +1,4 @@
 #!/bin/bash
-# cbfcc9eea9a3e403e89a5028245ab7bccb96d050
-V80PP_GIT="git@gitenterprise.xilinx.com:aulmamei/v80-vitis-flow.git"
-VPP_COMMIT_ID="cbfcc9eea9a3e403e89a5028245ab7bccb96d050"
 
 HLS_BUILD_DIR_ACCUMULATE=build_offset.xcv80-lsva4737-2MHP-e-S
 HLS_BUILD_DIR_INCREMENT=build_dma.xcv80-lsva4737-2MHP-e-S
@@ -9,12 +6,11 @@ DESIGN_NAME=01_example
 HOME_DIR=$(realpath .)
 BUILD_DIR=$(realpath ./build)
 HLS_DIR=$(realpath ./hls)
-RESOURCES_DIR=$(realpath ../resources)
-VRT_DIR=$(realpath $HOME_DIR/../../.)
+V80PP_PATH=$(realpath ../../submodules/v80-vitis-flow)
 
 mkdir -p build
 cd build
-git clone $V80PP_GIT
+cp -r $V80PP_PATH .
 
 VPP_DIR=$(realpath $HOME_DIR/build/v80-vitis-flow)
 
