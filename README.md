@@ -1,6 +1,8 @@
 # VRT (V80 RunTime) API
 
 This repository contains the VRT API implementation, along with examples.
+
+The project was tested with AMD Vivado & Vitis tools version 2024.2.
 ## Dependencies
 
 - AVED software stack (https://gitenterprise.xilinx.com/aulmamei/aved-fork)
@@ -15,12 +17,17 @@ To install the dependencies:
 sudo apt install libxml2-dev libzmq3-dev libjsoncpp-dev
 ```
 
+### Submodules
+VRT depends on the AVED software stack and the v80++ linker. These can be pulled from git using:
+```bash
+git submodule update --init --recursive
+```
+
 ### AVED software stack
 To install the AVED software stack, one must run the following:
 
 ```bash
-git clone git@gitenterprise.xilinx.com:aulmamei/aved-fork.git
-cd aved-fork/deploy
+cd submodules/v80-vitis-flow/submodules/aved/deploy/
 sudo apt install ./ami_<version>_<arch>_<os version>.deb
 ```
 
