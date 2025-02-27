@@ -1,11 +1,20 @@
 #!/bin/bash
 
 XILINX_TOOLS_VERSION=2024.2
+KERNEL_VERSION=5.15
 LOG_FILE="install.log"
 
 
 rm -rf $LOG_FILE
 exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo 'Checking kernel version...'
+if ! uname -r | grep -q "$KERNEL_VERSION"; then
+    echo "Kernel version does not match the required version $KERNEL_VERSION. Please use kernel version 5.15.*."
+    exit 1
+fi
+echo 'Kernel version passed: '$(uname -r)
+echo ''
 
 echo 'Checking Vitis installation...'
 if ! which vitis > /dev/null 2>&1; then
