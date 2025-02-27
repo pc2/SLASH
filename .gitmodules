@@ -1,0 +1,3 @@
+[submodule "submodules/v80-vitis-flow"]
+	path = submodules/v80-vitis-flow
+	url = git@gitenterprise.xilinx.com:aulmamei/v80-vitis-flow.git
