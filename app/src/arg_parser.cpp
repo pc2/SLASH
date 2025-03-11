@@ -62,7 +62,7 @@ bool ArgParser::isCommand(const std::string& command) const {
 }
 
 void ArgParser::printHelp() const {
-    std::cout << "Usage: ./v80-smi <command> [options]\n"
+    std::cout << "Usage: v80-smi <command> [options]\n"
               << "Commands:\n"
               << "  query                Query the device\n"
               << "  validate             Validate the device\n"

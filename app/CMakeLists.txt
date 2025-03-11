@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Include directories
 include_directories(include /usr/include/ami/ /usr/include/libxml2 /usr/include/jsoncpp)
 
-file(GLOB APP_SOURCES main.cpp src/*.cpp src/commands/*.cpp)
+file(GLOB APP_SOURCES v80-smi.cpp src/*.cpp src/commands/*.cpp)
 
 # Source files
 set(SOURCES
@@ -22,3 +22,6 @@ add_executable(v80-smi ${SOURCES})
 
 # Link libraries (if any)
 target_link_libraries(v80-smi ami jsoncpp xml2)
+
+# Install the executable
+install(TARGETS v80-smi DESTINATION /usr/local/bin)
