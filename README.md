@@ -47,6 +47,17 @@ sudo cmake --install .
 ```
 This will add the library and headers to `/usr/local/vrt`.
 
+## How to build v80-smi, the utility app
+To build v80-smi and install it, one must run:
+
+```bash
+cd app
+mkdir -p build && cd build
+cmake ..
+cmake --build .
+sudo cmake --install .
+```
+The executable is located in /usr/local/bin.
 ## How to build the examples
 
 
