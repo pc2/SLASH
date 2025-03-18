@@ -122,6 +122,10 @@ namespace vrt {
                     int argIdx = 0;
                     (processEmuArg(args, command, argIdx), ...);
                     server->sendCommand(command);
+                } else if (platform == Platform::SIMULATION) {
+                    (processArg(args), ...);
+                    this->startKernel();
+                    this->wait();
                 }
             }
 
@@ -143,6 +147,9 @@ namespace vrt {
                     int argIdx = 0;
                     (processEmuArg(args, command, argIdx), ...);
                     server->sendCommand(command);
+                } else if (platform == Platform::SIMULATION) {
+                    (processSimArg(args), ...);
+                    this->startKernel();
                 }
             }
         /**
@@ -171,6 +178,21 @@ namespace vrt {
             } else {
                 //utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Not enough registers to process all arguments.");
                 throw std::runtime_error("Not enough registers to process all arguments.");
+            }
+        }
+
+        template<typename T>
+        void processSimArg(T arg) {
+            if (currentRegisterIndex < registers.size()) {
+                std::regex re(".*_\\d+$"); // Regular expression to match strings ending with _nr
+                if (std::regex_match(registers.at(currentRegisterIndex).getRegisterName(), re)) {
+                    this->write(registers.at(currentRegisterIndex).getOffset(), arg & 0xFFFFFFFF);
+                    this->write(registers.at(currentRegisterIndex + 1).getOffset(), static_cast<uint32_t>((static_cast<uint64_t>(arg) >> 32) & 0xFFFFFFFF));
+                    currentRegisterIndex+=2;
+                } else {
+                    this->write(registers.at(currentRegisterIndex).getOffset(), arg);
+                    currentRegisterIndex++;
+                }
             }
         }
 

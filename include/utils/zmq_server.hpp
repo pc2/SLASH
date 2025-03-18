@@ -24,6 +24,10 @@ namespace vrt {
         std::vector<uint8_t> fetchBuffer(const std::string& name);
         void sendStream(const std::string& name, const std::vector<uint8_t>& buffer);
         std::vector<uint8_t> fetchStream(const std::string& name, size_t size);
+        uint32_t fetchScalarSim(uint64_t addr);
+        void fetchBufferSim(uint64_t addr, uint64_t size, std::vector<uint8_t>& buffer);
+        void sendBufferSim(uint64_t addr, const std::vector<uint8_t>& buffer);
+        void sendScalar(uint64_t addr, uint32_t value);
         ZmqServer(const ZmqServer&) = delete;
         ZmqServer& operator=(const ZmqServer&) = delete;
 

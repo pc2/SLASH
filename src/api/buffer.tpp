@@ -132,10 +132,7 @@ namespace vrt {
                 std::memcpy(sendData.data(), localBuffer, dataSize);
                 server->sendBuffer(std::to_string(getPhysAddr()), sendData);
             } else if (syncType == SyncType::DEVICE_TO_HOST) {
-                // std::vector<uint8_t> recvData = server.recvBuffer(bufferIdx);
-                // std::memcpy(localBuffer, recvData.data(), recvData.size());
                 std::vector<uint8_t> recvData = server->fetchBuffer(std::to_string(getPhysAddr()));
-                // Resize localBuffer to match the size of recvData
                 size = recvData.size() / sizeof(T);
                 localBuffer = reinterpret_cast<T*>(realloc(localBuffer, recvData.size()));
                 std::memcpy(localBuffer, recvData.data(), recvData.size());
@@ -144,6 +141,25 @@ namespace vrt {
                 throw std::invalid_argument("Invalid sync type");
             }
 
+        } else if (platform == Platform::SIMULATION) {
+            ZmqServer* server = device.getZmqServer();
+            if (syncType == SyncType::HOST_TO_DEVICE) {
+                std::vector<uint8_t> sendData;
+                std::size_t dataSize = size * sizeof(T);
+                sendData.resize(dataSize);
+                std::memcpy(sendData.data(), localBuffer, dataSize);
+                server->sendBufferSim(getPhysAddr(), sendData);
+            } else if (syncType == SyncType::DEVICE_TO_HOST) {
+                std::vector<uint8_t> recvData;
+                std::cout << size << std::endl;
+                server->fetchBufferSim(getPhysAddr(), size * sizeof(T), recvData);
+
+                size = recvData.size() * sizeof(T);
+                localBuffer = reinterpret_cast<T*>(realloc(localBuffer, recvData.size()));
+                std::memcpy(localBuffer, recvData.data(), recvData.size());
+            } else {
+                throw std::invalid_argument("Invalid sync type");
+            }
         }
     }
 }  // namespace vrt

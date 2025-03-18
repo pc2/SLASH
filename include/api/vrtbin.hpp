@@ -27,6 +27,7 @@ namespace vrt {
         std::string uuid; ///< UUID of the VRTBIN
         std::string tempExtractPath = "/tmp"; ///< Temporary extraction path
         std::string emulationExecPath; ///< Path to the emulation executable
+        std::string simulationExecPath; ///< Path to the simulation executable
         Platform platform; ///< Platform type
         /**
          * @brief Copies a file from source to destination.
@@ -76,6 +77,12 @@ namespace vrt {
          * @return The path to the emulation executable file.
          */
         std::string getEmulationExec();
+
+        /**
+         * @brief Gets the simulation executable file.
+         * @return The path to the simulation executable file.
+         */
+        std::string getSimulationExec();
 
     };
 

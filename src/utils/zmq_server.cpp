@@ -89,7 +89,6 @@ namespace vrt {
             byteArray.push_back(static_cast<uint8_t>(byte.asUInt()));
         }
 
-        // Return the byteArray
         return byteArray;
     }
 
@@ -130,5 +129,91 @@ namespace vrt {
         memcpy(buffer.data(), reply.data(), reply.size());
         return buffer;
     }
+
+    // hw simulation
+
+    void ZmqServer::fetchBufferSim(uint64_t addr, uint64_t size, std::vector<uint8_t>& buffer) {
+        Json::Value command;
+        command["command"] = "fetch";
+        command["type"] = "buffer";
+        command["addr"] = Json::UInt64(addr);
+        command["size"] = Json::UInt64(size);
+
+        Json::StreamWriterBuilder writer;
+        std::string commandStr = Json::writeString(writer, command);
+
+        zmq::message_t request(commandStr.size());
+        memcpy(request.data(), commandStr.c_str(), commandStr.size());
+        socket.send(request, zmq::send_flags::none);
+
+        zmq::message_t reply;
+        socket.recv(reply);
+        std::string replyStr(static_cast<char*>(reply.data()), reply.size());
+
+        Json::Value response;
+        Json::Reader reader;
+        reader.parse(replyStr, response);
+
+        for (const auto& byte : response) {
+            buffer.push_back(static_cast<uint8_t>(byte.asUInt()));
+        }
+    }
+
+    uint32_t ZmqServer::fetchScalarSim(uint64_t addr) {
+        Json::Value command;
+        command["command"] = "fetch";
+        command["type"] = "scalar";
+        command["addr"] = Json::UInt64(addr);
+
+        Json::StreamWriterBuilder writer;
+        std::string commandStr = Json::writeString(writer, command);
+
+        zmq::message_t request(commandStr.size());
+        memcpy(request.data(), commandStr.c_str(), commandStr.size());
+        socket.send(request, zmq::send_flags::none);
+
+        zmq::message_t reply;
+        socket.recv(reply);
+        std::string replyStr(static_cast<char*>(reply.data()), reply.size());
+
+        Json::Value response;
+        Json::Reader reader;
+        reader.parse(replyStr, response);
+
+        return response.asUInt();
+    }
+
+    void ZmqServer::sendBufferSim(uint64_t addr, const std::vector<uint8_t>& buffer) {
+        Json::Value command;
+        command["command"] = "populate";
+        command["addr"] = Json::UInt64(addr);
+        command["size"] = Json::UInt64(buffer.size());
+        zmq::message_t dataMsg(buffer.data(), buffer.size());
+        std::string commandStr = Json::writeString(Json::StreamWriterBuilder(), command);
+        zmq::message_t request(commandStr.c_str(), commandStr.size());
+        socket.send(request, zmq::send_flags::sndmore);
+        socket.send(dataMsg, zmq::send_flags::none);
+
+        zmq::message_t reply;
+        socket.recv(reply);
+        std::string replyStr(static_cast<char*>(reply.data()), reply.size());
+        // std::cout << "Received reply: " << replyStr << std::endl;
+
+    }
+
+    void ZmqServer::sendScalar(uint64_t addr, uint32_t value) {
+        Json::Value command;
+        command["command"] = "reg";
+        command["addr"] = Json::UInt64(addr);
+        command["val"] = Json::UInt64(value);
+
+        sendCommand(command);
+    }
+
+
+
+
+
+
 
 } // namespace vrt

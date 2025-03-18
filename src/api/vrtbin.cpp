@@ -29,13 +29,15 @@ namespace vrt {
             this->pdiPath = tempExtractPath + "/design.pdi";
             copy(tempExtractPath + "/system_map.xml", systemMapPath);
             copy(tempExtractPath + "/version.json", versionPath);
+            copy(tempExtractPath + "/report_utilization.xml", ami_home + bdf + "/report_utilization.xml");
             extractUUID();
         } else if(this->platform == Platform::EMULATION) {
             copy(tempExtractPath + "/system_map.xml", systemMapPath);
             emulationExecPath =  tempExtractPath + "/vpp_emu";
 
         } else {
-            throw std::runtime_error("Simulation platform not supported yet.");
+            copy(tempExtractPath + "/system_map.xml", systemMapPath);
+            simulationExecPath =  tempExtractPath + "/vpp_sim";
         }
     }
 
@@ -125,5 +127,9 @@ namespace vrt {
 
     std::string Vrtbin::getEmulationExec() {
         return emulationExecPath;
+    }
+
+    std::string Vrtbin::getSimulationExec() {
+        return simulationExecPath;
     }
 }

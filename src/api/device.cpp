@@ -28,7 +28,15 @@ namespace vrt {
             }).detach();
 
         } else {
-            throw std::runtime_error("Unsupported platform simulation");
+            parseSystemMap();
+            std::string simulationExecPath = this->vrtbin.getSimulationExec() + " >/dev/null";
+
+           // std::thread([simulationExecPath]() {
+           //     std::system(simulationExecPath.c_str());
+           // }).detach();
+            Json::Value command;
+            command["command"] = "start";
+            zmqServer->sendCommand(command);
         }
         for(auto& qdmaCon : qdmaConnections) {
             qdmaIntfs.emplace_back(new QdmaIntf(bdf, qdmaCon.getQid()));
@@ -70,7 +78,11 @@ namespace vrt {
             Json::Value exit;
             exit["command"] = "exit";
             zmqServer->sendCommand(exit);
-        }
+        } else if (platform == Platform::SIMULATION) {
+	    Json::Value exit;
+	    exit["command"] = "exit";
+	    zmqServer->sendCommand(exit);
+	}
     }
 
     std::string Device::getBdf() {

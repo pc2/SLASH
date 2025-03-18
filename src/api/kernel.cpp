@@ -31,6 +31,8 @@ namespace vrt {
                 }
             }
             free(buf);
+        } else if (platform == Platform::SIMULATION) {
+            server->sendScalar(baseAddr + offset, value);
         }
     }
 
@@ -65,6 +67,8 @@ namespace vrt {
                 argIdx++;
             }
             // server->fetchScalar(name, "arg" + std::to_string(currentRegisterIndex - ));
+        } else if (platform == Platform::SIMULATION) {
+            return server->fetchScalarSim(baseAddr + offset);
         }
         return 0;
     }
