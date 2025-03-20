@@ -3,6 +3,9 @@
 #include "commands/query_command.hpp"
 #include "commands/validate_command.hpp"
 #include "commands/resource_command.hpp"
+#include "commands/program_command.hpp"
+#include "commands/partial_program_command.hpp"
+#include "commands/inspect_command.hpp"
 #include <iostream>
 
 int main(int argc, char* argv[]) {
@@ -28,6 +31,15 @@ int main(int argc, char* argv[]) {
     } else if (parser.isCommand("list")) {
         ListCommand listCommand(0x10ee, 0x50b4);
         listCommand.execute();
+    } else if (parser.isCommand("program")) {
+        ProgramCommand programCommand(parser.getDevice(), parser.getImagePath(), parser.getPartition());
+        programCommand.execute();
+    } else if (parser.isCommand("partial_program")) {
+        PartialProgramCommand partialProgramCommand(parser.getDevice(), parser.getImagePath());
+        partialProgramCommand.execute();
+    } else if (parser.isCommand("inspect")) {
+        InspectCommand inspectCommand(parser.getImagePath());
+        inspectCommand.execute();
     } else {
         parser.printHelp();
     }

@@ -137,7 +137,7 @@ void ResourceCommand::printResources() {
     std::cout << "Base logic usage. AVED + VRT + User kernels" << std::endl;
     printSpecificInstance(rootInstance, "base_logic", headerPrinted);
     const std::vector<std::string> excludeList = {
-        "axi_smbus_rpu", "gcq_m2r", "hw_discovery", "pcie_slr0_mgmt_sc", "rpu_sc", "uuid_rom", "clk_wiz", "sys_rst"
+        "axi_smbus_rpu", "gcq_m2r", "hw_discovery", "pcie_slr0_mgmt_sc", "rpu_sc", "uuid_rom", "clk_wiz", "sys_rst", "noc_xbar"
     };
     std::cout << "User kernels usage" << std::endl;
     printChildrenOfBaseLogic(rootInstance, excludeList, headerPrinted);

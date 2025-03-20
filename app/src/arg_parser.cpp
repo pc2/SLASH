@@ -1,5 +1,5 @@
 #include "arg_parser.hpp"
-#include "commands/list_command.hpp"
+// #include "commands/list_command.hpp"
 #include <iostream>
 #include <getopt.h>
 #include <regex>
@@ -9,21 +9,54 @@ ArgParser::ArgParser() {
     addCommand("validate", [this]() { currentCommand = "validate"; });
     addCommand("report_utilization", [this]() { currentCommand = "report_utilization"; });
     addCommand("list", [this]() { currentCommand = "list"; });
+    addCommand("program", [this]() { currentCommand = "program"; });
+    addCommand("partial_program", [this]() { currentCommand = "partial_program"; });
+    addCommand("inspect", [this]() { currentCommand = "inspect"; });
 }
 
 void ArgParser::parse(int argc, char* argv[]) {
     static struct option long_options[] = {
         {"device", required_argument, 0, 'd'},
+        {"image", required_argument, 0, 'i'},
+        {"partition", required_argument, 0, 'p'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
     int opt;
     int option_index = 0;
-    while ((opt = getopt_long(argc, argv, "d:h", long_options, &option_index)) != -1) {
+    bool isProgram = false;
+    bool isPartialProgram = false;
+    bool isInspect = false;
+    for(int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "program") {
+            isProgram = true;
+            break;
+        }
+    }
+    for(int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "partial_program") {
+            isPartialProgram = true;
+            break;
+        }
+    }
+
+    for(int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "inspect") {
+            isInspect = true;
+            break;
+        }
+    }
+    while ((opt = getopt_long(argc, argv, "d:i:p:h", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'd':
                 device = convertBdf(optarg);
+                break;
+            case 'i':
+                image = optarg;
+                break;
+            case 'p':
+                partition = std::stoi(optarg);
                 break;
             case 'h':
                 printHelp();
@@ -51,6 +84,61 @@ void ArgParser::parse(int argc, char* argv[]) {
         printHelp();
         exit(EXIT_FAILURE);
     }
+    if (isProgram) {
+        if (device.empty() || image.empty() || partition == -1) {
+            std::cerr << "Error: Missing required options for 'program' command." << std::endl;
+            printHelp();
+            exit(EXIT_FAILURE);
+        }
+        if (partition > 1) {
+            std::cerr << "Partition must be 0 or 1" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        if (!(endsWith(image, ".vrtbin"))) {
+            std::cerr << "Image must be a .vrtbin file" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        if (!std::filesystem::exists(image)) {
+            std::cerr << "Image file does not exist" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+    if (isPartialProgram) {
+        if (device.empty() || image.empty() || partition == -1) {
+            std::cerr << "Error: Missing required options for 'partial_program' command." << std::endl;
+            printHelp();
+            exit(EXIT_FAILURE);
+        }
+
+        if (!(endsWith(image, ".vrtbin"))) {
+            std::cerr << "Image must be a .vrtbin file" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        if (!std::filesystem::exists(image)) {
+            std::cerr << "Image file does not exist" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+    }
+
+    if (isInspect) {
+        if (image.empty()) {
+            std::cerr << "Error: Missing required options for 'inspect' command." << std::endl;
+            printHelp();
+            exit(EXIT_FAILURE);
+        }
+        
+        if (!(endsWith(image, ".vrtbin"))) {
+            std::cerr << "Image must be a .vrtbin file" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        if (!std::filesystem::exists(image)) {
+            std::cerr << "Image file does not exist" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
 std::string ArgParser::getDevice() const {
@@ -68,8 +156,13 @@ void ArgParser::printHelp() const {
               << "  validate             Validate the device\n"
               << "  report_utilization   Report device utilization for the current programmed shell\n"
               << "  list                 List V80s installed\n"
+              << "  program              Program the device's flash memory\n"
+              << "  partial_program      Program the device with a segmented PDI image\n"
+              << "  inspect              Inspect the device\n"
               << "Options:\n"
               << "  -d, --device <device>  Specify the device (e.g., 21:00.0)\n"
+              << "  -i, --image <image>    Specify the image file to program. Only relevant for program/partial_program commands\n"
+              << "  -p, --partition <num>  Specify the partition to program. Only relevant for program command\n"
               << "  -h, --help             Show this help message\n";
 }
 
@@ -92,4 +185,16 @@ std::string ArgParser::strip(const std::string& bdf) const {
         return bdf.substr(0, colonPos);
     }
     return bdf;
+}
+
+std::string ArgParser::getImagePath() const {
+    return image;
+}
+
+uint8_t ArgParser::getPartition() const {
+    return partition;
+}
+
+bool ArgParser::endsWith(const std::string& str, const std::string& suffix) {
+    return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }

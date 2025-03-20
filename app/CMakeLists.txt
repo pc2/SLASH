@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Include directories
 include_directories(include /usr/include/ami/ /usr/include/libxml2 /usr/include/jsoncpp)
 
-file(GLOB APP_SOURCES v80-smi.cpp src/*.cpp src/commands/*.cpp)
+file(GLOB APP_SOURCES v80-smi.cpp src/*.cpp src/commands/*.cpp src/utils/*.cpp)
 
 # Source files
 set(SOURCES

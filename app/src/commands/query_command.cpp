@@ -9,11 +9,11 @@
 
 QueryCommand::QueryCommand(const std::string& device) : device(device) {}
 
-void QueryCommand::execute() const {
+void QueryCommand::execute() {
     queryDevice();
 }
 
-void QueryCommand::queryDevice() const {
+void QueryCommand::queryDevice() {
     std::string bdf = device;
     if (bdf.empty()) {
         std::cerr << "Error: BDF is required for query" << std::endl;
@@ -25,7 +25,7 @@ void QueryCommand::queryDevice() const {
     queryQueues(bdf);
 }
 
-void QueryCommand::queryKernels(const std::string& bdf) const {
+void QueryCommand::queryKernels(const std::string& bdf) {
     std::string bus = bdf;
     char path[256], versionPath[256];
     char* amiHome = getenv("AMI_HOME");
@@ -46,7 +46,7 @@ void QueryCommand::queryKernels(const std::string& bdf) const {
         std::cerr << "Error: could not get root element" << std::endl;
         return;
     }
-    extractAndPrintInfo(versionPath);
+    Vrtbin::extractAndPrintInfo(versionPath);
     for (xmlNode* kernelNode = rootNode->children; kernelNode; kernelNode = kernelNode->next) {
         if (kernelNode->type == XML_ELEMENT_NODE && xmlStrcmp(kernelNode->name, BAD_CAST "Kernel") == 0) {
             std::string name, baseAddr, range;
@@ -72,7 +72,7 @@ void QueryCommand::queryKernels(const std::string& bdf) const {
     xmlFreeDoc(document);
 }
 
-void QueryCommand::queryQueues(const std::string& bdf) const {
+void QueryCommand::queryQueues(const std::string& bdf) {
     std::string bus = bdf;
     char queuePath[256], qmaxPath[256];
     char buffer[BUFFER_SIZE];
@@ -112,44 +112,8 @@ void QueryCommand::queryQueues(const std::string& bdf) const {
     }
 }
 
-void QueryCommand::extractAndPrintInfo(const std::string& path) const {
-    std::ifstream jsonFile(path);
-    if (!jsonFile.is_open()) {
-        std::cerr << "Error: could not open file " << path << std::endl;
-        return;
-    }
 
-    std::string line;
-    char name[256] = {0};
-    char release[256] = {0};
-    char logicUuid[256] = {0};
-    char application[256] = {0};
-
-    while (std::getline(jsonFile, line)) {
-        if (line.find("\"name\":") != std::string::npos) {
-            sscanf(line.c_str(), " \"name\": \"%[^\"]\"", name);
-        } else if (line.find("\"release\":") != std::string::npos) {
-            sscanf(line.c_str(), " \"release\": \"%[^\"]\"", release);
-        } else if (line.find("\"logic_uuid\":") != std::string::npos) {
-            sscanf(line.c_str(), " \"logic_uuid\": \"%[^\"]\"", logicUuid);
-        } else if (line.find("\"application\":") != std::string::npos) {
-            sscanf(line.c_str(), " \"application\": \"%[^\"]\"", application);
-        }
-    }
-
-    jsonFile.close();
-
-    std::cout << "--------------------------------------------------------------------\n";
-    std::cout << "Design Information\n";
-    std::cout << "--------------------------------------------------------------------\n";
-    std::cout << "Design Name                 | " << name << "\n";
-    std::cout << "Release                     | " << release << "\n";
-    std::cout << "Logic UUID                  | " << logicUuid << "\n";
-    std::cout << "Application                 | " << application << "\n\n";
-}
-
-
-void QueryCommand::printAmiDetails() const {
+void QueryCommand::printAmiDetails() {
     ami_device* dev = nullptr;
     if (ami_dev_find(device.c_str(), &dev) != AMI_STATUS_OK) {
         std::cerr << "Error: AMI Device " << device << " not found" << std::endl;
@@ -326,7 +290,7 @@ void QueryCommand::printAmiDetails() const {
 
 }
 
-void QueryCommand::formatManufacturingDate(long manufacturing_date_mins) const {
+void QueryCommand::formatManufacturingDate(long manufacturing_date_mins) {
     char manufacturing_date_str[META_MAX_STR_LEN] = {0};
     struct tm info = {0};
 

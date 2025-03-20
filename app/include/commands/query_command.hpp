@@ -17,6 +17,7 @@
 #include <ami.h>
 #include <ami_device.h>
 #include <ami_mfg_info.h>
+#include "utils/vrtbin.hpp"
 
 #define SYSTEM_MAP_PATH "%s/%s:00.0/system_map.xml"
 #define VERSION_PATH "%s/%s:00.0/version.json"
@@ -31,17 +32,16 @@
 class QueryCommand {
 public:
     QueryCommand(const std::string& device);
-    void execute() const;
+    void execute();
 
 private:
     std::string device;
 
-    void queryDevice() const;
-    void queryKernels(const std::string& bdf) const;
-    void queryQueues(const std::string& bdf) const;
-    void extractAndPrintInfo(const std::string& path) const;
-    void printAmiDetails() const;
-    void formatManufacturingDate(long) const;
+    void queryDevice();
+    void queryKernels(const std::string& bdf);
+    void queryQueues(const std::string& bdf);
+    void printAmiDetails();
+    void formatManufacturingDate(long);
 };
 
 #endif // QUERY_COMMAND_HPP
