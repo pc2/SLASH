@@ -13,8 +13,10 @@
 namespace vrt {
     namespace utils {
         enum class LogLevel {
-            INFO,
+            NONE,
+            WARN,
             ERROR,
+            INFO,
             DEBUG
         };
 

@@ -18,7 +18,7 @@ namespace vrt {
                 programDevice();
             }
             parseSystemMap();
-            // this->clkWiz.setRateHz(clockFreq, false);
+            this->clkWiz.setRateHz((clockFreq < 200000000) ? clockFreq : 200000000, false);
         } else if(platform == Platform::EMULATION) {
             parseSystemMap();
             std::string emulationExecPath = this->vrtbin.getEmulationExec() + " >/dev/null";
@@ -236,7 +236,7 @@ namespace vrt {
                 }
                 destroyAmiDev();
                 pcieHandler.execute(PcieDriverHandler::Command::REMOVE);
-                usleep(DELAY_PARTIAL_BOOT);
+                usleep(2 * DELAY_PARTIAL_BOOT); // enough time for the device to reset
                 pcieHandler.execute(PcieDriverHandler::Command::RESCAN);
                 pcieHandler.execute(PcieDriverHandler::Command::HOTPLUG);
                 createAmiDev();
@@ -287,7 +287,26 @@ namespace vrt {
 
     void Device::setFrequency(uint64_t freq) {
         if(platform == Platform::HARDWARE) {
+            if(freq > clockFreq) {
+                utils::Logger::log(utils::LogLevel::WARN, __PRETTY_FUNCTION__, "Setting frequency {}, which is higher than max frequency {}", freq, clockFreq);
+            }
             clkWiz.setRateHz(freq);
+        }
+    }
+
+    uint64_t Device::getFrequency() {
+        if(platform == Platform::HARDWARE) {
+            return clkWiz.getClockRate();
+        } else {
+            return 0;
+        }
+    }
+
+    uint64_t Device::getMaxFrequency() {
+        if(platform == Platform::HARDWARE) {
+            return clockFreq;
+        } else {
+            return 0;
         }
     }
 

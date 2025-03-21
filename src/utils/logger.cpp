@@ -25,6 +25,8 @@ namespace vrt {
                     return "\033[31m"; // Red
                 case LogLevel::DEBUG:
                     return "\033[34m"; // Blue
+                case LogLevel::WARN:
+                    return "\033[33m"; // Orange (Yellow)
                 default:
                     return "\033[0m";  // Reset
             }
@@ -38,6 +40,8 @@ namespace vrt {
                     return "ERROR";
                 case LogLevel::DEBUG:
                     return "DEBUG";
+                case LogLevel::WARN:
+                    return "WARN";
                 default:
                     return "UNKNOWN";
             }

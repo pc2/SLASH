@@ -262,13 +262,6 @@ class ClkWiz : public Kernel {
         uint64_t clockFrequency; /**< The current clock frequency. */
 
         /**
-         * @brief Get the current clock rate.
-         * 
-         * @return The current clock rate in Hz.
-         */
-        uint64_t getClockRate();
-
-        /**
          * @brief Get the VCO (Voltage-Controlled Oscillator) frequency.
          * 
          * @return The VCO frequency in Hz.
@@ -329,7 +322,15 @@ class ClkWiz : public Kernel {
          * @param rate The desired clock rate in Hz.
          * @param verbose If true, print verbose output.
          */
+        
         void setRateHz(uint64_t rate, bool verbose = true);
+
+        /**
+         * @brief Get the current clock rate.
+         *
+         * @return The current clock rate in Hz.
+         */
+        uint64_t getClockRate();
 };
 
 } // namespace vrt

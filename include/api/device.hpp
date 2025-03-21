@@ -76,7 +76,7 @@ namespace vrt {
          * @param vrtbinPath The path to the VRTBIN file.
          * @param program Flag indicating whether to program the device.
          */
-        Device(const std::string& bdf, const std::string& vrtbinPath, bool program, ProgramType programType);
+        Device(const std::string& bdf, const std::string& vrtbinPath, bool program=true, ProgramType programType=ProgramType::FLASH);
 
         Device() = default;
         /**
@@ -141,6 +141,16 @@ namespace vrt {
          * @brief Sets clk_wiz frequency.
          */
         void setFrequency(uint64_t freq);
+
+        /**
+         * @brief Gets the clock frequency.
+         */
+        uint64_t getFrequency();
+
+        /**
+         * @brief Gets the maximum frequency.
+         */
+        uint64_t getMaxFrequency();
 
         /**
          * @brief Gets ami device.
