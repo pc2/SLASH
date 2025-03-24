@@ -76,7 +76,7 @@ ami_tool --version
 
 echo 'Compiling and installing PCIe hotplug driver...'
 
-cd ./submodules/pcie-hotplug-drv && make && sudo make install > /dev/null && cd -
+cd ./submodules/pcie-hotplug-drv && make && sudo make install > /dev/null && make clean &&cd -
 
 for device in /dev/pcie_hotplug*; do
     if [ -e "$device" ]; then
