@@ -1,7 +1,8 @@
 #!/bin/bash
-HLS_BUILD_DIR_ACCUMULATE=build_offset.xcv80-lsva4737-2MHP-e-S
-HLS_BUILD_DIR_INCREMENT=build_dma.xcv80-lsva4737-2MHP-e-S
-DESIGN_NAME=05_emulation
+HLS_BUILD_DIR_DMA_IN=build_dma_in.xcv80-lsva4737-2MHP-e-S
+HLS_BUILD_DIR_PASSTHROUGH=build_passthrough.xcv80-lsva4737-2MHP-e-S
+HLS_BUILD_DIR_DMA_OUT=build_dma_out.xcv80-lsva4737-2MHP-e-S
+DESIGN_NAME=02_example
 HOME_DIR=$(realpath .)
 BUILD_DIR=$(realpath ./build)
 HLS_DIR=$(realpath ./hls)
@@ -18,11 +19,11 @@ pushd ${HLS_DIR}
     make
 popd
 
-PLATFORM="emu"
+PLATFORM="hw"
 
 echo "Running HW step"
 pushd ${VPP_DIR}
-    ./scripts/v80++ --design-name $DESIGN_NAME --cfg $HOME_DIR/config.cfg --segmented --platform $PLATFORM --kernels $HLS_DIR/$HLS_BUILD_DIR_ACCUMULATE/sol1 $HLS_DIR/$HLS_BUILD_DIR_INCREMENT/sol1
+    ./scripts/v80++ --design-name $DESIGN_NAME --cfg $HOME_DIR/config.cfg --platform $PLATFORM --segmented --kernels $HLS_DIR/$HLS_BUILD_DIR_DMA_IN/sol1 $HLS_DIR/$HLS_BUILD_DIR_PASSTHROUGH/sol1 $HLS_DIR/$HLS_BUILD_DIR_DMA_OUT/sol1
     cp build/${DESIGN_NAME}_${PLATFORM}.vrtbin $BUILD_DIR
 popd
 
@@ -32,5 +33,4 @@ pushd ${HOME_DIR}
     mkdir -p build && cd build
     cmake ..
     make -j9
-#    cp $VPP_DIR/build/system_map.xml .
 popd

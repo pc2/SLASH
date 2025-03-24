@@ -1,8 +1,7 @@
 #!/bin/bash
-
 HLS_BUILD_DIR_ACCUMULATE=build_offset.xcv80-lsva4737-2MHP-e-S
 HLS_BUILD_DIR_INCREMENT=build_dma.xcv80-lsva4737-2MHP-e-S
-DESIGN_NAME=01_example
+DESIGN_NAME=05_emulation
 HOME_DIR=$(realpath .)
 BUILD_DIR=$(realpath ./build)
 HLS_DIR=$(realpath ./hls)
@@ -19,11 +18,11 @@ pushd ${HLS_DIR}
     make
 popd
 
-PLATFORM="hw"
+PLATFORM="sim"
 
 echo "Running HW step"
 pushd ${VPP_DIR}
-    ./scripts/v80++ --design-name $DESIGN_NAME --cfg $HOME_DIR/config.cfg --platform $PLATFORM --kernels $HLS_DIR/$HLS_BUILD_DIR_ACCUMULATE/sol1 $HLS_DIR/$HLS_BUILD_DIR_INCREMENT/sol1
+    ./scripts/v80++ --design-name $DESIGN_NAME --cfg $HOME_DIR/config.cfg --segmented --platform $PLATFORM --kernels $HLS_DIR/$HLS_BUILD_DIR_ACCUMULATE/sol1 $HLS_DIR/$HLS_BUILD_DIR_INCREMENT/sol1
     cp build/${DESIGN_NAME}_${PLATFORM}.vrtbin $BUILD_DIR
 popd
 

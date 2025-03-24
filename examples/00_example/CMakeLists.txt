@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
-project(06_streaming)
+project(00_example)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "-O3")
 
 # Include directories
 include_directories(/usr/local/vrt/include
@@ -11,7 +12,7 @@ include_directories(/usr/local/vrt/include
                     /usr/include/jsoncpp)
 
 # Define sources for the executable
-set(EXE_SOURCES 06_streaming.cpp)
+set(EXE_SOURCES 00_example.cpp)
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${EXE_SOURCES})

@@ -8,7 +8,7 @@ int main() {
     try {
         uint32_t size = 512 * 1024 * 1024;
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
-        vrt::Device device("21:00.0", "02_example_hw.vrtbin", true, vrt::ProgramType::JTAG);
+        vrt::Device device("21:00.0", "02_example_hw.vrtbin");
         device.setFrequency(500000000);
         vrt::Kernel dma_in(device, "dma_in_0");
         vrt::Kernel dma_out(device, "dma_out_0");
