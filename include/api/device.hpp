@@ -64,7 +64,7 @@ namespace vrt {
         Platform platform; ///< Platform information
         ZmqServer* zmqServer; ///< ZeroMQ server object
         std::vector<QdmaConnection> qdmaConnections; ///< Vector of QDMA connections
-        QdmaLogic* qdmaLogic; ///< QDMA logic object
+        // QdmaLogic* qdmaLogic; ///< QDMA logic object
         std::vector<QdmaIntf*> qdmaIntfs; ///< Vector of QDMA interfaces for streaming
     public:
 
@@ -187,10 +187,10 @@ namespace vrt {
          */
         std::vector<QdmaConnection> getQdmaConnections();
 
-        /**
-         * @brief Gets the QDMA logic instance.
-         */
-        QdmaLogic* getQdmaLogic();
+        // /**
+        //  * @brief Gets the QDMA logic instance.
+        //  */
+        // QdmaLogic* getQdmaLogic();
 
         /**
          * @brief Gets the QDMA streaming interfaces.

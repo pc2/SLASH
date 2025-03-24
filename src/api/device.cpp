@@ -52,7 +52,7 @@ namespace vrt {
         clockFreq = parser.getClockFrequency();
         this->platform = parser.getPlatform();
         this->clkWiz = ClkWiz(dev, "clk_wiz", CLK_WIZ_BASE, CLK_WIZ_OFFSET, clockFreq);
-        this->qdmaLogic = new QdmaLogic(dev, "qdma_logic", QDMA_LOGIC_BASE, QDMA_LOGIC_OFFSET);
+        // this->qdmaLogic = new QdmaLogic(dev, "qdma_logic", QDMA_LOGIC_BASE, QDMA_LOGIC_OFFSET);
         this->clkWiz.setPlatform(platform);
         kernels = parser.getKernels();
         for(auto& kernel : kernels) {
@@ -67,22 +67,16 @@ namespace vrt {
 
     void Device::cleanup() {
         if(platform == Platform::HARDWARE) {
-            ami_dev_delete(&dev);
-            delete allocator;
             delete zmqServer;
-            delete qdmaLogic;
             for(auto qdmaIntf_ : qdmaIntfs) {
                 delete qdmaIntf_;
             }
-        } else if(platform == Platform::EMULATION) {
+            ami_dev_delete(&dev);
+        } else if(platform == Platform::EMULATION || platform == Platform::SIMULATION) {
             Json::Value exit;
             exit["command"] = "exit";
             zmqServer->sendCommand(exit);
-        } else if (platform == Platform::SIMULATION) {
-	    Json::Value exit;
-	    exit["command"] = "exit";
-	    zmqServer->sendCommand(exit);
-	}
+        }
     }
 
     std::string Device::getBdf() {
@@ -342,9 +336,9 @@ namespace vrt {
         return allocator;
     }
 
-    QdmaLogic* Device::getQdmaLogic() {
-        return qdmaLogic;
-    }
+    // QdmaLogic* Device::getQdmaLogic() {
+    //     return qdmaLogic;
+    // }
 
     std::vector<QdmaIntf*> Device::getQdmaInterfaces() {
         return qdmaIntfs;
