@@ -82,31 +82,23 @@ source <VITIS>
 ```
 To make the changes persistent, add the commands to .bashrc. Sourcing the Vivado scripts are needed for the hardware builds, whereas vitis is needed for emulation.
 
-In order to run one of the built examples, one must identify the BDF for the V80 and input it into the software.
+In order to run one of the built examples, one must identify the BDF for the V80 and input it into the code.
 
 ```
-lspci -vd 10ee:
-21:00.0 Processing accelerators: Xilinx Corporation Device 50b4
-        Subsystem: Xilinx Corporation Device 000e
-        Flags: bus master, fast devsel, latency 0, NUMA node 0, IOMMU group 29
-        Memory at 2bf40000000 (64-bit, prefetchable) [size=256M]
-        Capabilities: <access denied>
-        Kernel driver in use: ami
-        Kernel modules: ami
-
-21:00.1 Processing accelerators: Xilinx Corporation Device 50b5
-        Subsystem: Xilinx Corporation Device 000e
-        Flags: bus master, fast devsel, latency 0, NUMA node 0, IOMMU group 29
-        Memory at 2bf50000000 (64-bit, prefetchable) [size=512K]
-        Capabilities: <access denied>
-        Kernel driver in use: qdma-pf
-        Kernel modules: qdma_pf, ami, qdma_vf
+v80-smi list
+--------------------------------------------------------------------
+Listing V80 devices 
+--------------------------------------------------------------------
+V80 device found with BDF: 0000:e2:00.0
+--------------------------------------------------------------------
+V80 device found with BDF: 0000:21:00.0
+--------------------------------------------------------------------
 ```
 
 Then, in the example C++ code (`tests/<0X_example/<0X>_example.cpp>`), change the following line with the found BDF number:
 
 ```C++
-vrt::Device device("21:00.0", "0X_example_hw.vrtbin", true, vrt::ProgramType::JTAG);
+vrt::Device device("21:00.0", "0X_example_hw.vrtbin");
 ```
 
 Navigate to the `build` directory, then run:
