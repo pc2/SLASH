@@ -19,6 +19,7 @@
 #include "qdma/qdma_connection.hpp"
 #include "driver/qdma_logic.hpp"
 
+
 #include <map>
 #include <fcntl.h>
 #include <unistd.h>
@@ -26,6 +27,7 @@
 #include <libxml/tree.h>
 #include <thread>
 #include <json/json.h>
+#include <sys/file.h>
 
 namespace vrt {
 
@@ -196,6 +198,16 @@ namespace vrt {
          * @brief Gets the QDMA streaming interfaces.
          */
         std::vector<QdmaIntf*> getQdmaInterfaces();
+
+        /**
+         * @brief Locks pcie device, for exclusive access.
+         */
+        void lockPcieDevice(const std::string& bdf);
+
+        /**
+         * @brief Unlocks pcie device, for exclusive access.
+         */
+        void unlockPcieDevice(const std::string& bdf);
     };
 
 } // namespace vrt

@@ -151,7 +151,6 @@ namespace vrt {
                 server->sendBufferSim(getPhysAddr(), sendData);
             } else if (syncType == SyncType::DEVICE_TO_HOST) {
                 std::vector<uint8_t> recvData;
-                std::cout << size << std::endl;
                 server->fetchBufferSim(getPhysAddr(), size * sizeof(T), recvData);
 
                 size = recvData.size() * sizeof(T);

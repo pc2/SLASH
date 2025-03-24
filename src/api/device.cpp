@@ -3,6 +3,7 @@
 namespace vrt {
 
     Device::Device(const std::string& bdf, const std::string& vrtbinPath, bool program, ProgramType programType) : vrtbin(vrtbinPath, bdf), clkWiz(nullptr, "", 0, 0, 0), pcieHandler(bdf) {
+        lockPcieDevice(bdf);
         this->bdf = bdf;
         this->allocator = new Allocator(4096);
         this->systemMap = this->vrtbin.getSystemMapPath();
@@ -21,7 +22,7 @@ namespace vrt {
             this->clkWiz.setRateHz((clockFreq < 200000000) ? clockFreq : 200000000, false);
         } else if(platform == Platform::EMULATION) {
             parseSystemMap();
-            std::string emulationExecPath = this->vrtbin.getEmulationExec() + " >/dev/null";
+            std::string emulationExecPath = this->vrtbin.getEmulationExec(); // + " >/dev/null";
 
             std::thread([emulationExecPath]() {
                 std::system(emulationExecPath.c_str());
@@ -31,9 +32,9 @@ namespace vrt {
             parseSystemMap();
             std::string simulationExecPath = this->vrtbin.getSimulationExec() + " >/dev/null";
 
-           // std::thread([simulationExecPath]() {
-           //     std::system(simulationExecPath.c_str());
-           // }).detach();
+           std::thread([simulationExecPath]() {
+               std::system(simulationExecPath.c_str());
+           }).detach();
             Json::Value command;
             command["command"] = "start";
             zmqServer->sendCommand(command);
@@ -72,6 +73,7 @@ namespace vrt {
                 delete qdmaIntf_;
             }
             ami_dev_delete(&dev);
+            unlockPcieDevice(bdf);
         } else if(platform == Platform::EMULATION || platform == Platform::SIMULATION) {
             Json::Value exit;
             exit["command"] = "exit";
@@ -343,5 +345,31 @@ namespace vrt {
     std::vector<QdmaIntf*> Device::getQdmaInterfaces() {
         return qdmaIntfs;
     }
+
+    void Device::lockPcieDevice(const std::string& bdf) {
+        std::string lockFile = "/tmp/pcie_device_" + bdf + ".lock";
+        int fd = open(lockFile.c_str(), O_CREAT | O_WRONLY, 0666);
+        if (fd == -1) {
+            throw std::runtime_error("Failed to lock PCIe device " + bdf);
+        }
+        int ret = flock(fd, LOCK_EX | LOCK_NB);
+        if (ret < 0) {
+            close(fd);
+            throw std::runtime_error("Device " + bdf + " locked by another instance");
+        }
+        // close(fd);
+    }
     
+    void Device::unlockPcieDevice(const std::string& bdf) {
+        std::string lockFile = "/tmp/pcie_device_" + bdf + ".lock";
+        int fd = open(lockFile.c_str(), O_WRONLY, 0666);
+        if (fd == -1) {
+            throw std::runtime_error("Failed to lock PCIe device " + bdf);
+        }
+        int ret = flock(fd, LOCK_UN);
+        if (ret < 0) {
+            throw std::runtime_error("Device " + bdf + " cannot be unlocked");
+        }
+        close(fd);
+    } 
 } // namespace vrt
