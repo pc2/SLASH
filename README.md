@@ -58,58 +58,13 @@ cmake --build .
 sudo cmake --install .
 ```
 The executable is located in /usr/local/bin.
+
 ## How to build the examples
 
-
-To build an example, one must do the following:
-
-```bash
-cd tests/<XX>_example/
-./build_all.sh
-```
-
-This will build the hardware design for the FPGA, using the HLS kernels provided in the `hls/` directory. Beware, this takes around one hour to finish.
-
-## How to run
-
-The following environment variable needs to be set prior to running any examples:
-
-```
-mkdir -p /home/<user>/.ami
-export AMI_HOME="/home/<user>/.ami"
-source <VIVADO>
-source <VITIS>
-```
-To make the changes persistent, add the commands to .bashrc. Sourcing the Vivado scripts are needed for the hardware builds, whereas vitis is needed for emulation.
-
-In order to run one of the built examples, one must identify the BDF for the V80 and input it into the code.
-
-```
-v80-smi list
---------------------------------------------------------------------
-Listing V80 devices 
---------------------------------------------------------------------
-V80 device found with BDF: 0000:e2:00.0
---------------------------------------------------------------------
-V80 device found with BDF: 0000:21:00.0
---------------------------------------------------------------------
-```
-
-Then, in the example C++ code (`tests/<0X_example/<0X>_example.cpp>`), change the following line with the found BDF number:
-
-```C++
-vrt::Device device("21:00.0", "0X_example_hw.vrtbin");
-```
-
-Navigate to the `build` directory, then run:
-
-```bash
-make
-```
-This will re-build the host application. After that, run the example.
+A README file can be found in the examples directory. Please follow the instruction given there to proceed.
 
 
 ## Notes
-The program type can be either FLASH or JTAG. We recommend using JTAG. Example 04 shows segmented configuration build, which is a dynamic PL reconfiguration example. For that, the flag doesn't have any attribute.
+All the hardware examples are built using the Segmented Configuration flow.
 
 This software depends on the PCIe hotplug driver (https://gitenterprise.xilinx.com/aulmamei/pcie-hotplug-drv) being installed prior to the running of the software.
