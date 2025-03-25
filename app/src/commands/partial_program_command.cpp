@@ -16,16 +16,17 @@ void PartialProgramCommand::execute() {
     std::string new_uuid;
     char current_uuid[AMI_LOGIC_UUID_SIZE] = {0};
 
-    Vrtbin::extract(this->imagePath, "/tmp");
-    std::string ami_path = std::string(std::getenv("AMI_HOME"));
-    std::string create_path = "mkdir -p " + ami_path + "/" + device + ":00.0/";
-    std::string basePath = ami_path + "/" + device + ":00.0/";
-    system(create_path.c_str());
-    Vrtbin::copy("/tmp/system_map.xml", basePath + "system_map.xml");
-    Vrtbin::copy("/tmp/version.json", basePath + "version.json");
-    Vrtbin::copy("/tmp/report_utilization.xml", basePath + "report_utilization.xml");
-    imagePath = "/tmp/design.pdi";
-
+    if (ArgParser::endsWith(this->imagePath, ".vrtbin")) {
+        Vrtbin::extract(this->imagePath, "/tmp");
+        std::string ami_path = std::string(std::getenv("AMI_HOME"));
+        std::string create_path = "mkdir -p " + ami_path + "/" + device + ":00.0/";
+        std::string basePath = ami_path + "/" + device + ":00.0/";
+        system(create_path.c_str());
+        Vrtbin::copy("/tmp/system_map.xml", basePath + "system_map.xml");
+        Vrtbin::copy("/tmp/version.json", basePath + "version.json");
+        Vrtbin::copy("/tmp/report_utilization.xml", basePath + "report_utilization.xml");
+        imagePath = "/tmp/design.pdi";
+    }
 
     uint16_t dev_bdf;
     ami_dev_get_pci_bdf(dev, &dev_bdf);

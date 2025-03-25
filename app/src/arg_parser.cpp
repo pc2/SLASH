@@ -110,8 +110,8 @@ void ArgParser::parse(int argc, char* argv[]) {
             exit(EXIT_FAILURE);
         }
 
-        if (!(endsWith(image, ".vrtbin"))) {
-            std::cerr << "Image must be a .vrtbin file" << std::endl;
+        if (!((endsWith(image, ".vrtbin")) || (endsWith(image, ".pdi")))) {
+            std::cerr << "Image must be a .vrtbin or pdi file" << std::endl;
             exit(EXIT_FAILURE);
         }
 
@@ -158,7 +158,7 @@ void ArgParser::printHelp() const {
               << "  list                 List V80s installed\n"
               << "  program              Program the device's flash memory\n"
               << "  partial_program      Program the device with a segmented PDI image\n"
-              << "  inspect              Inspect the device\n"
+              << "  inspect              Inspect a vrtbin before programming\n"
               << "Options:\n"
               << "  -d, --device <device>  Specify the device (e.g., 21:00.0)\n"
               << "  -i, --image <image>    Specify the image file to program. Only relevant for program/partial_program commands\n"
