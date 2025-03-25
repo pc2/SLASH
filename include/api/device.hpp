@@ -31,14 +31,36 @@
 
 namespace vrt {
 
+    /**
+     * @brief Enumeration for device programming types.
+     * 
+     * This enum represents the different methods that can be used to program a device.
+     */
     enum class ProgramType {
-        FLASH,
-        JTAG
+        FLASH, ///< Program the device using flash memory
+        JTAG   ///< Program the device using JTAG interface
     };
 
-
+    /**
+     * @brief Path to the JTAG programming script.
+     * 
+     * This macro defines the path to the shell script used for programming devices via JTAG.
+     */
     #define JTAG_PROGRAM_PATH "/usr/local/vrt/jtag_program.sh "
+
+    /**
+     * @brief Path to the QDMA queue setup script.
+     * 
+     * This macro defines the path to the shell script used for setting up QDMA queues.
+     */
     #define QDMA_SETUP_QUEUES "/usr/local/vrt/setup_queues.sh "
+
+    /**
+     * @brief Delay in microseconds for partial boot process.
+     * 
+     * This constant defines the delay time in microseconds that the system
+     * will wait during the partial boot process (4 seconds).
+     */
     #define DELAY_PARTIAL_BOOT (4 * 1000 * 1000)
     /**
      * @brief Class representing a device.
