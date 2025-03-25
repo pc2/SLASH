@@ -22,7 +22,7 @@ namespace vrt {
             this->clkWiz.setRateHz((clockFreq < 200000000) ? clockFreq : 200000000, false);
         } else if(platform == Platform::EMULATION) {
             parseSystemMap();
-            std::string emulationExecPath = this->vrtbin.getEmulationExec(); // + " >/dev/null";
+            std::string emulationExecPath = this->vrtbin.getEmulationExec(); + " >/dev/null";
 
             std::thread([emulationExecPath]() {
                 std::system(emulationExecPath.c_str());
