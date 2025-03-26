@@ -51,5 +51,7 @@ app: setup
 	make -j9
 	@echo "Setting LD_LIBRARY_PATH"
 	export LD_LIBRARY_PATH=$$(dirname $$(which vivado))/../../lib/lnx64.o:$$LD_LIBRARY_PATH
+	@echo "Setting PATH"
+	export PATH=$$PATH:/usr/local/sbin
 clean:
 	rm -rf $(BUILD_DIR)
