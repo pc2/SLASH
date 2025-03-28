@@ -28,6 +28,7 @@
 #include <thread>
 #include <json/json.h>
 #include <sys/file.h>
+#include <memory>
 
 namespace vrt {
 
@@ -86,7 +87,7 @@ namespace vrt {
         Allocator* allocator; ///< Allocator object
         VrtbinType vrtbinType; ///< Type of VRTBIN
         Platform platform; ///< Platform information
-        ZmqServer* zmqServer; ///< ZeroMQ server object
+        std::shared_ptr<ZmqServer> zmqServer; ///< ZeroMQ server object
         std::vector<QdmaConnection> qdmaConnections; ///< Vector of QDMA connections
         // QdmaLogic* qdmaLogic; ///< QDMA logic object
         std::vector<QdmaIntf*> qdmaIntfs; ///< Vector of QDMA interfaces for streaming
@@ -199,7 +200,7 @@ namespace vrt {
         /**
          * @brief Gets the ZMQ server.
          */
-        ZmqServer* getZmqServer();
+        std::shared_ptr<ZmqServer> getZmqServer();
 
         /**
          * @brief Gets the Allocator instance.
