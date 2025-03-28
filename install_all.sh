@@ -95,6 +95,11 @@ cmake -DCMAKE_BUILD_TYPE=Release ../
 make -j9
 sudo make install
 
+mkdir -p app/build && cd app/build
+cmake -DCMAKE_BUILD_TYPE=Release ../
+make -j9
+sudo make install
+
 if ! locate libvrt.so | grep -q '/usr/local/lib/libvrt.so'; then
     echo "VRT installation failed. Please check the installation logs."
     exit 1
