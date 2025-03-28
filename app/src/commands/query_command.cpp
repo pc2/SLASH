@@ -1,17 +1,14 @@
 #include "commands/query_command.hpp"
 
-
 #define SYSTEM_MAP_PATH "%s/%s:00.0/system_map.xml"
 #define VERSION_PATH "%s/%s:00.0/version.json"
-#define QDMA_QUEUE_PATH "/dev/qdma%s001-MM-0" // /dev/qdma<bus>:<dev>.<func>-MM-<queue>
+#define QDMA_QUEUE_PATH "/dev/qdma%s001-MM-0"  // /dev/qdma<bus>:<dev>.<func>-MM-<queue>
 #define QDMA_QMAX_PATH "/sys/bus/pci/devices/0000:%s:00.1/qdma/qmax"
 #define BUFFER_SIZE 1024
 
 QueryCommand::QueryCommand(const std::string& device) : device(device) {}
 
-void QueryCommand::execute() {
-    queryDevice();
-}
+void QueryCommand::execute() { queryDevice(); }
 
 void QueryCommand::queryDevice() {
     std::string bdf = device;
@@ -48,9 +45,11 @@ void QueryCommand::queryKernels(const std::string& bdf) {
     }
     Vrtbin::extractAndPrintInfo(versionPath);
     for (xmlNode* kernelNode = rootNode->children; kernelNode; kernelNode = kernelNode->next) {
-        if (kernelNode->type == XML_ELEMENT_NODE && xmlStrcmp(kernelNode->name, BAD_CAST "Kernel") == 0) {
+        if (kernelNode->type == XML_ELEMENT_NODE &&
+            xmlStrcmp(kernelNode->name, BAD_CAST "Kernel") == 0) {
             std::string name, baseAddr, range;
-            for (xmlNode* childNode = kernelNode->children; childNode; childNode = childNode->next) {
+            for (xmlNode* childNode = kernelNode->children; childNode;
+                 childNode = childNode->next) {
                 if (childNode->type == XML_ELEMENT_NODE) {
                     if (xmlStrcmp(childNode->name, BAD_CAST "Name") == 0) {
                         name = (char*)xmlNodeGetContent(childNode);
@@ -112,7 +111,6 @@ void QueryCommand::queryQueues(const std::string& bdf) {
     }
 }
 
-
 void QueryCommand::printAmiDetails() {
     ami_device* dev = nullptr;
     if (ami_dev_find(device.c_str(), &dev) != AMI_STATUS_OK) {
@@ -139,7 +137,7 @@ void QueryCommand::printAmiDetails() {
     }
 
     char uuid[AMI_LOGIC_UUID_SIZE];
-    if (ami_dev_read_uuid(dev, uuid)!= AMI_STATUS_OK) {
+    if (ami_dev_read_uuid(dev, uuid) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to read UUID" << std::endl;
         return;
     }
@@ -150,7 +148,7 @@ void QueryCommand::printAmiDetails() {
         std::cerr << "Error: Failed to get driver version" << std::endl;
         return;
     }
-    
+
     struct ami_version api_version;
 
     if (ami_get_api_version(&api_version) != AMI_STATUS_OK) {
@@ -160,7 +158,7 @@ void QueryCommand::printAmiDetails() {
 
     struct amc_version amc_version;
 
-    if(ami_dev_get_amc_version(dev, &amc_version) != AMI_STATUS_OK) {
+    if (ami_dev_get_amc_version(dev, &amc_version) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get AMC version" << std::endl;
         return;
     }
@@ -168,9 +166,15 @@ void QueryCommand::printAmiDetails() {
     std::cout << "Device Name                 | " << devName << "\n";
     std::cout << "Device State                | " << devState << "\n";
     std::cout << "Logic UUID                  | " << std::string(uuid).substr(0, 32) << "\n";
-    std::cout << "Driver Version              | " << std::to_string(ami_version.major) << "." << std::to_string(ami_version.minor) << "." << std::to_string(ami_version.patch) << "\n";
-    std::cout << "API Version                 | " << std::to_string(api_version.major) << "." << std::to_string(api_version.minor) << "." << std::to_string(api_version.patch) << "\n";
-    std::cout << "FW Version                  | " << std::to_string(amc_version.major) << "." << std::to_string(amc_version.minor) << "." << std::to_string(amc_version.patch) << "\n";
+    std::cout << "Driver Version              | " << std::to_string(ami_version.major) << "."
+              << std::to_string(ami_version.minor) << "." << std::to_string(ami_version.patch)
+              << "\n";
+    std::cout << "API Version                 | " << std::to_string(api_version.major) << "."
+              << std::to_string(api_version.minor) << "." << std::to_string(api_version.patch)
+              << "\n";
+    std::cout << "FW Version                  | " << std::to_string(amc_version.major) << "."
+              << std::to_string(amc_version.minor) << "." << std::to_string(amc_version.patch)
+              << "\n";
     std::cout << "\n";
 
     uint16_t pciVendor;
@@ -178,7 +182,7 @@ void QueryCommand::printAmiDetails() {
         std::cerr << "Error: Failed to get PCI vendor" << std::endl;
         return;
     }
-    
+
     uint16_t pciDevice;
     if (ami_dev_get_pci_device(dev, &pciDevice) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get PCI device" << std::endl;
@@ -211,54 +215,54 @@ void QueryCommand::printAmiDetails() {
     }
 
     char productName[AMI_MFG_INFO_MAX_STR], boardRev[AMI_MFG_INFO_MAX_STR],
-    eepromVersion[AMI_MFG_INFO_MAX_STR], boardSerial[AMI_MFG_INFO_MAX_STR],
-    partNum[AMI_MFG_INFO_MAX_STR], mPartNum[AMI_MFG_INFO_MAX_STR],
-    macAddr[AMI_MFG_INFO_MAX_STR], macAddrN[AMI_MFG_INFO_MAX_STR],
-    mDate[AMI_MFG_INFO_MAX_STR], uuid_system[AMI_MFG_INFO_MAX_STR];
+        eepromVersion[AMI_MFG_INFO_MAX_STR], boardSerial[AMI_MFG_INFO_MAX_STR],
+        partNum[AMI_MFG_INFO_MAX_STR], mPartNum[AMI_MFG_INFO_MAX_STR],
+        macAddr[AMI_MFG_INFO_MAX_STR], macAddrN[AMI_MFG_INFO_MAX_STR], mDate[AMI_MFG_INFO_MAX_STR],
+        uuid_system[AMI_MFG_INFO_MAX_STR];
 
-    if(ami_mfg_get_info(dev, AMI_MFG_PRODUCT_NAME, productName) != AMI_STATUS_OK) {
+    if (ami_mfg_get_info(dev, AMI_MFG_PRODUCT_NAME, productName) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get product name" << std::endl;
         return;
     }
 
-    if(ami_mfg_get_info(dev, AMI_MFG_BOARD_REV, boardRev) != AMI_STATUS_OK) {
+    if (ami_mfg_get_info(dev, AMI_MFG_BOARD_REV, boardRev) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get board revision" << std::endl;
         return;
     }
 
-    if(ami_mfg_get_info(dev, AMI_MFG_EEPROM_VERSION, eepromVersion) != AMI_STATUS_OK) {
+    if (ami_mfg_get_info(dev, AMI_MFG_EEPROM_VERSION, eepromVersion) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get eeprom version" << std::endl;
         return;
     }
-    if(ami_mfg_get_info(dev, AMI_MFG_BOARD_SERIAL, boardSerial) != AMI_STATUS_OK) {
+    if (ami_mfg_get_info(dev, AMI_MFG_BOARD_SERIAL, boardSerial) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get board serial" << std::endl;
         return;
     }
-    if(ami_mfg_get_info(dev, AMI_MFG_PART_NUM, partNum) != AMI_STATUS_OK) {
+    if (ami_mfg_get_info(dev, AMI_MFG_PART_NUM, partNum) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get part number" << std::endl;
         return;
     }
-    if(ami_mfg_get_info(dev, AMI_MFG_M_PART_NUM, mPartNum) != AMI_STATUS_OK) {
+    if (ami_mfg_get_info(dev, AMI_MFG_M_PART_NUM, mPartNum) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get m part number" << std::endl;
         return;
     }
 
-    if(ami_mfg_get_info(dev, AMI_MFG_MAC_ADDR, macAddr) != AMI_STATUS_OK) {
+    if (ami_mfg_get_info(dev, AMI_MFG_MAC_ADDR, macAddr) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get mac addr" << std::endl;
         return;
     }
 
-    if(ami_mfg_get_info(dev, AMI_MFG_MAC_ADDR_N, macAddrN) != AMI_STATUS_OK) {
+    if (ami_mfg_get_info(dev, AMI_MFG_MAC_ADDR_N, macAddrN) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get mac addr n" << std::endl;
         return;
     }
 
-    if(ami_mfg_get_info(dev, AMI_MFG_M_DATE, mDate) != AMI_STATUS_OK) {
+    if (ami_mfg_get_info(dev, AMI_MFG_M_DATE, mDate) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get m date" << std::endl;
         return;
     }
 
-    if(ami_mfg_get_info(dev, AMI_MFG_UUID, uuid_system) != AMI_STATUS_OK) {
+    if (ami_mfg_get_info(dev, AMI_MFG_UUID, uuid_system) != AMI_STATUS_OK) {
         std::cerr << "Error: Failed to get uuid" << std::endl;
         return;
     }
@@ -276,18 +280,20 @@ void QueryCommand::printAmiDetails() {
     std::cout << "MAC Address N               | " << macAddrN << "\n";
     formatManufacturingDate(std::strtoul(mDate, nullptr, 10));
     std::cout << "UUID                        | " << uuid_system << "\n\n";
-    
 
     std::cout << "--------------------------------------------------------------------\n";
     std::cout << "PCI Information\n";
     std::cout << "--------------------------------------------------------------------\n";
-    std::cout << "PCI Vendor                  | " << std::hex << std::showbase << pciVendor << std::dec << "\n";
-    std::cout << "PCI Device                  | " << std::hex << std::showbase << pciDevice << std::dec << "\n";
-    std::cout << "Current Link Speed          | Gen" << (int)currentLinkSpeed << " (max Gen" << (int)maxLinkSpeed << ")\n";
-    std::cout << "Current Link Width          | x" << (int)currentLinkWidth << " (max x" << (int)maxLinkWidth << ")\n";
+    std::cout << "PCI Vendor                  | " << std::hex << std::showbase << pciVendor
+              << std::dec << "\n";
+    std::cout << "PCI Device                  | " << std::hex << std::showbase << pciDevice
+              << std::dec << "\n";
+    std::cout << "Current Link Speed          | Gen" << (int)currentLinkSpeed << " (max Gen"
+              << (int)maxLinkSpeed << ")\n";
+    std::cout << "Current Link Width          | x" << (int)currentLinkWidth << " (max x"
+              << (int)maxLinkWidth << ")\n";
     std::cout << "NUMA Mode                   | " << (int)numaNode << "\n";
     std::cout << "CPU Affinity                | " << cpuList << "\n\n";
-
 }
 
 void QueryCommand::formatManufacturingDate(long manufacturing_date_mins) {
@@ -295,7 +301,7 @@ void QueryCommand::formatManufacturingDate(long manufacturing_date_mins) {
     struct tm info = {0};
 
     if (manufacturing_date_mins) {
-        info.tm_year = 96; // Base year 1970
+        info.tm_year = 96;  // Base year 1970
         info.tm_mon = 1;
         info.tm_mday = 1;
         info.tm_hour = 0;

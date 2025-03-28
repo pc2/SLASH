@@ -1,7 +1,8 @@
 #include "arg_parser.hpp"
 // #include "commands/list_command.hpp"
-#include <iostream>
 #include <getopt.h>
+
+#include <iostream>
 #include <regex>
 
 ArgParser::ArgParser() {
@@ -17,33 +18,31 @@ ArgParser::ArgParser() {
 }
 
 void ArgParser::parse(int argc, char* argv[]) {
-    static struct option long_options[] = {
-        {"device", required_argument, 0, 'd'},
-        {"image", required_argument, 0, 'i'},
-        {"partition", required_argument, 0, 'p'},
-        {"help", no_argument, 0, 'h'},
-        {0, 0, 0, 0}
-    };
+    static struct option long_options[] = {{"device", required_argument, 0, 'd'},
+                                           {"image", required_argument, 0, 'i'},
+                                           {"partition", required_argument, 0, 'p'},
+                                           {"help", no_argument, 0, 'h'},
+                                           {0, 0, 0, 0}};
 
     int opt;
     int option_index = 0;
     bool isProgram = false;
     bool isPartialProgram = false;
     bool isInspect = false;
-    for(int i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (std::string(argv[i]) == "program") {
             isProgram = true;
             break;
         }
     }
-    for(int i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (std::string(argv[i]) == "partial_program") {
             isPartialProgram = true;
             break;
         }
     }
 
-    for(int i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (std::string(argv[i]) == "inspect") {
             isInspect = true;
             break;
@@ -107,7 +106,8 @@ void ArgParser::parse(int argc, char* argv[]) {
     }
     if (isPartialProgram) {
         if (device.empty() || image.empty() || partition == -1) {
-            std::cerr << "Error: Missing required options for 'partial_program' command." << std::endl;
+            std::cerr << "Error: Missing required options for 'partial_program' command."
+                      << std::endl;
             printHelp();
             exit(EXIT_FAILURE);
         }
@@ -121,7 +121,6 @@ void ArgParser::parse(int argc, char* argv[]) {
             std::cerr << "Image file does not exist" << std::endl;
             exit(EXIT_FAILURE);
         }
-
     }
 
     if (isInspect) {
@@ -130,7 +129,7 @@ void ArgParser::parse(int argc, char* argv[]) {
             printHelp();
             exit(EXIT_FAILURE);
         }
-        
+
         if (!(endsWith(image, ".vrtbin"))) {
             std::cerr << "Image must be a .vrtbin file" << std::endl;
             exit(EXIT_FAILURE);
@@ -143,31 +142,30 @@ void ArgParser::parse(int argc, char* argv[]) {
     }
 }
 
-std::string ArgParser::getDevice() const {
-    return device;
-}
+std::string ArgParser::getDevice() const { return device; }
 
-bool ArgParser::isCommand(const std::string& command) const {
-    return currentCommand == command;
-}
+bool ArgParser::isCommand(const std::string& command) const { return currentCommand == command; }
 
 void ArgParser::printHelp() const {
-    std::cout << "Usage: v80-smi <command> [options]\n"
-              << "Commands:\n"
-              << "  query                Query the device\n"
-              << "  validate             Validate the device\n"
-              << "  report_utilization   Report device utilization for the current programmed shell\n"
-              << "  list                 List V80s installed\n"
-              << "  program              Program the device's flash memory\n"
-              << "  partial_program      Program the device with a segmented PDI image\n"
-              << "  inspect              Inspect a vrtbin before programming\n"
-              << "  reload               Reloads the PCIe handler for device\n"
-              << "  reset                Resets the device to a clean state\n"
-              << "Options:\n"
-              << "  -d, --device <device>  Specify the device (e.g., 21:00.0)\n"
-              << "  -i, --image <image>    Specify the image file to program. Only relevant for program/partial_program commands\n"
-              << "  -p, --partition <num>  Specify the partition to program. Only relevant for program command\n"
-              << "  -h, --help             Show this help message\n";
+    std::cout
+        << "Usage: v80-smi <command> [options]\n"
+        << "Commands:\n"
+        << "  query                Query the device\n"
+        << "  validate             Validate the device\n"
+        << "  report_utilization   Report device utilization for the current programmed shell\n"
+        << "  list                 List V80s installed\n"
+        << "  program              Program the device's flash memory\n"
+        << "  partial_program      Program the device with a segmented PDI image\n"
+        << "  inspect              Inspect a vrtbin before programming\n"
+        << "  reload               Reloads the PCIe handler for device\n"
+        << "  reset                Resets the device to a clean state\n"
+        << "Options:\n"
+        << "  -d, --device <device>  Specify the device (e.g., 21:00.0)\n"
+        << "  -i, --image <image>    Specify the image file to program. Only relevant for "
+           "program/partial_program commands\n"
+        << "  -p, --partition <num>  Specify the partition to program. Only relevant for program "
+           "command\n"
+        << "  -h, --help             Show this help message\n";
 }
 
 void ArgParser::addCommand(const std::string& command, const std::function<void()>& handler) {
@@ -191,14 +189,11 @@ std::string ArgParser::strip(const std::string& bdf) const {
     return bdf;
 }
 
-std::string ArgParser::getImagePath() const {
-    return image;
-}
+std::string ArgParser::getImagePath() const { return image; }
 
-uint8_t ArgParser::getPartition() const {
-    return partition;
-}
+uint8_t ArgParser::getPartition() const { return partition; }
 
 bool ArgParser::endsWith(const std::string& str, const std::string& suffix) {
-    return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+    return str.size() >= suffix.size() &&
+           str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }

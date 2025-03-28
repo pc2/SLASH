@@ -1,14 +1,15 @@
+#include <iostream>
+
 #include "arg_parser.hpp"
-#include "commands/list_command.hpp"
-#include "commands/query_command.hpp"
-#include "commands/validate_command.hpp"
-#include "commands/resource_command.hpp"
-#include "commands/program_command.hpp"
-#include "commands/partial_program_command.hpp"
 #include "commands/inspect_command.hpp"
+#include "commands/list_command.hpp"
+#include "commands/partial_program_command.hpp"
+#include "commands/program_command.hpp"
+#include "commands/query_command.hpp"
 #include "commands/reload_command.hpp"
 #include "commands/reset_command.hpp"
-#include <iostream>
+#include "commands/resource_command.hpp"
+#include "commands/validate_command.hpp"
 
 int main(int argc, char* argv[]) {
     ArgParser parser;
@@ -34,7 +35,8 @@ int main(int argc, char* argv[]) {
         ListCommand listCommand(0x10ee, 0x50b4);
         listCommand.execute();
     } else if (parser.isCommand("program")) {
-        ProgramCommand programCommand(parser.getDevice(), parser.getImagePath(), parser.getPartition());
+        ProgramCommand programCommand(parser.getDevice(), parser.getImagePath(),
+                                      parser.getPartition());
         programCommand.execute();
     } else if (parser.isCommand("partial_program")) {
         PartialProgramCommand partialProgramCommand(parser.getDevice(), parser.getImagePath());

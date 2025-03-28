@@ -24,10 +24,15 @@ void PcieDriverHandler::execute(Command cmd) {
 
 std::string PcieDriverHandler::commandToString(Command cmd) {
     switch (cmd) {
-        case Command::REMOVE: return "remove";
-        case Command::TOGGLE_SBR: return "toggle_sbr";
-        case Command::RESCAN: return "rescan";
-        case Command::HOTPLUG: return "hotplug";
-        default: throw std::invalid_argument("Invalid command");
+        case Command::REMOVE:
+            return "remove";
+        case Command::TOGGLE_SBR:
+            return "toggle_sbr";
+        case Command::RESCAN:
+            return "rescan";
+        case Command::HOTPLUG:
+            return "hotplug";
+        default:
+            throw std::invalid_argument("Invalid command");
     }
 }

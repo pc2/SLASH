@@ -1,19 +1,19 @@
 #include "commands/list_command.hpp"
-#include <iostream>
-#include <fstream>
-#include <sstream>
+
 #include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 ListCommand::ListCommand(uint16_t vendorId, uint16_t deviceId)
     : vendorId(vendorId), deviceId(deviceId) {}
 
-void ListCommand::execute() const {
-    listDevices();
-}
+void ListCommand::execute() const { listDevices(); }
 
 void ListCommand::listDevices() const {
     std::cout << "--------------------------------------------------------------------\n";
-    std::cout << "Listing V80 devices " << "\n";
+    std::cout << "Listing V80 devices "
+              << "\n";
     std::cout << "--------------------------------------------------------------------\n";
 
     for (const auto& entry : std::filesystem::directory_iterator("/sys/bus/pci/devices")) {
@@ -30,8 +30,10 @@ void ListCommand::listDevices() const {
             uint16_t deviceId = std::stoi(deviceIdStr, nullptr, 16);
 
             if (vendorId == this->vendorId && deviceId == this->deviceId) {
-                std::cout << "V80 device found with BDF: " << entry.path().filename().string() << "\n";
-                std::cout << "--------------------------------------------------------------------\n";
+                std::cout << "V80 device found with BDF: " << entry.path().filename().string()
+                          << "\n";
+                std::cout
+                    << "--------------------------------------------------------------------\n";
             }
         }
     }

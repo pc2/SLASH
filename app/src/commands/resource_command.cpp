@@ -2,7 +2,7 @@
 
 ResourceCommand::ResourceCommand(const std::string& device) : device(device) {
     std::string amiHome = std::string(getenv("AMI_HOME"));
-    if(amiHome.empty()) {
+    if (amiHome.empty()) {
         std::cerr << "AMI_HOME environment variable is not set." << std::endl;
         exit(1);
     }
@@ -128,27 +128,32 @@ void ResourceCommand::parseInstance(xmlNode* node, Instance& instance) {
     }
 }
 
-
-
 void ResourceCommand::printResources() {
     bool headerPrinted = false;
     std::cout << "Total usage" << std::endl;
     printSpecificInstance(rootInstance, "top_wrapper", headerPrinted);
     std::cout << "Base logic usage. AVED + VRT + User kernels" << std::endl;
     printSpecificInstance(rootInstance, "base_logic", headerPrinted);
-    const std::vector<std::string> excludeList = {
-        "axi_smbus_rpu", "gcq_m2r", "hw_discovery", "pcie_slr0_mgmt_sc", "rpu_sc", "uuid_rom", "clk_wiz", "sys_rst", "noc_xbar"
-    };
+    const std::vector<std::string> excludeList = {"axi_smbus_rpu",     "gcq_m2r", "hw_discovery",
+                                                  "pcie_slr0_mgmt_sc", "rpu_sc",  "uuid_rom",
+                                                  "clk_wiz",           "sys_rst", "noc_xbar"};
     std::cout << "User kernels usage" << std::endl;
     printChildrenOfBaseLogic(rootInstance, excludeList, headerPrinted);
 }
 
-void ResourceCommand::printInstance(const Instance& instance, int level, bool& headerPrinted) const {
+void ResourceCommand::printInstance(const Instance& instance, int level,
+                                    bool& headerPrinted) const {
     if (!headerPrinted) {
         // Print the table header
-        printf("+--------------------+--------------------+--------------------+--------------------+--------------------+--------------------+--------------------+\n");
-        printf("| Name               | TotalLUTs          | LogicLUTs          | FFs                | BlockRAM Tiles     | URAM               | DSPBlocks          |\n");
-        printf("+--------------------+--------------------+--------------------+--------------------+--------------------+--------------------+--------------------+\n");
+        printf(
+            "+--------------------+--------------------+--------------------+--------------------+-"
+            "-------------------+--------------------+--------------------+\n");
+        printf(
+            "| Name               | TotalLUTs          | LogicLUTs          | FFs                | "
+            "BlockRAM Tiles     | URAM               | DSPBlocks          |\n");
+        printf(
+            "+--------------------+--------------------+--------------------+--------------------+-"
+            "-------------------+--------------------+--------------------+\n");
         headerPrinted = true;
     }
 
@@ -160,18 +165,22 @@ void ResourceCommand::printInstance(const Instance& instance, int level, bool& h
     };
 
     // Print the instance details
-    printf("| %-18s | %-18s | %-18s | %-18s | %-18s | %-18s | %-18s |\n",
-           instance.name.c_str(),
+    printf("| %-18s | %-18s | %-18s | %-18s | %-18s | %-18s | %-18s |\n", instance.name.c_str(),
            formatValue(instance.totalLUTs.first, instance.totalLUTs.second).c_str(),
            formatValue(instance.logicLUTs.first, instance.logicLUTs.second).c_str(),
            formatValue(instance.ffs.first, instance.ffs.second).c_str(),
-           formatValue(instance.ramb36.first + instance.ramb18.first / 2, instance.ramb36.second + instance.ramb18.second / 2).c_str(),
+           formatValue(instance.ramb36.first + instance.ramb18.first / 2,
+                       instance.ramb36.second + instance.ramb18.second / 2)
+               .c_str(),
            formatValue(instance.uram.first, instance.uram.second).c_str(),
            formatValue(instance.dspBlocks.first, instance.dspBlocks.second).c_str());
 
-    printf("+--------------------+--------------------+--------------------+--------------------+--------------------+--------------------+--------------------+\n");
+    printf(
+        "+--------------------+--------------------+--------------------+--------------------+-----"
+        "---------------+--------------------+--------------------+\n");
 }
-void ResourceCommand::printSpecificInstance(const Instance& instance, const std::string& targetName, bool headerPrinted) const {
+void ResourceCommand::printSpecificInstance(const Instance& instance, const std::string& targetName,
+                                            bool headerPrinted) const {
     if (instance.name == targetName) {
         printInstance(instance, 0, headerPrinted);
         return;
@@ -181,10 +190,13 @@ void ResourceCommand::printSpecificInstance(const Instance& instance, const std:
     }
 }
 
-void ResourceCommand::printChildrenOfBaseLogic(const Instance& instance, const std::vector<std::string>& excludeList, bool& headerPrinted) const {
+void ResourceCommand::printChildrenOfBaseLogic(const Instance& instance,
+                                               const std::vector<std::string>& excludeList,
+                                               bool& headerPrinted) const {
     if (instance.name == "base_logic") {
         for (const auto& child : instance.children) {
-            if (std::find(excludeList.begin(), excludeList.end(), child.name) == excludeList.end()) {
+            if (std::find(excludeList.begin(), excludeList.end(), child.name) ==
+                excludeList.end()) {
                 printInstance(child, 1, headerPrinted);
             }
         }

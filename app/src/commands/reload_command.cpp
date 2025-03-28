@@ -1,6 +1,5 @@
 #include "commands/reload_command.hpp"
 
-
 ReloadCommand::ReloadCommand(const std::string& device) : device(device) {}
 
 void ReloadCommand::execute() {

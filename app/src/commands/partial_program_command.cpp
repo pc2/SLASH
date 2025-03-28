@@ -1,6 +1,7 @@
 #include "commands/partial_program_command.hpp"
 
-PartialProgramCommand::PartialProgramCommand(const std::string& device, const std::string& image_path) {
+PartialProgramCommand::PartialProgramCommand(const std::string& device,
+                                             const std::string& image_path) {
     this->device = device;
     this->imagePath = image_path;
     this->dev = nullptr;
@@ -9,13 +10,12 @@ PartialProgramCommand::PartialProgramCommand(const std::string& device, const st
         throw std::runtime_error("Error finding device");
     }
 
-    if(ami_dev_request_access(dev) != AMI_STATUS_OK) {
+    if (ami_dev_request_access(dev) != AMI_STATUS_OK) {
         throw std::runtime_error("Failed to request elevated access to device");
     }
 }
 
 void PartialProgramCommand::execute() {
-
     PcieDriverHandler pcieDriverHandler(device + ":00.0");
     int found_current_uuid = AMI_STATUS_ERROR;
     int found_new_uuid = AMI_STATUS_ERROR;
@@ -36,13 +36,14 @@ void PartialProgramCommand::execute() {
         imagePath = "/tmp/design.pdi";
     }
 
-    int ret = ami_prog_device_boot(&dev, 1); // segmented PDI is on partition 1
+    int ret = ami_prog_device_boot(&dev, 1);  // segmented PDI is on partition 1
 
-    if(ret != AMI_STATUS_OK && geteuid() == 0) {
+    if (ret != AMI_STATUS_OK && geteuid() == 0) {
         throw std::runtime_error("Error booting device to partition 1");
     }
 
-    ami_mem_bar_write(dev, 0, 0x1040000, 1); // PMC GPIO. this is needed for reset PDI into partition 1
+    ami_mem_bar_write(dev, 0, 0x1040000,
+                      1);  // PMC GPIO. this is needed for reset PDI into partition 1
     ami_dev_delete(&dev);
     pcieDriverHandler.execute(PcieDriverHandler::Command::REMOVE);
     pcieDriverHandler.execute(PcieDriverHandler::Command::TOGGLE_SBR);
@@ -57,28 +58,24 @@ void PartialProgramCommand::execute() {
     found_current_uuid = ami_dev_read_uuid(dev, current_uuid);
     found_new_uuid = Vrtbin::extractUUID().empty() ? AMI_STATUS_ERROR : AMI_STATUS_OK;
     new_uuid = Vrtbin::extractUUID().substr(0, 32);
-    	printf(
-		"----------------------------------------------\r\n"
-		"Device | %02x:%02x.%01x\r\n"
-		"----------------------------------------------\r\n"
-		"Current Configuration\r\n"
-		"----------------------------------------------\r\n"
-		"UUID   | %s\r\n"
-		"----------------------------------------------\r\n"
-		"Incoming Configuration\r\n"
-		"----------------------------------------------\r\n"
-		"UUID      | %s\r\n"
-		"Path      | %s\r\n"
-		"----------------------------------------------\r\n",
-		AMI_PCI_BUS(dev_bdf),
-		AMI_PCI_DEV(dev_bdf),
-		AMI_PCI_FUNC(dev_bdf),
-		((found_current_uuid != AMI_STATUS_OK) ? ("N/A") : (current_uuid)),
-		((found_new_uuid != AMI_STATUS_OK) ? ("N/A") : (new_uuid.c_str())),
-		imagePath.c_str()
-	);
+    printf(
+        "----------------------------------------------\r\n"
+        "Device | %02x:%02x.%01x\r\n"
+        "----------------------------------------------\r\n"
+        "Current Configuration\r\n"
+        "----------------------------------------------\r\n"
+        "UUID   | %s\r\n"
+        "----------------------------------------------\r\n"
+        "Incoming Configuration\r\n"
+        "----------------------------------------------\r\n"
+        "UUID      | %s\r\n"
+        "Path      | %s\r\n"
+        "----------------------------------------------\r\n",
+        AMI_PCI_BUS(dev_bdf), AMI_PCI_DEV(dev_bdf), AMI_PCI_FUNC(dev_bdf),
+        ((found_current_uuid != AMI_STATUS_OK) ? ("N/A") : (current_uuid)),
+        ((found_new_uuid != AMI_STATUS_OK) ? ("N/A") : (new_uuid.c_str())), imagePath.c_str());
 
-    if(new_uuid == current_uuid) {
+    if (new_uuid == current_uuid) {
         std::cout << "Device configured with the same image.\n";
         ami_dev_delete(&dev);
         return;
@@ -89,7 +86,8 @@ void PartialProgramCommand::execute() {
         throw std::runtime_error("Error requesting access to device");
     }
 
-    if (ami_prog_download_pdi(dev, imagePath.c_str(), 0, 0, Vrtbin::progressHandler, true) != AMI_STATUS_OK) {
+    if (ami_prog_download_pdi(dev, imagePath.c_str(), 0, 0, Vrtbin::progressHandler, true) !=
+        AMI_STATUS_OK) {
         std::cerr << "Error downloading image to ami device: " << device << std::endl;
         throw std::runtime_error("Error downloading image to device");
     }
@@ -111,5 +109,4 @@ void PartialProgramCommand::execute() {
         std::cerr << "Error: Partial Program Command failed\n";
         std::cerr << "Possible NoC configuration missmatch. Check V80 PLM logs\n";
     }
-
 }

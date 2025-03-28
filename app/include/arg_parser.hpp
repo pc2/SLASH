@@ -1,28 +1,28 @@
 #ifndef ARG_PARSER_HPP
 #define ARG_PARSER_HPP
 
+#include <filesystem>
+#include <functional>
 #include <string>
 #include <unordered_map>
-#include <functional>
-#include <filesystem>
 
 /**
  * @brief Class for parsing command-line arguments.
- * 
+ *
  * The ArgParser class handles the parsing of command-line arguments for the application.
  */
 class ArgParser {
-public:
+   public:
     /**
      * @brief Constructor for ArgParser.
-     * 
+     *
      * Initializes the ArgParser and registers the available commands.
      */
     ArgParser();
 
     /**
      * @brief Parses the command-line arguments.
-     * 
+     *
      * @param argc The number of arguments.
      * @param argv The array of argument strings.
      */
@@ -30,28 +30,28 @@ public:
 
     /**
      * @brief Gets the device BDF (Bus:Device.Function) identifier.
-     * 
+     *
      * @return The device BDF as a string.
      */
     std::string getDevice() const;
 
     /**
      * @brief Gets the path to the image file.
-     * 
+     *
      * @return The image file path as a string.
      */
     std::string getImagePath() const;
 
     /**
      * @brief Gets the partition number.
-     * 
+     *
      * @return The partition number.
      */
     uint8_t getPartition() const;
 
     /**
      * @brief Checks if a specific command was specified.
-     * 
+     *
      * @param command The command to check for.
      * @return True if the specified command was given, false otherwise.
      */
@@ -59,30 +59,31 @@ public:
 
     /**
      * @brief Prints the help message.
-     * 
+     *
      * Displays usage information, available commands, and options.
      */
     void printHelp() const;
 
     /**
      * @brief Checks if a string ends with a specific suffix.
-     * 
+     *
      * @param str The string to check.
      * @param suffix The suffix to look for.
      * @return True if the string ends with the suffix, false otherwise.
      */
     static bool endsWith(const std::string& str, const std::string& suffix);
 
-private:
-    std::unordered_map<std::string, std::function<void()>> commands; ///< Map of command names to handler functions.
-    std::string device; ///< The device BDF identifier.
-    std::string image; ///< The path to the image file.
-    uint8_t partition = -1; ///< The partition number.
-    std::string currentCommand; ///< The currently active command.
+   private:
+    std::unordered_map<std::string, std::function<void()>>
+        commands;                ///< Map of command names to handler functions.
+    std::string device;          ///< The device BDF identifier.
+    std::string image;           ///< The path to the image file.
+    uint8_t partition = -1;      ///< The partition number.
+    std::string currentCommand;  ///< The currently active command.
 
     /**
      * @brief Registers a command with its handler function.
-     * 
+     *
      * @param command The command name.
      * @param handler The function to execute when the command is invoked.
      */
@@ -90,7 +91,7 @@ private:
 
     /**
      * @brief Converts a BDF string to a standardized format.
-     * 
+     *
      * @param bdf The BDF string to convert.
      * @return The standardized BDF string.
      */
@@ -98,11 +99,11 @@ private:
 
     /**
      * @brief Strips whitespace from a string.
-     * 
+     *
      * @param bdf The string to strip.
      * @return The stripped string.
      */
     std::string strip(const std::string& bdf) const;
 };
 
-#endif // ARG_PARSER_HPP
+#endif  // ARG_PARSER_HPP

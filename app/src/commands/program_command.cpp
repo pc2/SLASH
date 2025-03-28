@@ -1,6 +1,7 @@
 #include "commands/program_command.hpp"
 
-ProgramCommand::ProgramCommand(const std::string& device, const std::string& image_path, uint8_t partition) {
+ProgramCommand::ProgramCommand(const std::string& device, const std::string& image_path,
+                               uint8_t partition) {
     this->device = device;
     this->imagePath = image_path;
     this->partition = partition;
@@ -17,7 +18,8 @@ void ProgramCommand::execute() {
     std::string new_uuid;
     char current_uuid[AMI_LOGIC_UUID_SIZE] = {0};
 
-    ImageType extension = ArgParser::endsWith(this->imagePath, ".pdi") ? ImageType::PDI : ImageType::VRTBIN;
+    ImageType extension =
+        ArgParser::endsWith(this->imagePath, ".pdi") ? ImageType::PDI : ImageType::VRTBIN;
 
     if (extension == ImageType::VRTBIN) {
         Vrtbin::extract(this->imagePath, "/tmp");
@@ -37,35 +39,32 @@ void ProgramCommand::execute() {
     found_current_uuid = ami_dev_read_uuid(dev, current_uuid);
     found_new_uuid = Vrtbin::extractUUID().empty() ? AMI_STATUS_ERROR : AMI_STATUS_OK;
     new_uuid = Vrtbin::extractUUID().substr(0, 32);
-    	printf(
-		"----------------------------------------------\r\n"
-		"Device | %02x:%02x.%01x\r\n"
-		"----------------------------------------------\r\n"
-		"Current Configuration\r\n"
-		"----------------------------------------------\r\n"
-		"UUID   | %s\r\n"
-		"----------------------------------------------\r\n"
-		"Incoming Configuration\r\n"
-		"----------------------------------------------\r\n"
-		"UUID      | %s\r\n"
-		"Path      | %s\r\n"
-		"Partition | %d\r\n"
-		"----------------------------------------------\r\n",
-		AMI_PCI_BUS(dev_bdf),
-		AMI_PCI_DEV(dev_bdf),
-		AMI_PCI_FUNC(dev_bdf),
-		((found_current_uuid != AMI_STATUS_OK) ? ("N/A") : (current_uuid)),
-		((found_new_uuid != AMI_STATUS_OK) ? ("N/A") : (new_uuid.c_str())),
-		imagePath.c_str(),
-		partition
-	);
+    printf(
+        "----------------------------------------------\r\n"
+        "Device | %02x:%02x.%01x\r\n"
+        "----------------------------------------------\r\n"
+        "Current Configuration\r\n"
+        "----------------------------------------------\r\n"
+        "UUID   | %s\r\n"
+        "----------------------------------------------\r\n"
+        "Incoming Configuration\r\n"
+        "----------------------------------------------\r\n"
+        "UUID      | %s\r\n"
+        "Path      | %s\r\n"
+        "Partition | %d\r\n"
+        "----------------------------------------------\r\n",
+        AMI_PCI_BUS(dev_bdf), AMI_PCI_DEV(dev_bdf), AMI_PCI_FUNC(dev_bdf),
+        ((found_current_uuid != AMI_STATUS_OK) ? ("N/A") : (current_uuid)),
+        ((found_new_uuid != AMI_STATUS_OK) ? ("N/A") : (new_uuid.c_str())), imagePath.c_str(),
+        partition);
 
     if (ami_dev_request_access(dev) != AMI_STATUS_OK) {
         std::cerr << "Error requesting access to ami device: " << device << std::endl;
         throw std::runtime_error("Error requesting access to device");
     }
 
-    if (ami_prog_download_pdi(dev, imagePath.c_str(), 0, partition, Vrtbin::progressHandler, false) != AMI_STATUS_OK) {
+    if (ami_prog_download_pdi(dev, imagePath.c_str(), 0, partition, Vrtbin::progressHandler,
+                              false) != AMI_STATUS_OK) {
         std::cerr << "Error downloading image to ami device: " << device << std::endl;
         throw std::runtime_error("Error downloading image to device");
     }
@@ -75,7 +74,7 @@ void ProgramCommand::execute() {
 
 void ProgramCommand::bootDevice() {
     int ret = ami_prog_device_boot(&dev, 1);
-    if(ret != AMI_STATUS_OK && geteuid() == 0) { // for root users this should not matter
+    if (ret != AMI_STATUS_OK && geteuid() == 0) {  // for root users this should not matter
         throw std::runtime_error("Failed to boot device");
     }
     PcieDriverHandler pcieHandler(device + ":00.0");
@@ -91,5 +90,4 @@ void ProgramCommand::bootDevice() {
         throw std::runtime_error("Error finding device");
     }
     std::cout << "Image programmed successfully" << std::endl;
-
 }

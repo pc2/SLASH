@@ -1,17 +1,18 @@
 #include "commands/validate_command.hpp"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <filesystem>
-#include <unistd.h>
+
 #include <fcntl.h>
-#include <cstring>
+#include <unistd.h>
+
 #include <cstdlib>
+#include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 static std::atomic<double> pci_bw_result(0);
 
-ValidateCommand::ValidateCommand(const std::string& device)
-    : device(device) {}
+ValidateCommand::ValidateCommand(const std::string& device) : device(device) {}
 
 void ValidateCommand::execute() {
     if (device.empty()) {
@@ -41,7 +42,8 @@ void ValidateCommand::execute() {
     std::cout << "All tests passed" << std::endl;
 }
 
-void ValidateCommand::test_dma(const std::string& devname, uint64_t addr, uint64_t size, uint64_t offset, uint64_t count, int verbose) {
+void ValidateCommand::test_dma(const std::string& devname, uint64_t addr, uint64_t size,
+                               uint64_t offset, uint64_t count, int verbose) {
     int ret = -1;
     addr = ADDR_START_HBM;
     std::cout << "Performing seq RW test for HBM\n";
@@ -89,35 +91,37 @@ void ValidateCommand::test_dma(const std::string& devname, uint64_t addr, uint64
     }
 }
 
-std::size_t ValidateCommand::test_dma_write(const std::string& devname, uint64_t addr, uint64_t size, uint64_t offset, uint64_t count, int verbose) {
+std::size_t ValidateCommand::test_dma_write(const std::string& devname, uint64_t addr,
+                                            uint64_t size, uint64_t offset, uint64_t count,
+                                            int verbose) {
     uint64_t i;
     char* buffer = NULL;
     char* allocated = NULL;
     struct timespec ts_start, ts_end;
     int fpga_fd = open(devname.c_str(), O_RDWR);
-	double total_time = 0;
-	double result;
-	double avg_time = 0;
+    double total_time = 0;
+    double result;
+    double avg_time = 0;
     int ret = EXIT_FAILURE;
-    if(fpga_fd < 0) {
+    if (fpga_fd < 0) {
         fprintf(stderr, "unable to open device %s, %d.\n", devname.c_str(), fpga_fd);
         return EXIT_FAILURE;
     }
-    posix_memalign((void **)&allocated, 4096 /*alignment */ , size + 4096);
-    if(!allocated) {
+    posix_memalign((void**)&allocated, 4096 /*alignment */, size + 4096);
+    if (!allocated) {
         fprintf(stderr, "OOM %lu.\n", size + 4096);
         close(fpga_fd);
         free(allocated);
         return EXIT_FAILURE;
     }
     buffer = allocated + offset;
-    if(verbose) {
+    if (verbose) {
         fprintf(stdout, "host buffer 0x%lx = %p\n", size + 4096, buffer);
     }
-    for(i = 0; i < count; i++) {
+    for (i = 0; i < count; i++) {
         clock_gettime(CLOCK_MONOTONIC, &ts_start);
         ret = write_from_buffer(devname, fpga_fd, buffer, size, addr);
-        if(ret < 0) {
+        if (ret < 0) {
             fprintf(stderr, "Could not write to device buffer.\n");
             close(fpga_fd);
             free(allocated);
@@ -125,211 +129,206 @@ std::size_t ValidateCommand::test_dma_write(const std::string& devname, uint64_t
         }
         clock_gettime(CLOCK_MONOTONIC, &ts_end);
         timespec_sub(&ts_end, &ts_start);
-        total_time += (ts_end.tv_sec + ((double)ts_end.tv_nsec/NSEC_DIV));
-        if(verbose) {
-            fprintf(stdout, "CLOCK_MONOTONIC %ld.%09ld sec. write %lu bytes\n", 
-            ts_end.tv_sec, ts_end.tv_nsec, size);
+        total_time += (ts_end.tv_sec + ((double)ts_end.tv_nsec / NSEC_DIV));
+        if (verbose) {
+            fprintf(stdout, "CLOCK_MONOTONIC %ld.%09ld sec. write %lu bytes\n", ts_end.tv_sec,
+                    ts_end.tv_nsec, size);
         }
     }
-    avg_time = (double) total_time / (double) count;
-    result = ((double) size)/avg_time;
-    //pthread_mutex_lock(&print_mutex);
+    avg_time = (double)total_time / (double)count;
+    result = ((double)size) / avg_time;
+    // pthread_mutex_lock(&print_mutex);
     print_results(devname, addr, total_time, avg_time, size, result, TEST_TYPE_WRITE, verbose);
-    //pthread_mutex_unlock(&print_mutex);
+    // pthread_mutex_unlock(&print_mutex);
     close(fpga_fd);
     free(allocated);
     return 0;
 }
 
-std::size_t ValidateCommand::test_dma_read(const std::string& devname, uint64_t addr, uint64_t size, uint64_t offset, uint64_t count, int verbose) {
+std::size_t ValidateCommand::test_dma_read(const std::string& devname, uint64_t addr, uint64_t size,
+                                           uint64_t offset, uint64_t count, int verbose) {
     uint64_t i;
     char* buffer = NULL;
     char* allocated = NULL;
     struct timespec ts_start, ts_end;
     int fpga_fd = open(devname.c_str(), O_RDWR | O_NONBLOCK);
-	double total_time = 0;
-	double result;
-	double avg_time = 0;
+    double total_time = 0;
+    double result;
+    double avg_time = 0;
     int ret = EXIT_FAILURE;
-    if(fpga_fd < 0) {
+    if (fpga_fd < 0) {
         fprintf(stderr, "unable to open device %s, %d.\n", devname.c_str(), fpga_fd);
         return 1;
     }
-    posix_memalign((void **)&allocated, 4096 /*alignment */ , size + 4096);
-    if(!allocated) {
+    posix_memalign((void**)&allocated, 4096 /*alignment */, size + 4096);
+    if (!allocated) {
         fprintf(stderr, "OOM %lu.\n", size + 4096);
         close(fpga_fd);
         free(allocated);
         return EXIT_FAILURE;
     }
     buffer = allocated + offset;
-    if(verbose)
-        fprintf(stdout, "host buffer 0x%lx = %p\n", size + 4096, buffer);
+    if (verbose) fprintf(stdout, "host buffer 0x%lx = %p\n", size + 4096, buffer);
 
     for (i = 0; i < count; i++) {
-		clock_gettime(CLOCK_MONOTONIC, &ts_start);
-		/* lseek & read data from AXI MM into buffer using SGDMA */
-		ret = read_to_buffer(devname, fpga_fd, buffer, size, addr);
-        if(ret < 0) {
+        clock_gettime(CLOCK_MONOTONIC, &ts_start);
+        /* lseek & read data from AXI MM into buffer using SGDMA */
+        ret = read_to_buffer(devname, fpga_fd, buffer, size, addr);
+        if (ret < 0) {
             fprintf(stderr, "Could not read to device buffer.\n");
             close(fpga_fd);
             free(allocated);
             return 1;
         }
-		clock_gettime(CLOCK_MONOTONIC, &ts_end);
+        clock_gettime(CLOCK_MONOTONIC, &ts_end);
 
-		/* subtract the start time from the end time */
-		timespec_sub(&ts_end, &ts_start);
-		total_time += (ts_end.tv_sec + ((double)ts_end.tv_nsec/NSEC_DIV));
-		/* a bit less accurate but side-effects are accounted for */
-        if(verbose) {
-            fprintf(stdout,
-                "#%lu: CLOCK_MONOTONIC %ld.%09ld sec. read %lu bytes\n",
-                i, ts_end.tv_sec, ts_end.tv_nsec, size);
+        /* subtract the start time from the end time */
+        timespec_sub(&ts_end, &ts_start);
+        total_time += (ts_end.tv_sec + ((double)ts_end.tv_nsec / NSEC_DIV));
+        /* a bit less accurate but side-effects are accounted for */
+        if (verbose) {
+            fprintf(stdout, "#%lu: CLOCK_MONOTONIC %ld.%09ld sec. read %lu bytes\n", i,
+                    ts_end.tv_sec, ts_end.tv_nsec, size);
         }
-	}
-	avg_time = (double)total_time/(double)count;
-	result = ((double)size)/avg_time;
-    //pthread_mutex_lock(&print_mutex);
+    }
+    avg_time = (double)total_time / (double)count;
+    result = ((double)size) / avg_time;
+    // pthread_mutex_lock(&print_mutex);
     this->print_results(devname, addr, total_time, avg_time, size, result, TEST_TYPE_READ, verbose);
-    //pthread_mutex_unlock(&print_mutex);
+    // pthread_mutex_unlock(&print_mutex);
     close(fpga_fd);
     free(allocated);
     return 0;
 }
 
+std::size_t ValidateCommand::write_from_buffer(const std::string& fname, int fd, char* buffer,
+                                               uint64_t size, uint64_t base) {
+    ssize_t rc;
+    uint64_t count = 0;
+    char* buf = buffer;
+    off_t offset = base;
 
-std::size_t ValidateCommand::write_from_buffer(const std::string& fname, int fd, char* buffer, uint64_t size, uint64_t base) {
-	ssize_t rc;
-	uint64_t count = 0;
-	char *buf = buffer;
-	off_t offset = base;
+    do { /* Support zero byte transfer */
+        uint64_t bytes = size - count;
 
-	do { /* Support zero byte transfer */
-		uint64_t bytes = size - count;
+        if (bytes > RW_MAX_SIZE) bytes = RW_MAX_SIZE;
 
-		if (bytes > RW_MAX_SIZE)
-			bytes = RW_MAX_SIZE;
+        if (offset) {
+            rc = lseek(fd, offset, SEEK_SET);
+            if (rc < 0) {
+                fprintf(stderr, "%s, seek off 0x%lx failed %zd.\n", fname.c_str(), offset, rc);
+                perror("seek file");
+                return -EIO;
+            }
+            if (rc != offset) {
+                fprintf(stderr, "%s, seek off 0x%lx != 0x%lx.\n", fname.c_str(), rc, offset);
+                return -EIO;
+            }
+        }
 
-		if (offset) {
-			rc = lseek(fd, offset, SEEK_SET);
-			if (rc < 0) {
-				fprintf(stderr,
-					"%s, seek off 0x%lx failed %zd.\n",
-					fname.c_str(), offset, rc);
-				perror("seek file");
-				return -EIO;
-			}
-			if (rc != offset) {
-				fprintf(stderr,
-					"%s, seek off 0x%lx != 0x%lx.\n",
-					fname.c_str(), rc, offset);
-				return -EIO;
-			}
-		}
+        /* write data to file from memory buffer */
+        rc = write(fd, buf, bytes);
+        if (rc < 0) {
+            fprintf(stderr, "%s, W off 0x%lx, 0x%lx failed %zd.\n", fname.c_str(), offset, bytes,
+                    rc);
+            perror("write file");
+            return -EIO;
+        }
+        if (rc != bytes) {
+            fprintf(stderr, "%s, W off 0x%lx, 0x%lx != 0x%lx.\n", fname.c_str(), offset, rc, bytes);
+            return -EIO;
+        }
 
-		/* write data to file from memory buffer */
-		rc = write(fd, buf, bytes);
-		if (rc < 0) {
-			fprintf(stderr, "%s, W off 0x%lx, 0x%lx failed %zd.\n",
-				fname.c_str(), offset, bytes, rc);
-			perror("write file");
-			return -EIO;
-		}
-		if (rc != bytes) {
-			fprintf(stderr, "%s, W off 0x%lx, 0x%lx != 0x%lx.\n",
-				fname.c_str(), offset, rc, bytes);
-			return -EIO;
-		}
+        count += bytes;
+        buf += bytes;
+        offset += bytes;
+    } while (count < size);
 
-		count += bytes;
-		buf += bytes;
-		offset += bytes;
-	} while (count < size);
-
-	if (count != size) {
-		fprintf(stderr, "%s, R failed 0x%lx != 0x%lx.\n",
-				fname.c_str(), count, size);
-		return -EIO;
-	}
-	return count;
+    if (count != size) {
+        fprintf(stderr, "%s, R failed 0x%lx != 0x%lx.\n", fname.c_str(), count, size);
+        return -EIO;
+    }
+    return count;
 }
 
-std::size_t ValidateCommand::read_to_buffer(const std::string& fname, int fd, char* buffer, uint64_t size, uint64_t base) {
-	ssize_t rc;
-	uint64_t count = 0;
-	char *buf = buffer;
-	off_t offset = base;
+std::size_t ValidateCommand::read_to_buffer(const std::string& fname, int fd, char* buffer,
+                                            uint64_t size, uint64_t base) {
+    ssize_t rc;
+    uint64_t count = 0;
+    char* buf = buffer;
+    off_t offset = base;
 
-	do { /* Support zero byte transfer */
-		uint64_t bytes = size - count;
+    do { /* Support zero byte transfer */
+        uint64_t bytes = size - count;
 
-		if (bytes > RW_MAX_SIZE)
-			bytes = RW_MAX_SIZE;
+        if (bytes > RW_MAX_SIZE) bytes = RW_MAX_SIZE;
 
-		if (offset) {
-			rc = lseek(fd, offset, SEEK_SET);
-			if (rc < 0) {
-				fprintf(stderr,
-					"%s, seek off 0x%lx failed %zd.\n",
-					fname.c_str(), offset, rc);
-				perror("seek file");
-				return -EIO;
-			}
-			if (rc != offset) {
-				fprintf(stderr,
-					"%s, seek off 0x%lx != 0x%lx.\n",
-					fname.c_str(), rc, offset);
-				return -EIO;
-			}
-		}
+        if (offset) {
+            rc = lseek(fd, offset, SEEK_SET);
+            if (rc < 0) {
+                fprintf(stderr, "%s, seek off 0x%lx failed %zd.\n", fname.c_str(), offset, rc);
+                perror("seek file");
+                return -EIO;
+            }
+            if (rc != offset) {
+                fprintf(stderr, "%s, seek off 0x%lx != 0x%lx.\n", fname.c_str(), rc, offset);
+                return -EIO;
+            }
+        }
 
-		/* read data from file into memory buffer */
-		rc = read(fd, buf, bytes);
-		if (rc < 0) {
-			fprintf(stderr,
-				"%s, read off 0x%lx + 0x%lx failed %zd.\n",
-				fname.c_str(), offset, bytes, rc);
-			perror("read file");
-			return -EIO;
-		}
-		if (rc != bytes) {
-			fprintf(stderr,
-				"%s, R off 0x%lx, 0x%lx != 0x%lx.\n",
-				fname.c_str(), count, rc, bytes);
-			return -EIO;
-		}
+        /* read data from file into memory buffer */
+        rc = read(fd, buf, bytes);
+        if (rc < 0) {
+            fprintf(stderr, "%s, read off 0x%lx + 0x%lx failed %zd.\n", fname.c_str(), offset,
+                    bytes, rc);
+            perror("read file");
+            return -EIO;
+        }
+        if (rc != bytes) {
+            fprintf(stderr, "%s, R off 0x%lx, 0x%lx != 0x%lx.\n", fname.c_str(), count, rc, bytes);
+            return -EIO;
+        }
 
-		count += bytes;
-		buf += bytes;
-		offset += bytes;
-	} while (count < size);
+        count += bytes;
+        buf += bytes;
+        offset += bytes;
+    } while (count < size);
 
-	if (count != size) {
-		fprintf(stderr, "%s, R failed 0x%lx != 0x%lx.\n",
-				fname.c_str(), count, size);
-		return -EIO;
-	}
-	return count;
+    if (count != size) {
+        fprintf(stderr, "%s, R failed 0x%lx != 0x%lx.\n", fname.c_str(), count, size);
+        return -EIO;
+    }
+    return count;
 }
 
-void ValidateCommand::print_results(const std::string& devname, uint64_t addr, double total_time, double avg_time, double size, double result, test_type type, int verbose) {
+void ValidateCommand::print_results(const std::string& devname, uint64_t addr, double total_time,
+                                    double avg_time, double size, double result, test_type type,
+                                    int verbose) {
     std::string test_type_str = (type == TEST_TYPE_READ) ? "Read" : "Write";
     std::string memory_type = (addr >= ADDR_START_HBM && addr < ADDR_START_DDR) ? "HBM" : "DDR";
 
     if (verbose) {
-        printf("+----------------+----------------+----------------+----------------+----------------+----------------+-----------------+\n");
-        printf("| Test Type      | Device         | Memory Type    | Total Time (ns)| Avg Time (ns)  | Size (GB)      | Bandwidth (GB/s)|\n");
-        printf("+----------------+----------------+----------------+----------------+----------------+----------------+-----------------+\n");
+        printf(
+            "+----------------+----------------+----------------+----------------+----------------+"
+            "----------------+-----------------+\n");
+        printf(
+            "| Test Type      | Device         | Memory Type    | Total Time (ns)| Avg Time (ns)  "
+            "| Size (GB)      | Bandwidth (GB/s)|\n");
+        printf(
+            "+----------------+----------------+----------------+----------------+----------------+"
+            "----------------+-----------------+\n");
         printf("| %-14s | %-14s | %-14s | %-14.2f | %-14.2f | %-14.2f | %-14.2f  |\n",
-            test_type_str.c_str(), devname.c_str(), memory_type.c_str(), total_time, avg_time, size / GB_DIV, result / GB_DIV);
-        printf("+----------------+----------------+----------------+----------------+----------------+----------------+-----------------\n");
+               test_type_str.c_str(), devname.c_str(), memory_type.c_str(), total_time, avg_time,
+               size / GB_DIV, result / GB_DIV);
+        printf(
+            "+----------------+----------------+----------------+----------------+----------------+"
+            "----------------+-----------------\n");
     } else {
         printf("+----------------+----------------+-----------------+\n");
         printf("| Test Type      | Memory Type    | Bandwidth (GB/s)|\n");
         printf("+----------------+----------------+-----------------+\n");
-        printf("| %-14s | %-14s | %-14.2f  |\n",
-            test_type_str.c_str(), memory_type.c_str(), result / GB_DIV);
+        printf("| %-14s | %-14s | %-14.2f  |\n", test_type_str.c_str(), memory_type.c_str(),
+               result / GB_DIV);
         printf("+----------------+----------------+-----------------+\n");
     }
 }
@@ -348,7 +347,8 @@ void ValidateCommand::dma_write_thread(thread_data_t* data) {
     test_dma_write(data->devname, data->addr, data->size, data->offset, data->count, data->verbose);
 }
 
-int ValidateCommand::run_sim_seq_rw_threads(const std::string& devname, uint64_t size, uint64_t offset, uint64_t count, int verbose) {
+int ValidateCommand::run_sim_seq_rw_threads(const std::string& devname, uint64_t size,
+                                            uint64_t offset, uint64_t count, int verbose) {
     std::cout << "Performing simultaneous RW test for HBM\n";
     thread_data_t args_hbm, args_ddr;
     args_hbm.devname = devname;
@@ -378,7 +378,9 @@ int ValidateCommand::run_sim_seq_rw_threads(const std::string& devname, uint64_t
     return EXIT_SUCCESS;
 }
 
-int ValidateCommand::run_sim_rw_per_memory(const std::string& devname, uint64_t addr, uint64_t size, uint64_t offset, uint64_t count, int verbose, const std::string& mem_type) {
+int ValidateCommand::run_sim_rw_per_memory(const std::string& devname, uint64_t addr, uint64_t size,
+                                           uint64_t offset, uint64_t count, int verbose,
+                                           const std::string& mem_type) {
     std::cout << "Running bandwidth test for HBM memory\n";
     std::cout << "Running simultaneous write test on multiple HBM channels\n";
 
@@ -393,8 +395,8 @@ int ValidateCommand::run_sim_rw_per_memory(const std::string& devname, uint64_t 
     std::thread write_chan_0(&ValidateCommand::dma_write_thread, this, &args_chan0);
 
     args_chan1.devname = devname;
-    if(mem_type == "hbm") {
-        args_chan1.addr = addr + (uint64_t)2*SIZE_PER_HBM_CHANNEL;
+    if (mem_type == "hbm") {
+        args_chan1.addr = addr + (uint64_t)2 * SIZE_PER_HBM_CHANNEL;
     } else {
         args_chan1.addr = ADDR_START_DIMM_DDR;
     }
@@ -417,27 +419,28 @@ int ValidateCommand::run_sim_rw_per_memory(const std::string& devname, uint64_t 
     return EXIT_SUCCESS;
 }
 
-int ValidateCommand::run_pcie_bw_test(const std::string& devname, uint64_t size, uint64_t offset, uint64_t count, int verbose) {
+int ValidateCommand::run_pcie_bw_test(const std::string& devname, uint64_t size, uint64_t offset,
+                                      uint64_t count, int verbose) {
     int ret = EXIT_SUCCESS;
     int num_of_threads = 8;
     std::vector<std::thread> write_threads;
     std::vector<thread_data_t> args_chan(num_of_threads);
 
-    for(int i = 0; i < num_of_threads; i++) {
+    for (int i = 0; i < num_of_threads; i++) {
         args_chan[i].devname = devname;
-        args_chan[i].addr = ADDR_START_DDR + i * 0x80000000; // ADDR_START_HBM
+        args_chan[i].addr = ADDR_START_DDR + i * 0x80000000;  // ADDR_START_HBM
         args_chan[i].size = size;
         args_chan[i].offset = offset;
         args_chan[i].count = count;
         args_chan[i].verbose = verbose;
     }
 
-    for(int i = 0; i < num_of_threads; i++) {
+    for (int i = 0; i < num_of_threads; i++) {
         write_threads.emplace_back(&ValidateCommand::dma_write_thread_pcie, this, &args_chan[i]);
     }
 
-    for(auto& thread : write_threads) {
-        if(thread.joinable()) {
+    for (auto& thread : write_threads) {
+        if (thread.joinable()) {
             thread.join();
         } else {
             std::cerr << "Error joining write thread" << std::endl;
@@ -449,7 +452,9 @@ int ValidateCommand::run_pcie_bw_test(const std::string& devname, uint64_t size,
     return ret;
 }
 
-double ValidateCommand::test_dma_write_pcie(const std::string& devname, uint64_t addr, uint64_t size, uint64_t offset, uint64_t count, int verbose) {
+double ValidateCommand::test_dma_write_pcie(const std::string& devname, uint64_t addr,
+                                            uint64_t size, uint64_t offset, uint64_t count,
+                                            int verbose) {
     uint64_t i;
     char* buffer = NULL;
     char* allocated = NULL;
@@ -459,25 +464,25 @@ double ValidateCommand::test_dma_write_pcie(const std::string& devname, uint64_t
     double result;
     double avg_time = 0;
     int ret = EXIT_FAILURE;
-    if(fpga_fd < 0) {
+    if (fpga_fd < 0) {
         fprintf(stderr, "unable to open device %s, %d.\n", devname.c_str(), fpga_fd);
         return EXIT_FAILURE;
     }
-    posix_memalign((void **)&allocated, 4096 /*alignment */ , size + 4096);
-    if(!allocated) {
+    posix_memalign((void**)&allocated, 4096 /*alignment */, size + 4096);
+    if (!allocated) {
         fprintf(stderr, "OOM %lu.\n", size + 4096);
         close(fpga_fd);
         free(allocated);
         return EXIT_FAILURE;
     }
     buffer = allocated + offset;
-    if(verbose) {
+    if (verbose) {
         fprintf(stdout, "host buffer 0x%lx = %p\n", size + 4096, buffer);
     }
-    for(i = 0; i < count; i++) {
+    for (i = 0; i < count; i++) {
         clock_gettime(CLOCK_MONOTONIC, &ts_start);
         ret = write(fpga_fd, buffer, size);
-        if(ret < 0) {
+        if (ret < 0) {
             fprintf(stderr, "Could not write to device buffer.\n");
             close(fpga_fd);
             free(allocated);
@@ -485,51 +490,46 @@ double ValidateCommand::test_dma_write_pcie(const std::string& devname, uint64_t
         }
         clock_gettime(CLOCK_MONOTONIC, &ts_end);
         timespec_sub(&ts_end, &ts_start);
-        total_time += (ts_end.tv_sec + ((double)ts_end.tv_nsec/1000000000.0));
-        if(verbose) {
-            fprintf(stdout, "CLOCK_MONOTONIC %ld.%09ld sec. write %lu bytes\n", 
-            ts_end.tv_sec, ts_end.tv_nsec, size);
+        total_time += (ts_end.tv_sec + ((double)ts_end.tv_nsec / 1000000000.0));
+        if (verbose) {
+            fprintf(stdout, "CLOCK_MONOTONIC %ld.%09ld sec. write %lu bytes\n", ts_end.tv_sec,
+                    ts_end.tv_nsec, size);
         }
     }
-    avg_time = (double) total_time / (double) count;
-    result = ((double) size)/avg_time;
+    avg_time = (double)total_time / (double)count;
+    result = ((double)size) / avg_time;
     close(fpga_fd);
     free(allocated);
     return result;
 }
 
 void ValidateCommand::dma_write_thread_pcie(thread_data_t* data) {
-    double result = test_dma_write_pcie(data->devname, data->addr, data->size, data->offset, data->count, data->verbose);
+    double result = test_dma_write_pcie(data->devname, data->addr, data->size, data->offset,
+                                        data->count, data->verbose);
     pci_bw_result.fetch_add(result / GB_DIV, std::memory_order_relaxed);
 }
 
-
-void ValidateCommand::timespec_sub(struct timespec *t1, struct timespec *t2) {
-	if (timespec_check(t1) < 0) {
-		fprintf(stderr, "invalid time #1: %lld.%.9ld.\n",
-			(long long)t1->tv_sec, t1->tv_nsec);
-		return;
-	}
-	if (timespec_check(t2) < 0) {
-		fprintf(stderr, "invalid time #2: %lld.%.9ld.\n",
-			(long long)t2->tv_sec, t2->tv_nsec);
-		return;
-	}
-	t1->tv_sec -= t2->tv_sec;
-	t1->tv_nsec -= t2->tv_nsec;
-	if (t1->tv_nsec >= 1000000000) {
-		t1->tv_sec++;
-		t1->tv_nsec -= 1000000000;
-	} else if (t1->tv_nsec < 0) {
-		t1->tv_sec--;
-		t1->tv_nsec += 1000000000;
-	}
+void ValidateCommand::timespec_sub(struct timespec* t1, struct timespec* t2) {
+    if (timespec_check(t1) < 0) {
+        fprintf(stderr, "invalid time #1: %lld.%.9ld.\n", (long long)t1->tv_sec, t1->tv_nsec);
+        return;
+    }
+    if (timespec_check(t2) < 0) {
+        fprintf(stderr, "invalid time #2: %lld.%.9ld.\n", (long long)t2->tv_sec, t2->tv_nsec);
+        return;
+    }
+    t1->tv_sec -= t2->tv_sec;
+    t1->tv_nsec -= t2->tv_nsec;
+    if (t1->tv_nsec >= 1000000000) {
+        t1->tv_sec++;
+        t1->tv_nsec -= 1000000000;
+    } else if (t1->tv_nsec < 0) {
+        t1->tv_sec--;
+        t1->tv_nsec += 1000000000;
+    }
 }
 
-int ValidateCommand::timespec_check(struct timespec *t)
-{
-	if ((t->tv_nsec < 0) || (t->tv_nsec >= 1000000000))
-		return -1;
-	return 0;
-
+int ValidateCommand::timespec_check(struct timespec* t) {
+    if ((t->tv_nsec < 0) || (t->tv_nsec >= 1000000000)) return -1;
+    return 0;
 }
