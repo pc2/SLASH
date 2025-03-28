@@ -37,7 +37,7 @@ namespace vrt {
         size_t currentRegisterIndex = 4; ///< Index of the current register being processed
         std::string deviceBdf; ///< BDF of the device
         Platform platform; ///< Platform of the device
-        ZmqServer* server; ///< Pointer to ZeroMQ server for communication
+        std::shared_ptr<ZmqServer> server; ///< Pointer to ZeroMQ server for communication
         std::map<uint32_t, uint32_t> registerMap; ///< Map of register offsets to values
     public:
         /**
@@ -60,7 +60,7 @@ namespace vrt {
          * @param device The Device object.
          * @param kernelName The name of the kernel.
          */
-        Kernel(vrt::Device device, const std::string& kernelName);
+        Kernel(vrt::Device& device, const std::string& kernelName);
 
         /**
          * @brief Sets the device for the kernel.
@@ -105,7 +105,8 @@ namespace vrt {
         void writeBatch();
 
         /**
-         * @brief Calls the kernel.
+         * @brief Calls the kernel and waits for it to complete.
+         * @param args The arguments to pass to the kernel.
          */
         template<typename... Args>
             void call(Args... args) {
@@ -130,7 +131,8 @@ namespace vrt {
             }
 
         /**
-         * @brief Async kernel call.
+         * @brief Starts the kernel.
+         * @param args The arguments to pass to the kernel.
          */
         template<typename... Args>
             void start(Args... args) {
@@ -175,6 +177,12 @@ namespace vrt {
             }
         }
 
+
+        /**
+         * @brief Helper method which processes an argument for simulation.
+         * @tparam T The type of the argument.
+         * @param arg The argument to process.
+         */
         template<typename T>
         void processSimArg(T arg) {
             if (currentRegisterIndex < registers.size()) {
@@ -216,11 +224,73 @@ namespace vrt {
             }
         }
 
+        /**
+         * @brief Getter for the kernel name.
+         * @return The name of the kernel.
+         */
         std::string getName() const;
+
          /**
          * @brief Destructor for Kernel.
          */
         ~Kernel();
+
+        /**
+         * @brief Copy constructor.
+         *
+         * @param other The kernel to copy from.
+         */
+        Kernel(const Kernel& other) = default;
+
+        /**
+         * @brief Move constructor.
+         *
+         * @param other The kernel to move from.
+         */
+        Kernel(Kernel&& other) noexcept
+            : bar(other.bar),
+            dev(other.dev),
+            name(std::move(other.name)),
+            baseAddr(other.baseAddr),
+            range(other.range),
+            registers(std::move(other.registers)),
+            currentRegisterIndex(other.currentRegisterIndex),
+            deviceBdf(std::move(other.deviceBdf)),
+            platform(other.platform),
+            server(std::move(other.server)),
+            registerMap(std::move(other.registerMap))
+        {}
+
+        /**
+         * @brief Copy assignment operator.
+         *
+         * @param other The kernel to copy from.
+         * @return Reference to this kernel.
+         */
+        Kernel& operator=(const Kernel& other) = default;
+
+        /**
+         * @brief Move assignment operator.
+         *
+         * @param other The kernel to move from.
+         * @return Reference to this kernel.
+         */
+        Kernel& operator=(Kernel&& other) noexcept {
+            if (this != &other) {
+                bar = other.bar;
+                dev = other.dev;
+                name = std::move(other.name);
+                baseAddr = other.baseAddr;
+                range = other.range;
+                registers = std::move(other.registers);
+                currentRegisterIndex = other.currentRegisterIndex;
+                deviceBdf = std::move(other.deviceBdf);
+                platform = other.platform;
+                server = std::move(other.server);
+                registerMap = std::move(other.registerMap);
+            }
+            return *this;
+        }
     };
 
 } // namespace vrt

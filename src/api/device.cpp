@@ -10,7 +10,7 @@ namespace vrt {
         this->pdiPath = this->vrtbin.getPdiPath();
         this->programType = programType;
         this->qdmaIntf = QdmaIntf(bdf);
-        this->zmqServer = new ZmqServer();
+        this->zmqServer = std::make_shared<ZmqServer>();
         findPlatform();
         if(platform == Platform::HARDWARE) {
             createAmiDev();
@@ -68,7 +68,7 @@ namespace vrt {
 
     void Device::cleanup() {
         if(platform == Platform::HARDWARE) {
-            delete zmqServer;
+            // delete zmqServer;
             for(auto qdmaIntf_ : qdmaIntfs) {
                 delete qdmaIntf_;
             }
@@ -326,7 +326,7 @@ namespace vrt {
         return platform;
     }
 
-    ZmqServer* Device::getZmqServer() {
+    std::shared_ptr<ZmqServer> Device::getZmqServer() {
         return zmqServer;
     }
 

@@ -11,7 +11,7 @@ namespace vrt {
         this->registers = registers;
     }
 
-    Kernel::Kernel(Device device, const std::string& kernelName)
+    Kernel::Kernel(Device& device, const std::string& kernelName)
         : Kernel(device.getKernel(kernelName)) {
             deviceBdf = device.getBdf();
             this->platform = device.getPlatform();

@@ -19,7 +19,7 @@ namespace vrt {
     }
 
     void Superblock::deallocate(uint64_t addr) {
-        freeList.push_back(addr);
+       // freeList.push_back(addr);
     }
 
     MemoryRange::MemoryRange(uint64_t startAddress, uint64_t size)
