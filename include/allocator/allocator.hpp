@@ -23,8 +23,8 @@ namespace vrt {
     /// Size of HBM Port (1 GB)
     constexpr uint64_t HBM_PORT_SIZE = 1L * 1024 * 1024 * 1024; // 1G
 
-    /// Starting address of DDR
-    constexpr uint64_t DDR_START = 0x50080000000;
+    /// Starting address of DDR DIMM
+    constexpr uint64_t DDR_START = 0x60000000000;
     /// Size of DDR (32 GB)
     constexpr uint64_t DDR_SIZE = 32L * 1024 * 1024 * 1024; // 32G
 
