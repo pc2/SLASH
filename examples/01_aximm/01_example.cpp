@@ -13,35 +13,39 @@
 #include <api/kernel.hpp>
 
 int main() {
-    uint32_t size = 1000;
+    uint32_t size = 1024;
     uint32_t m = 3;
     uint32_t n = 2;
-    vrt::Device device("21:00.0", "01_example_hw.vrtbin");
-    vrt::Kernel dma(device, "dma_0");
-    vrt::Kernel offset(device, "offset_0");
-    device.setFrequency(233333333);
-    vrt::Buffer<uint32_t> in_buff(device, size, vrt::MemoryRangeType::HBM);
-    vrt::Buffer<uint32_t> out_buff(device, size, vrt::MemoryRangeType::HBM);
-    for(uint32_t i = 0; i < size; i++) {
-        in_buff[i] = 1;
-    }
-    in_buff.sync(vrt::SyncType::HOST_TO_DEVICE);
-    offset.start(size, in_buff.getPhysAddr(), m, n);
-    dma.start(size, out_buff.getPhysAddr());
-    offset.wait();
-    dma.wait();
-    out_buff.sync(vrt::SyncType::DEVICE_TO_HOST);
-    for(uint32_t i = 0; i < size; i++) {
-        if(out_buff[i] != in_buff[i] * m + n) {
-            std::cerr << "Test failed" << std::endl;
-            std::cerr << "Error: " << i << " " << out_buff[i] << " " << in_buff[i] << std::endl;
-            device.cleanup();
-            return 1;
+    try {
+        vrt::Device device("21:00.0", "01_example_hw.vrtbin");
+        vrt::Kernel dma(device, "dma_0");
+        vrt::Kernel offset(device, "offset_0");
+        device.setFrequency(233333333);
+        vrt::Buffer<uint32_t> in_buff(device, size, vrt::MemoryRangeType::HBM);
+        vrt::Buffer<uint32_t> out_buff(device, size, vrt::MemoryRangeType::HBM);
+        for(uint32_t i = 0; i < size; i++) {
+            in_buff[i] = 1;
         }
+        in_buff.sync(vrt::SyncType::HOST_TO_DEVICE);
+        offset.start(size, in_buff.getPhysAddr(), m, n);
+        dma.start(size, out_buff.getPhysAddr());
+        offset.wait();
+        dma.wait();
+        out_buff.sync(vrt::SyncType::DEVICE_TO_HOST);
+        for(uint32_t i = 0; i < size; i++) {
+            if(out_buff[i] != in_buff[i] * m + n) {
+                std::cerr << "Test failed" << std::endl;
+                std::cerr << "Error: " << i << " " << out_buff[i] << " " << in_buff[i] << std::endl;
+                device.cleanup();
+                return 1;
+            }
+        }
+        std::cout << "Test passed" << std::endl;
+        device.cleanup();
+    } catch(const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
     }
-    std::cout << "Test passed" << std::endl;
-    device.cleanup();
-
     return 0;
 }
 

@@ -8,14 +8,14 @@
 int main() {
     try {
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
-        uint32_t size = 1024 * 1024;
+        uint32_t size = 1024 * 1024 * 1024;
 
         vrt::Device device("21:00.0", "04_vadd_hw.vrtbin");
         vrt::Kernel vadd_0(device, "vadd_0");
-        device.setFrequency(200000000);
-        vrt::Buffer<int> a(device, size, vrt::MemoryRangeType::HBM);
-        vrt::Buffer<int> b(device, size, vrt::MemoryRangeType::HBM);
-        vrt::Buffer<int> c(device, size, vrt::MemoryRangeType::HBM);
+        device.setFrequency(300000000);
+        vrt::Buffer<int> a(device, size, vrt::MemoryRangeType::DDR);
+        vrt::Buffer<int> b(device, size, vrt::MemoryRangeType::DDR);
+        vrt::Buffer<int> c(device, size, vrt::MemoryRangeType::DDR);
 
         for (int i = 0; i < size; i++) {
             a[i] = i;
