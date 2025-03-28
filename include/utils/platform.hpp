@@ -3,7 +3,7 @@
 
 namespace vrt {
 /**
- * @brief Enumeration for execution platforms.
+ * @brief Enum for execution platforms.
  *
  * This enum represents the different execution platforms that can be used
  * for running applications and kernels.

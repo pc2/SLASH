@@ -103,4 +103,5 @@ XMLParser::~XMLParser() {
     }
     xmlCleanupParser();
 }
+
 }  // namespace vrt

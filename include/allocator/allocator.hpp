@@ -1,5 +1,5 @@
-#ifndef CUSTOM_ALLOCATOR_HPP
-#define CUSTOM_ALLOCATOR_HPP
+#ifndef ALLOCATOR_HPP
+#define ALLOCATOR_HPP
 
 #include <algorithm>
 #include <cstdint>
@@ -139,4 +139,4 @@ class Allocator {
 
 }  // namespace vrt
 
-#endif  // CUSTOM_ALLOCATOR_HPP
+#endif  // ALLOCATOR_HPP

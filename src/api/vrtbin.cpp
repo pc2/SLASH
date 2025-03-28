@@ -57,16 +57,6 @@ void Vrtbin::extract() {
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
         result += buffer.data();
     }
-
-    // int status = pclose(pipe.release());
-    // if (status != 0) {
-    //     throw std::runtime_error("Could not open vrtbin: " + vrtbinPath);
-    // }
-
-    // copy(tempExtractPath + "/system_map.xml", systemMapPath);
-    // if(this->platform == Platform::HARDWARE) {
-    //     copy(tempExtractPath + "/version.json", versionPath);
-    // }
 }
 
 void Vrtbin::copy(const std::string& source, const std::string& destination) {

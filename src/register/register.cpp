@@ -2,12 +2,9 @@
 
 namespace vrt {
 
-// Constructor
 Register::Register(std::string registerName, uint32_t offset, uint32_t width, std::string rw,
                    std::string description)
     : registerName(registerName), offset(offset), width(width), rw(rw), description(description) {}
-
-// Getters
 
 std::string Register::getRegisterName() { return registerName; }
 
@@ -18,8 +15,6 @@ uint32_t Register::getWidth() { return width; }
 std::string Register::getRW() { return rw; }
 
 std::string Register::getDescription() { return description; }
-
-// Setters
 
 void Register::setRegisterName(std::string registerName) { this->registerName = registerName; }
 

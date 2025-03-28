@@ -15,8 +15,8 @@ namespace vrt {
  * @brief Class for managing ZeroMQ server communication.
  *
  * The ZmqServer class provides functionality for communication between the host application
- * and a remote server using the ZeroMQ messaging library. It supports sending and receiving
- * commands, buffers, and streams, as well as reading and writing scalar values.
+ * and a simulation/emulation executable using the ZeroMQ messaging library. It supports sending and
+ * receiving commands, buffers, and streams, as well as reading and writing scalar values.
  */
 class ZmqServer {
    private:

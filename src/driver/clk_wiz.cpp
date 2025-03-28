@@ -8,7 +8,7 @@ ClkWiz::ClkWiz(ami_device* device, const std::string& name, uint64_t baseAddr, u
     instancePtr = new XClk_Wiz;
     instancePtr->Config.BaseAddr = baseAddr;
     instancePtr->Config.PrimInClkFreq = 100000000;
-    instancePtr->MinErr = 50000;  // to be checked with drv
+    instancePtr->MinErr = 50000;
     this->clockFrequency = clockFreq;
 }
 
@@ -52,21 +52,6 @@ uint64_t ClkWiz::getClockRate() {
     uint32_t Prediv;
 
     Fvco = getVco();
-    // RegisterOffset = XCLK_WIZ_REG3_OFFSET + 0 * 8; //indicate clock id, needs to be tested to see
-    // what value Reg = read(RegisterOffset); Edge  = !!(Reg & XCLK_WIZ_CLKOUT0_P5FEDGE_MASK); P5en
-    // = !!(Reg & XCLK_WIZ_P5EN_MASK); Prediv  = !!(Reg & XCLK_WIZ_REG3_PREDIV2);
-
-    // RegisterOffset = RegisterOffset + 4;
-    // Reg = read(RegisterOffset);
-    // Low = Reg & XCLK_WIZ_CLKFBOUT_L_MASK;
-    // High = (Reg & XCLK_WIZ_CLKFBOUT_H_MASK) >> XCLK_WIZ_CLKFBOUT_H_SHIFT;
-    // Leaf = High + Low + Edge;
-    // DivO = (Prediv + 1) * Leaf + (Prediv * P5en);
-
-    // if (!DivO) {
-    //     DivO = 1;
-    // }
-    // Freq = Fvco / DivO;
     Freq = instancePtr->Config.PrimInClkFreq * instancePtr->MVal / instancePtr->DVal /
            instancePtr->OVal;
     return Freq;
@@ -101,7 +86,6 @@ void ClkWiz::calculateDivisorsHz(uint64_t SetRate) {
     for (m = Mmin; m <= Mmax; m++) {
         for (d = Dmin; d <= Dmax; d++) {
             Fvco = instancePtr->Config.PrimInClkFreq * m / d;
-            // Fvco = instancePtr->Config.PrimInClkFreq  * XCLK_MHZ * m / d;
             if (Fvco >= VcoMin * XCLK_MHZ && Fvco <= VcoMax * XCLK_MHZ) {
                 for (Div = Omin; Div <= Omax; Div++) {
                     Freq = Fvco / Div;
@@ -206,8 +190,6 @@ uint32_t ClkWiz::waitForLock() {
                 "Error: Timeout waiting for clock lock. Probably values not set correctly");
             utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__,
                                "Trying default frequency, 200MHz");
-            // throw std::runtime_error("Error: Timeout waiting for clock lock. Probably values not
-            // set correctly");
         }
         usleep(100);
         count++;
@@ -234,13 +216,6 @@ void ClkWiz::setRateHz(uint64_t rate_, bool verbose) {
     if (verbose)
         utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "Setting clock at: {} MHz",
                            std::to_string((double)rate_ / 1000000.0f));
-    // if(rate_ > clockFrequency) {
-    //     utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__, "Requested rate is higher
-    //     than the maximum rate"); utils::Logger::log(utils::LogLevel::ERROR, __PRETTY_FUNCTION__,
-    //     "Setting frequency to maximum rate"); setRateHz(clockFrequency, false); uint64_t rate =
-    //     getClockRate(); utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__, "User
-    //     clock frequency set at: {} MHz", std::to_string((double) rate / 1000000.0f)); return;
-    // }
 
     // start dynamic reconfig
     utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__,

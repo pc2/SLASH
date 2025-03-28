@@ -2,20 +2,15 @@
 #define QDMA_LOGIC_HPP
 #include "api/kernel.hpp"
 
-/**
- * @brief QDMA Logic namespace
- *
- * This namespace contains classes related to QDMA (Queue DMA) operations.
- *
- * @note Not used now. Might be needed for C2H stream future development
- */
 namespace vrt {
 
 /**
  * @brief Class for managing QDMA logic operations.
  *
  * The QdmaLogic class extends the Kernel class to provide functionality specific
- * to QDMA operations, allowing for control of QDMA queues and data transfers.
+ * to QDMA operations, allowing for control of QDMA queues and data transfers in streaming mode.
+ * 
+ * @note Not used now. Might be needed for C2H stream future development
  */
 class QdmaLogic : public Kernel {
    public:

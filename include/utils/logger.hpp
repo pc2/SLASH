@@ -191,6 +191,7 @@ class Logger {
 };
 
 }  // namespace utils
+
 }  // namespace vrt
 
 #endif  // LOGGER_HPP

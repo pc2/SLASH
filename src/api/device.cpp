@@ -50,7 +50,6 @@ void Device::parseSystemMap() {
     clockFreq = parser.getClockFrequency();
     this->platform = parser.getPlatform();
     this->clkWiz = ClkWiz(dev, "clk_wiz", CLK_WIZ_BASE, CLK_WIZ_OFFSET, clockFreq);
-    // this->qdmaLogic = new QdmaLogic(dev, "qdma_logic", QDMA_LOGIC_BASE, QDMA_LOGIC_OFFSET);
     this->clkWiz.setPlatform(platform);
     kernels = parser.getKernels();
     for (auto& kernel : kernels) {
@@ -63,7 +62,6 @@ Kernel Device::getKernel(const std::string& name) { return kernels[name]; }
 
 void Device::cleanup() {
     if (platform == Platform::HARDWARE) {
-        // delete zmqServer;
         for (auto qdmaIntf_ : qdmaIntfs) {
             delete qdmaIntf_;
         }
@@ -240,8 +238,8 @@ void Device::bootDevice() {
             utils::Logger::log(utils::LogLevel::INFO, __PRETTY_FUNCTION__,
                                "Booting into base segmented PDI...");
             utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__, "Writing PMC GPIO...");
-            ami_mem_bar_write(dev, 0, 0x1040000,
-                              1);  // PMC GPIO. this is needed for reset PDI into partition 1
+            // PMC GPIO. this is needed for reset PDI into partition 1
+            ami_mem_bar_write(dev, 0, 0x1040000, 1);
             destroyAmiDev();
             pcieHandler.execute(PcieDriverHandler::Command::REMOVE);
             pcieHandler.execute(PcieDriverHandler::Command::TOGGLE_SBR);
@@ -355,10 +353,6 @@ std::vector<QdmaConnection> Device::getQdmaConnections() { return qdmaConnection
 
 Allocator* Device::getAllocator() { return allocator; }
 
-// QdmaLogic* Device::getQdmaLogic() {
-//     return qdmaLogic;
-// }
-
 std::vector<QdmaIntf*> Device::getQdmaInterfaces() { return qdmaIntfs; }
 
 void Device::lockPcieDevice(const std::string& bdf) {
@@ -372,7 +366,6 @@ void Device::lockPcieDevice(const std::string& bdf) {
         close(fd);
         throw std::runtime_error("Device " + bdf + " locked by another instance");
     }
-    // close(fd);
 }
 
 void Device::unlockPcieDevice(const std::string& bdf) {
@@ -387,4 +380,5 @@ void Device::unlockPcieDevice(const std::string& bdf) {
     }
     close(fd);
 }
+
 }  // namespace vrt

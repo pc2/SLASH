@@ -63,4 +63,5 @@ std::string Logger::getCurrentTime() {
 void Logger::setLogLevel(LogLevel level) { currentLogLevel_ = level; }
 
 }  // namespace utils
+
 }  // namespace vrt

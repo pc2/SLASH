@@ -19,7 +19,11 @@ enum class SyncType {
 
 /**
  * @brief Class representing a buffer.
- * @tparam T The type of elements in the buffer.
+ *
+ * This class provides an interface for managing a buffer in a device.
+ * It supports memory mapped QDMA connections.
+ *
+ * @tparam T The type of the elements in the buffer.
  */
 template <typename T>
 class Buffer {
@@ -118,7 +122,6 @@ Buffer<T>::Buffer(Device device, size_t size, MemoryRangeType type)
         throw std::bad_alloc();
     }
 
-    // Allocate local buffer
     localBuffer = new T[size];
     Platform platform = device.getPlatform();
     if (platform == Platform::EMULATION) {
@@ -142,7 +145,6 @@ Buffer<T>::Buffer(Device device, size_t size, MemoryRangeType type, uint8_t port
         throw std::bad_alloc();
     }
 
-    // Allocate local buffer
     localBuffer = new T[size];
 }
 
@@ -151,7 +153,6 @@ Buffer<T>::~Buffer() {
     if (startAddress != 0) {
         device.getAllocator()->deallocate(startAddress);
     }
-    // Deallocate local buffer
     if (localBuffer != nullptr) {
         delete[] localBuffer;
     }
@@ -192,19 +193,6 @@ template <typename T>
 uint32_t Buffer<T>::getPhysAddrHigh() const {
     return (startAddress >> 32) & 0xFFFFFFFF;
 }
-
-// template <typename T>
-// void Buffer<T>::sync(SyncType syncType) {
-//     auto& qdmaIntf = QdmaIntf::getInstance();
-//     if(syncType == SyncType::HOST_TO_DEVICE) {
-//         qdmaIntf.write_buff(reinterpret_cast<char*>(localBuffer), startAddress, size *
-//         sizeof(T));
-//     } else if (syncType == SyncType::DEVICE_TO_HOST) {
-//         qdmaIntf.read_buff(reinterpret_cast<char*>(localBuffer), startAddress, size * sizeof(T));
-//     } else {
-//             throw std::invalid_argument("Invalid sync type");
-//     }
-// }
 
 template <typename T>
 std::string Buffer<T>::getName() {
@@ -280,7 +268,6 @@ Buffer<T>::Buffer(Buffer&& other) noexcept
       index(other.index),
       startAddress(other.startAddress),
       localBuffer(other.localBuffer) {
-    // Reset the moved-from object
     other.startAddress = 0;
     other.localBuffer = nullptr;
     other.size = 0;
@@ -312,7 +299,5 @@ Buffer<T>& Buffer<T>::operator=(Buffer&& other) noexcept {
 }
 
 }  // namespace vrt
-
-// #include "api/buffer.tpp"
 
 #endif  // BUFFER_HPP

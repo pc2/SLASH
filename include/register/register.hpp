@@ -92,6 +92,7 @@ class Register {
      */
     void setDescription(std::string description);
 };
+
 }  // namespace vrt
 
 #endif  // REGISTER_HPP

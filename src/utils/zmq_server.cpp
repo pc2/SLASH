@@ -194,7 +194,6 @@ void ZmqServer::sendBufferSim(uint64_t addr, const std::vector<uint8_t>& buffer)
     zmq::message_t reply;
     socket.recv(reply);
     std::string replyStr(static_cast<char*>(reply.data()), reply.size());
-    // std::cout << "Received reply: " << replyStr << std::endl;
 }
 
 void ZmqServer::sendScalar(uint64_t addr, uint32_t value) {

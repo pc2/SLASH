@@ -70,10 +70,8 @@ uint64_t Allocator::allocate(uint64_t size, MemoryRangeType type) {
         if (range.offset + size > range.size) {
             throw std::bad_alloc();
         }
-        // Allocate from range.startAddress
         uint64_t addr = range.startAddress;
         while (addr + size <= range.startAddress + range.size) {
-            // Check if the address range is occupied
             bool isOccupied = std::any_of(
                 range.usedMemoryBlocks.begin(), range.usedMemoryBlocks.end(),
                 [addr, size](const std::pair<uint64_t, uint64_t>& block) {
@@ -82,14 +80,13 @@ uint64_t Allocator::allocate(uint64_t size, MemoryRangeType type) {
                 });
 
             if (!isOccupied) {
-                range.usedMemoryBlocks.push_back({addr, size});  // Keep track of the used block
+                range.usedMemoryBlocks.push_back({addr, size});
                 return addr;
             }
 
-            addr += size;  // Move to the next block
+            addr += size;
         }
 
-        // If no suitable address is found, throw an exception
         throw std::bad_alloc();
     }
 }
@@ -199,23 +196,10 @@ uint64_t Allocator::allocate(uint64_t size, MemoryRangeType type, uint8_t port) 
         }
         // Search in usedMemoryBlocks for the next free address within the port range
         uint64_t nextFreeAddress = portBaseAddress;
-        // for (const auto& superblock : range.superblocks) {
-        //     if (superblock.startAddress >= portBaseAddress && superblock.startAddress <
-        //     portEndAddress) {
-        //         uint64_t superblockEndAddress = superblock.startAddress + superblockSize;
-        //         if (superblockEndAddress > nextFreeAddress) {
-        //             nextFreeAddress = superblockEndAddress;
-        //         }
-        //     }
-        // }
         for (const auto& block : range.usedMemoryBlocks) {
             if (block.first + block.second >= portBaseAddress &&
-                block.first + block.second < portEndAddress) {  // block.first >= portBaseAddress &&
-                                                                // block.first < portEndAddress
-                // if (nextFreeAddress >= block.first && nextFreeAddress < block.first +
-                // block.second) {
+                block.first + block.second < portEndAddress) {
                 nextFreeAddress = block.first + block.second;
-                //}
             }
         }
 
@@ -245,7 +229,6 @@ uint64_t Allocator::allocate(uint64_t size, MemoryRangeType type, uint8_t port) 
             addr += size;  // Move to the next block
         }
 
-        // If no suitable address is found, throw an exception
         throw std::bad_alloc();
     }
 }

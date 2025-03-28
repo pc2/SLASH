@@ -25,9 +25,7 @@ QdmaIntf::QdmaIntf(const std::string& bdf, const uint32_t queueIdx) {
     this->queueIdx = queueIdx;
 }
 
-QdmaIntf::~QdmaIntf() {
-    // delete_qdma_queue(bdf.c_str());
-}
+QdmaIntf::~QdmaIntf() {}
 
 char* QdmaIntf::strip(const char* bdf) {
     char* output = (char*)malloc(3 * sizeof(char));

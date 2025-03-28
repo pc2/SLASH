@@ -15,7 +15,7 @@ namespace vrt {
  * @brief Class representing a streaming buffer.
  *
  * This class provides an interface for managing a streaming buffer in a device.
- * It supports memory-mapped and streaming QDMA connections.
+ * It supports streaming QDMA connections.
  *
  * @tparam T The type of the elements in the buffer.
  */

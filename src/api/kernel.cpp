@@ -28,7 +28,6 @@ void Kernel::write(uint32_t offset, uint32_t value) {
         uint32_t* buf = (uint32_t*)calloc(1, sizeof(uint32_t));
         *buf = value;
         if (buf) {
-            // TODO: add bar from device....
             int ret = ami_mem_bar_write(dev, bar, baseAddr - BASE_BAR_ADDR + offset, buf[0]);
             if (ret != AMI_STATUS_OK) {
                 throw std::runtime_error("Failed to write to device");
@@ -42,7 +41,6 @@ void Kernel::write(uint32_t offset, uint32_t value) {
 
 uint32_t Kernel::read(uint32_t offset) {
     if (platform == Platform::HARDWARE) {
-        // usleep(1000000); // sometimes sync takes some time
         if (offset != 0)
             utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__,
                                "Reading from device {} kernel: {} at offset: {x}", deviceBdf, name,
@@ -72,7 +70,6 @@ uint32_t Kernel::read(uint32_t offset) {
             }
             argIdx++;
         }
-        // server->fetchScalar(name, "arg" + std::to_string(currentRegisterIndex - ));
     } else if (platform == Platform::SIMULATION) {
         return server->fetchScalarSim(baseAddr + offset);
     }
@@ -86,8 +83,6 @@ void Kernel::wait() {
         return;
     }
     while (read(0x00) == 1 || read(0x00) == 0x81) {
-        // usleep(1);
-        //  wait for the kernel to finish
     }
 }
 
@@ -99,12 +94,7 @@ void Kernel::startKernel(bool autorestart) {
     }
 }
 
-Kernel::~Kernel() {
-    // if(dev != nullptr) {
-    //     ami_dev_delete(&dev);
-    // }
-    // ami_dev_delete(&dev);
-}
+Kernel::~Kernel() {}
 
 void Kernel::setPlatform(Platform platform) { this->platform = platform; }
 

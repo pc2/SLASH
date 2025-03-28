@@ -336,4 +336,5 @@ class ClkWiz : public Kernel {
 };
 
 }  // namespace vrt
+
 #endif  // CLK_WIZ_HPP
