@@ -53,3 +53,5 @@ Thumbs.db
 *~
 *.Xil
 !build_all.sh
+
+.clang-format
