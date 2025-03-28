@@ -6,6 +6,8 @@
 #include "commands/program_command.hpp"
 #include "commands/partial_program_command.hpp"
 #include "commands/inspect_command.hpp"
+#include "commands/reload_command.hpp"
+#include "commands/reset_command.hpp"
 #include <iostream>
 
 int main(int argc, char* argv[]) {
@@ -40,6 +42,12 @@ int main(int argc, char* argv[]) {
     } else if (parser.isCommand("inspect")) {
         InspectCommand inspectCommand(parser.getImagePath());
         inspectCommand.execute();
+    } else if (parser.isCommand("reload")) {
+        ReloadCommand reloadCommand(parser.getDevice());
+        reloadCommand.execute();
+    } else if (parser.isCommand("reset")) {
+        ResetCommand resetCommand(parser.getDevice());
+        resetCommand.execute();
     } else {
         parser.printHelp();
     }

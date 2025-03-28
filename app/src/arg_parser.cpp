@@ -12,6 +12,8 @@ ArgParser::ArgParser() {
     addCommand("program", [this]() { currentCommand = "program"; });
     addCommand("partial_program", [this]() { currentCommand = "partial_program"; });
     addCommand("inspect", [this]() { currentCommand = "inspect"; });
+    addCommand("reload", [this]() { currentCommand = "reload"; });
+    addCommand("reset", [this]() { currentCommand = "reset"; });
 }
 
 void ArgParser::parse(int argc, char* argv[]) {
@@ -159,6 +161,8 @@ void ArgParser::printHelp() const {
               << "  program              Program the device's flash memory\n"
               << "  partial_program      Program the device with a segmented PDI image\n"
               << "  inspect              Inspect a vrtbin before programming\n"
+              << "  reload               Reloads the PCIe handler for device\n"
+              << "  reset                Resets the device to a clean state\n"
               << "Options:\n"
               << "  -d, --device <device>  Specify the device (e.g., 21:00.0)\n"
               << "  -i, --image <image>    Specify the image file to program. Only relevant for program/partial_program commands\n"

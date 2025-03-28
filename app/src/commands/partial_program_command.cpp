@@ -8,13 +8,21 @@ PartialProgramCommand::PartialProgramCommand(const std::string& device, const st
         std::cerr << "Error finding ami device: " << device << std::endl;
         throw std::runtime_error("Error finding device");
     }
+
+    if(ami_dev_request_access(dev) != AMI_STATUS_OK) {
+        throw std::runtime_error("Failed to request elevated access to device");
+    }
 }
 
 void PartialProgramCommand::execute() {
+
+    PcieDriverHandler pcieDriverHandler(device + ":00.0");
     int found_current_uuid = AMI_STATUS_ERROR;
     int found_new_uuid = AMI_STATUS_ERROR;
     std::string new_uuid;
     char current_uuid[AMI_LOGIC_UUID_SIZE] = {0};
+    uint16_t dev_bdf;
+    ami_dev_get_pci_bdf(dev, &dev_bdf);
 
     if (ArgParser::endsWith(this->imagePath, ".vrtbin")) {
         Vrtbin::extract(this->imagePath, "/tmp");
@@ -28,8 +36,23 @@ void PartialProgramCommand::execute() {
         imagePath = "/tmp/design.pdi";
     }
 
-    uint16_t dev_bdf;
-    ami_dev_get_pci_bdf(dev, &dev_bdf);
+    int ret = ami_prog_device_boot(&dev, 1); // segmented PDI is on partition 1
+
+    if(ret != AMI_STATUS_OK && geteuid() == 0) {
+        throw std::runtime_error("Error booting device to partition 1");
+    }
+
+    ami_mem_bar_write(dev, 0, 0x1040000, 1); // PMC GPIO. this is needed for reset PDI into partition 1
+    ami_dev_delete(&dev);
+    pcieDriverHandler.execute(PcieDriverHandler::Command::REMOVE);
+    pcieDriverHandler.execute(PcieDriverHandler::Command::TOGGLE_SBR);
+    pcieDriverHandler.execute(PcieDriverHandler::Command::RESCAN);
+    pcieDriverHandler.execute(PcieDriverHandler::Command::HOTPLUG);
+
+    if (ami_dev_find(device.c_str(), &dev) != AMI_STATUS_OK) {
+        std::cerr << "Error finding ami device: " << device << std::endl;
+        throw std::runtime_error("Error finding device");
+    }
 
     found_current_uuid = ami_dev_read_uuid(dev, current_uuid);
     found_new_uuid = Vrtbin::extractUUID().empty() ? AMI_STATUS_ERROR : AMI_STATUS_OK;
@@ -55,6 +78,12 @@ void PartialProgramCommand::execute() {
 		imagePath.c_str()
 	);
 
+    if(new_uuid == current_uuid) {
+        std::cout << "Device configured with the same image.\n";
+        ami_dev_delete(&dev);
+        return;
+    }
+
     if (ami_dev_request_access(dev) != AMI_STATUS_OK) {
         std::cerr << "Error requesting access to ami device: " << device << std::endl;
         throw std::runtime_error("Error requesting access to device");
@@ -65,11 +94,22 @@ void PartialProgramCommand::execute() {
         throw std::runtime_error("Error downloading image to device");
     }
     ami_dev_delete(&dev);
-    PcieDriverHandler pcieDriverHandler(device + ":00.0");
     pcieDriverHandler.execute(PcieDriverHandler::Command::REMOVE);
     usleep(DELAY_PARTIAL_BOOT);
     pcieDriverHandler.execute(PcieDriverHandler::Command::RESCAN);
 
-    std::cout << "\nPartial Program Command executed successfully\n";
+    if (ami_dev_find(device.c_str(), &dev) != AMI_STATUS_OK) {
+        std::cerr << "Error finding ami device: " << device << std::endl;
+        throw std::runtime_error("Error finding device");
+    }
+
+    found_current_uuid = ami_dev_read_uuid(dev, current_uuid);
+
+    if (std::string(current_uuid) == new_uuid) {
+        std::cout << "\nPartial Program Command executed successfully\n";
+    } else {
+        std::cerr << "Error: Partial Program Command failed\n";
+        std::cerr << "Possible NoC configuration missmatch. Check V80 PLM logs\n";
+    }
 
 }

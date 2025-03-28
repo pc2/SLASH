@@ -4,7 +4,7 @@ PcieDriverHandler::PcieDriverHandler(const std::string& bdf) {
     this->bdf = bdf;
     driverPath = pcieHotplugRootPath + "_0000:" + bdf;
     if (!std::filesystem::exists(driverPath)) {
-        throw std::invalid_argument("PCIe Hotplug driver does not exist");
+        throw std::invalid_argument("PCIe Hotplug driver does not exist: " + driverPath);
     }
 }
 
