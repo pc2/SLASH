@@ -317,4 +317,4 @@ module_exit(pcie_hotplug_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("AMD Inc.");
 MODULE_DESCRIPTION("PCIe hotplug module");
-MODULE_VERSION("0.1");
+MODULE_VERSION("1.0");
