@@ -1,10 +1,10 @@
 # PCIe Hotplug Driver
 
-This project contains a kernel module for PCIe hotplug functionality and a user-space application. The kernel module is located in the `driver` directory, and the user-space application (`main.cpp`) is in the root directory.
+This project contains a kernel module for PCIe hotplug functionality. The kernel module is located in the `driver` directory.
 
 ## Building
 
-To build both the kernel module and the user-space application, run:
+To build the kernel module, run:
 
 ```
 make
@@ -56,7 +56,7 @@ After installing the driver, a device file should be present: `/dev/pcie_hotplug
 - `echo 'rescan' > /dev/pcie_hotplug_0000:bb:dd.f`. This rescans the PCIe bus.
 - `echo 'hotplug' > /dev/pcie_hotplug_0000:bb:dd.f`. This performs a PCIe device hotplug, which reinitializes bound drivers of the device.
 
-The userspace application provided runs a hotplug operation.
+
 ## Notes
 
 - Ensure you have the necessary permissions to install and uninstall kernel modules.
