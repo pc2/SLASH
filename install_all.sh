@@ -110,12 +110,12 @@ sudo apt install libxml2-dev libzmq3-dev libjsoncpp-dev -y
 
 echo 'Compiling and installing VRT...'
 
-mkdir -p api/build && cd api/build
+mkdir -p vrt/build && cd vrt/build
 cmake -DCMAKE_BUILD_TYPE=Release ../
 make -j9
 sudo make install
 
-mkdir -p app/build && cd app/build
+mkdir -p smi/build && cd smi/build
 cmake -DCMAKE_BUILD_TYPE=Release ../
 make -j9
 sudo make install

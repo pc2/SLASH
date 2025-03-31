@@ -2,12 +2,12 @@
 
 This repository contains the VRT API implementation, along with examples.
 
-The project was tested with AMD Vivado & Vitis tools version 2024.2.
+The project was tested with AMD Vivado & Vitis tools version 2024.2, kernel version 5.15.
 ## Dependencies
 
 - libxml2
-- ZeroMQ (zmq) for emulation
-- jsoncpp for emulation
+- ZeroMQ (zmq) for emulation & simulation
+- jsoncpp for emulation & simulation
 
 To install the dependencies:
 
