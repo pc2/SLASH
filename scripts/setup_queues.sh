@@ -1,12 +1,30 @@
+# ##################################################################################################
+#  The MIT License (MIT)
+#  Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
+# 
+#  Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#  and associated documentation files (the "Software"), to deal in the Software without restriction,
+#  including without limitation the rights to use, copy, modify, merge, publish, distribute,
+#  sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+#  furnished to do so, subject to the following conditions:
+# 
+#  The above copyright notice and this permission notice shall be included in all copies or
+#  substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+# NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# ##################################################################################################
+
 #!/bin/bash
 
-# Function to print usage
 usage() {
     echo "Usage: $0 <BDF> [--mm <queue_id> <direction>] [--st <queue_id>] [--dir <direction>]"
     exit 1
 }
 
-# Check if at least one argument is provided
 if [ $# -lt 1 ]; then
     usage
 fi
@@ -14,14 +32,13 @@ fi
 BDF=$1
 shift
 
-BDF_PCI="${BDF/.0/.1}" # Replace .0 with .1 for the PCI path
+BDF_PCI="${BDF/.0/.1}"
 BDF_QDMA="${BDF:0:2}${BDF:3:2}1"
 
 echo "Starting QDMA queue..." >> /var/log/setup_queues.log
 echo "Setting qmax..." >> /var/log/setup_queues.log
 echo 4096 > /sys/bus/pci/devices/0000\:${BDF_PCI}/qdma/qmax 
 
-# Parse the remaining arguments
 while [[ $# -gt 0 ]]; do
     key="$1"
     case $key in

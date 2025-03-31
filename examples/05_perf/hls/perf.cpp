@@ -18,25 +18,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "qdma/qdma_connection.hpp"
+#include <ap_int.h>
 
-namespace vrt {
-QdmaConnection::QdmaConnection(const std::string& kernel, uint32_t qid,
-                               const std::string& interface, const std::string& direction)
-    : kernel(kernel), interface(interface), qid(qid) {
-    if (direction == "HostToDevice") {
-        this->direction = StreamDirection::HOST_TO_DEVICE;
-    } else if (direction == "DeviceToHost") {
-        this->direction = StreamDirection::DEVICE_TO_HOST;
+void perf(ap_uint<32> n, ap_uint<512>* out_mem) {
+    #pragma hls interface mode=s_axilite port=n
+    #pragma hls interface mode=s_axilite port=return
+    #pragma hls interface m_axi bundle=gmem0 port=out_mem max_widen_bitwidth=64
+    for (int i = 0; i < n; i++) {
+        #pragma HLS unroll factor=2
+        #pragma HLS pipeline
+        out_mem[i] = i;
     }
 }
-
-std::string QdmaConnection::getKernel() const { return kernel; }
-
-uint32_t QdmaConnection::getQid() const { return qid; }
-
-std::string QdmaConnection::getInterface() const { return interface; }
-
-StreamDirection QdmaConnection::getDirection() const { return direction; }
-
-}  // namespace vrt

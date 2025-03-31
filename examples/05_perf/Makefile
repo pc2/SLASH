@@ -18,8 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ##################################################################################################
 
-HLS_BUILD_DIR_VADD = build_vadd.xcv80-lsva4737-2MHP-e-S
-DESIGN_NAME = 04_vadd
+HLS_BUILD_DIR_PERF = build_perf.xcv80-lsva4737-2MHP-e-S
+DESIGN_NAME = 05_perf
 
 HOME_DIR=$(shell realpath .)
 BUILD_DIR=$(shell realpath ./build)
@@ -48,19 +48,19 @@ hls:
 hw: setup hls
 	@echo "Running HW step"
 	(cd $(VPP_DIR) && \
-	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform hw --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_VADD)/sol1 && \
+	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform hw --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_PERF)/sol1 && \
 	cp build/$(DESIGN_NAME)_hw.vrtbin $(BUILD_DIR))
 
 emu: setup hls
 	@echo "Running EMU step"
 	(cd $(VPP_DIR) && \
-	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform emu --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_VADD)/sol1 && \
+	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform emu --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_PERF)/sol1 && \
 	cp build/$(DESIGN_NAME)_emu.vrtbin $(BUILD_DIR))
 
 sim: setup hls
 	@echo "Running SIM step"
 	(cd $(VPP_DIR) && \
-	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform sim --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_VADD)/sol1 && \
+	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform sim --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_PERF)/sol1 && \
 	cp build/$(DESIGN_NAME)_sim.vrtbin $(BUILD_DIR))
 
 app: setup

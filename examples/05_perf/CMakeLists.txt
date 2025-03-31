@@ -18,23 +18,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ##################################################################################################
 
-TARGET=ip
-DEVICE=xcv80-lsva4737-2MHP-e-S
+cmake_minimum_required(VERSION 3.10)
+project(05_perf)
 
-INCREMENT_BUILD_DIR=build_increment.$(DEVICE)
-ACCUMULATE_BUILD_DIR=build_accumulate.$(DEVICE)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-all: $(INCREMENT_BUILD_DIR) $(ACCUMULATE_BUILD_DIR)
+include_directories(/usr/local/vrt/include
+                    /usr/include/ami
+                    /usr/include/libxml2
+                    /usr/include/jsoncpp)
 
-$(INCREMENT_BUILD_DIR):
-	if [ ! -d "$(INCREMENT_BUILD_DIR)" ]; then \
-        vitis_hls build.tcl -tclargs $(TARGET) $(DEVICE) increment; \
-	fi
+set(EXE_SOURCES 05_perf.cpp)
 
-$(ACCUMULATE_BUILD_DIR):
-	if [ ! -d "$(ACCUMULATE_BUILD_DIR)" ]; then \
-        vitis_hls build.tcl -tclargs $(TARGET) $(DEVICE) accumulate; \
-	fi
+add_executable(${PROJECT_NAME} ${EXE_SOURCES})
 
-clean:
-	rm -rf $(INCREMENT_BUILD_DIR) $(ACCUMULATE_BUILD_DIR) vitis_hls.log
+target_link_libraries(${PROJECT_NAME} vrt ami xml2 zmq jsoncpp)
