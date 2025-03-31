@@ -5,8 +5,6 @@ This repository contains the VRT API implementation, along with examples.
 The project was tested with AMD Vivado & Vitis tools version 2024.2.
 ## Dependencies
 
-- AVED software stack (https://gitenterprise.xilinx.com/aulmamei/aved-fork)
-- PCIe hotplug driver (https://gitenterprise.xilinx.com/aulmamei/pcie-hotplug-drv)
 - libxml2
 - ZeroMQ (zmq) for emulation
 - jsoncpp for emulation
@@ -69,5 +67,3 @@ A README file can be found in the examples directory. Please follow the instruct
 
 ## Notes
 All the hardware examples are built using the Segmented Configuration flow.
-
-This software depends on the PCIe hotplug driver (https://gitenterprise.xilinx.com/aulmamei/pcie-hotplug-drv) being installed prior to the running of the software.
