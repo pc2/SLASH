@@ -28,14 +28,14 @@
 int main() {
     try {
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
-        uint32_t size = 1024 * 1024 * 1024;
+        uint32_t size = 1024;
 
-        vrt::Device device("21:00.0", "04_vadd_hw.vrtbin");
+        vrt::Device device("21:00.0", "04_vadd_sim.vrtbin");
         vrt::Kernel vadd_0(device, "vadd_0");
         device.setFrequency(300000000);
-        vrt::Buffer<int> a(device, size, vrt::MemoryRangeType::DDR);
-        vrt::Buffer<int> b(device, size, vrt::MemoryRangeType::DDR);
-        vrt::Buffer<int> c(device, size, vrt::MemoryRangeType::DDR);
+        vrt::Buffer<int> a(device, size, vrt::MemoryRangeType::HBM);
+        vrt::Buffer<int> b(device, size, vrt::MemoryRangeType::HBM);
+        vrt::Buffer<int> c(device, size, vrt::MemoryRangeType::HBM);
 
         for (int i = 0; i < size; i++) {
             a[i] = i;
@@ -43,8 +43,8 @@ int main() {
         }
         a.sync(vrt::SyncType::HOST_TO_DEVICE);
         b.sync(vrt::SyncType::HOST_TO_DEVICE);
-        vadd_0.call(a.getPhysAddr(), b.getPhysAddr(), c.getPhysAddr(), size);
-        // vadd_0.wait();
+        vadd_0.start(a.getPhysAddr(), b.getPhysAddr(), c.getPhysAddr(), size);
+        vadd_0.wait();
         c.sync(vrt::SyncType::DEVICE_TO_HOST);
         // b.sync(vrt::SyncType::DEVICE_TO_HOST);
         for (int i = 0; i < size; i++) {

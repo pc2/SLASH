@@ -30,8 +30,8 @@
 int main() {
     try {
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
-        vrt::Device device("21:00.0", "05_perf_hw.vrtbin");
-        uint32_t size = 1024 * 1024 * 512;
+        vrt::Device device("21:00.0", "05_perf_emu.vrtbin");
+        uint32_t size = 1024;
         device.setFrequency(400000000);
 
         std::vector<vrt::Kernel> kernels;
