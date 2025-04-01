@@ -174,7 +174,7 @@ void Device::programDevice() {
                 XMLParser parser(systemMap);
                 parser.parseXML();
                 auto qdmaConns = parser.getQdmaConnections();
-                std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
+                std::string cmd = "sudo bash " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
                 for (auto& qdmaConn : qdmaConns) {
                     uint32_t qid = qdmaConn.getQid();
                     std::string direction =
@@ -214,7 +214,7 @@ void Device::bootDevice() {
                 XMLParser parser(systemMap);
                 parser.parseXML();
                 auto qdmaConns = parser.getQdmaConnections();
-                std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
+                std::string cmd = "sudo bash " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
                 for (auto& qdmaConn : qdmaConns) {
                     uint32_t qid = qdmaConn.getQid();
                     std::string direction =
@@ -238,7 +238,7 @@ void Device::bootDevice() {
             XMLParser parser(systemMap);
             parser.parseXML();
             auto qdmaConns = parser.getQdmaConnections();
-            std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
+            std::string cmd = "sudo bash " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
             for (auto& qdmaConn : qdmaConns) {
                 uint32_t qid = qdmaConn.getQid();
                 std::string direction =
@@ -282,7 +282,7 @@ void Device::bootDevice() {
             XMLParser parser(systemMap);
             parser.parseXML();
             auto qdmaConns = parser.getQdmaConnections();
-            std::string cmd = "sudo " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
+            std::string cmd = "sudo bash " + std::string(QDMA_SETUP_QUEUES) + bdf + " --mm 0 bi";
             for (auto& qdmaConn : qdmaConns) {
                 uint32_t qid = qdmaConn.getQid();
                 std::string direction =
