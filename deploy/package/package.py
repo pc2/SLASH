@@ -46,7 +46,7 @@ def run_command(cmd, cwd=None):
 
 def create_temp_directory():
     """Create a temporary directory structure for building the deb package"""
-    timestamp = datetime.now().strftime("%Y%m%d-%H-%M-%S")
+    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     
     repo_root = os.path.abspath(os.getcwd())
     
@@ -183,7 +183,7 @@ Maintainer: {MAINTAINER}
 Depends: {DEPENDS}
 Section: utils
 Priority: optional
-Homepage: https://www.amd.com
+Homepage: https://www.amd.com/
 Description: {DESCRIPTION}
  This package includes:
  * VRT API - Runtime API for AMD V80 acceleration
@@ -273,8 +273,8 @@ exit 0
 
 def build_deb_package(temp_dir, output_dir):
     """Build the Debian package from the temporary directory"""
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    deb_filename = f"{PACKAGE_NAME}_{VERSION}-{timestamp}_{ARCHITECTURE}.deb"
+    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    deb_filename = f"{PACKAGE_NAME}_{VERSION}_{timestamp}_{ARCHITECTURE}.deb"
     deb_path = os.path.join(output_dir, deb_filename)
     
     run_command(f"dpkg-deb --build {temp_dir} {deb_path}")
