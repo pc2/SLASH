@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # ##################################################################################################
 #  The MIT License (MIT)
 #  Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
@@ -18,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ##################################################################################################
 
-#!/bin/bash
 
 usage() {
     echo "Usage: $0 <BDF> [--mm <queue_id> <direction>] [--st <queue_id>] [--dir <direction>]"
