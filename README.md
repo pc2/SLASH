@@ -27,7 +27,7 @@ In order to build and deploy all necessary software for this project to work, fo
 A README file can be found in the examples directory. Please follow the instruction given there to proceed.
 
 ## Known limitations
-- HLS arguments should not be Verilog or VHDL keywords (eg. `in`, `out`) so on. Some issues may appear in the linker with this configuration.
+- HLS arguments should not be Verilog or VHDL keywords (eg. `in`, `out` so on). Some issues may appear in the linker with this configuration.
 - In emulation, HLS kernels must include at least one axi4lite interface to work.
 - In the current version of the linker (`submodules/v80-vitis-flow`), a maximum number of 15 kernels can be included. This will be fixed in future versions.
 
