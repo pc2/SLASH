@@ -20,42 +20,7 @@ VRT depends on the AVED software stack and the v80++ linker. These can be pulled
 ```bash
 git submodule update --init --recursive
 ```
-
-### AVED software stack
-To install the AVED software stack, one must run the following:
-
-```bash
-cd submodules/v80-vitis-flow/submodules/aved/deploy/
-sudo apt install ./ami_<version>_<arch>_<os version>.deb
-```
-
-### PCIe hotplug driver
-
-Please consult the driver's Github page for instructions.
-
-
-## How to build and install the API
-
-To build the API and install it, one must do the following:
-```bash
-mkdir -p build && cd build
-cmake ..
-cmake --build .
-sudo cmake --install .
-```
-This will add the library and headers to `/usr/local/vrt`.
-
-## How to build v80-smi, the utility app
-To build v80-smi and install it, one must run:
-
-```bash
-cd app
-mkdir -p build && cd build
-cmake ..
-cmake --build .
-sudo cmake --install .
-```
-The executable is located in /usr/local/bin.
+In order to build and deploy all necessary software for this project to work, follow the steps shown in `deploy/README.md`.
 
 ## How to build the examples
 
