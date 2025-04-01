@@ -539,15 +539,14 @@ index 63efd51..bc26318 100644
 +    }
 +}
 diff --git a/hw/amd_v80_gen5x8_24.1/src/build_design.tcl b/hw/amd_v80_gen5x8_24.1/src/build_design.tcl
-index 1e19be3..09bb9fb 100644
+index 1e19be3..e829f18 100644
 --- a/hw/amd_v80_gen5x8_24.1/src/build_design.tcl
 +++ b/hw/amd_v80_gen5x8_24.1/src/build_design.tcl
-@@ -49,6 +49,8 @@ proc do_aved_build {} {
+@@ -49,6 +49,7 @@ proc do_aved_build {} {
    if {[get_property PROGRESS [get_runs impl_1]] != "100%"} {
      common::send_msg_id {BUILD_HW-6} {ERROR} "Implementation failed"
    }
 +  source "$src_dir/run_post.tcl"
-+  run_post ""
  
    common::send_msg_id {BUILD_HW-8} {INFO} {Done!}
  }
