@@ -16,10 +16,13 @@ sudo apt install libxml2-dev libzmq3-dev libjsoncpp-dev
 ```
 
 ### Submodules
+
 VRT depends on the AVED software stack and the v80++ linker. These can be pulled from git using:
 ```bash
 git submodule update --init --recursive
 ```
+### Deployment
+
 In order to build and deploy all necessary software for this project to work, follow the steps shown in `deploy/README.md`.
 
 ## How to build the examples
