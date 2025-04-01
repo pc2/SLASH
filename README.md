@@ -28,7 +28,7 @@ A README file can be found in the examples directory. Please follow the instruct
 
 ## Known limitations
 - HLS arguments should not be Verilog or VHDL keywords (eg. `in`, `out`) so on. Some issues may appear in the linker with this configuration.
-- In emulation, only HLS functions with axi4lite interfaces work.
+- In emulation, HLS kernels must include at least one axi4lite interface to work.
 
 ## Notes
 All the hardware examples are built using the Segmented Configuration flow.
