@@ -58,15 +58,4 @@ V80 device found with BDF: 0000:21:00.0
 --------------------------------------------------------------------
 ```
 
-Then, in the example C++ code (`tests/<0X_example/<0X>_example.cpp>`), change the following line with the found BDF number:
-
-```C++
-vrt::Device device("21:00.0", "0X_example_hw.vrtbin");
-```
-
-Navigate to the `build` directory, then run:
-
-```bash
-make
-```
-This will re-build the host application. After that, run the example.
+To run the example, navigate to the `build` directory, and you will find an executable, called `0x_<project_name>`. The format for running is `0x_<project_name> <BDF> <VRTBIN File>`.
