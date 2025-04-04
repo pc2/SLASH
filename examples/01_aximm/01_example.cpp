@@ -32,12 +32,18 @@
 #include <api/buffer.hpp>
 #include <api/kernel.hpp>
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << " <BDF> <vrtbin file>" << std::endl;
+        return 1;
+    }
+    std::string bdf = argv[1];
+    std::string vrtbinFile = argv[2];
     uint32_t size = 1024;
     uint32_t m = 3;
     uint32_t n = 2;
     try {
-        vrt::Device device("21:00.0", "01_example_hw.vrtbin");
+        vrt::Device device(bdf, vrtbinFile);
         vrt::Kernel dma(device, "dma_0");
         vrt::Kernel offset(device, "offset_0");
         device.setFrequency(233333333);

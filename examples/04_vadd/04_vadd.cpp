@@ -25,12 +25,18 @@
 #include <api/buffer.hpp>
 #include <api/kernel.hpp>
 
-int main() {
+int main(int argc, char* argv[]) {
     try {
+        if (argc < 3) {
+            std::cerr << "Usage: " << argv[0] << " <BDF> <vrtbin file>" << std::endl;
+            return 1;
+        }
+        std::string bdf = argv[1];
+        std::string vrtbinFile = argv[2];
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
         uint32_t size = 1024;
 
-        vrt::Device device("21:00.0", "04_vadd_sim.vrtbin");
+        vrt::Device device(bdf, vrtbinFile);
         vrt::Kernel vadd_0(device, "vadd_0");
         device.setFrequency(300000000);
         vrt::Buffer<int> a(device, size, vrt::MemoryRangeType::HBM);

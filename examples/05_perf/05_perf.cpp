@@ -27,8 +27,14 @@
 #include <api/buffer.hpp>
 #include <api/kernel.hpp>
 
-int main() {
+int main(int argc, char* argv[]) {
     try {
+        if (argc < 3) {
+            std::cerr << "Usage: " << argv[0] << " <BDF> <vrtbin file>" << std::endl;
+            return 1;
+        }
+        std::string bdf = argv[1];
+        std::string vrtbinFile = argv[2];
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
         vrt::Device device("21:00.0", "05_perf_emu.vrtbin");
         uint32_t size = 1024;
