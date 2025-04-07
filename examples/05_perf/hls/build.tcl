@@ -65,7 +65,7 @@ open_solution sol1
 
 if {$do_syn} {
     set_part $device
-    create_clock -period 4 -name default
+    create_clock -period 3.33 -name default
     config_interface -m_axi_addr64=true
     csynth_design
 }

@@ -1,6 +1,15 @@
 # Examples
 
-This directory contains the example projects for VRT. Each example demonstrates different functionalities and usage patterns of the VRT ecosystem.
+This directory contains the example projects for VRT. Each example demonstrates different functionalities and usage patterns of the VRT ecosystem:
+
+| ID | Exemplified Feature | Notes |
+|------|-----------|----------------|
+| 0 | Linking, AXI-Lite control | |
+| 1 | Kernels with AXI-MM interfaces | |
+| 2 | Freerunning streaming kernels | Emulation not possible |
+| 3 | Controlling multiple V80s | Uses VRTBIN of example 0 |
+| 4 | Frequency targets | |
+| 5 | Memory performance test | Instantiates current maximum number of kernels |
 
 ## How to run the examples
 

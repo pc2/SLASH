@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         uint32_t size = 512 * 1024 * 1024;
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::DEBUG);
         vrt::Device device(bdf, vrtbinFile);
-        device.setFrequency(500000000);
+
         vrt::Kernel dma_in(device, "dma_in_0");
         vrt::Kernel dma_out(device, "dma_out_0");
         vrt::Buffer<uint64_t> buffer_in(device, size, vrt::MemoryRangeType::HBM);

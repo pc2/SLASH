@@ -41,7 +41,7 @@ Device::Device(const std::string& bdf, const std::string& vrtbinPath, bool progr
             programDevice();
         }
         parseSystemMap();
-        this->clkWiz.setRateHz((clockFreq < 200000000) ? clockFreq : 200000000, false);
+        this->clkWiz.setRateHz(clockFreq, false);
     } else if (platform == Platform::EMULATION) {
         parseSystemMap();
         std::string emulationExecPath = this->vrtbin.getEmulationExec() + " >/dev/null";

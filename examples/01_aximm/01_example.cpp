@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
         vrt::Device device(bdf, vrtbinFile);
         vrt::Kernel dma(device, "dma_0");
         vrt::Kernel offset(device, "offset_0");
-        device.setFrequency(233333333);
+
         vrt::Buffer<uint32_t> in_buff(device, size, vrt::MemoryRangeType::HBM);
         vrt::Buffer<uint32_t> out_buff(device, size, vrt::MemoryRangeType::HBM);
         for(uint32_t i = 0; i < size; i++) {

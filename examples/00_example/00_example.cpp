@@ -40,10 +40,6 @@ int main(int argc, char* argv[]) {
         vrt::utils::Logger::setLogLevel(vrt::utils::LogLevel::INFO);
         std::cout << "VRT Version: " << vrt::getVersion() << std::endl;
         vrt::Device device(bdf, vrtbinFile);
-        std::cout << "Current set frequency: "<< device.getFrequency() << " Hz" << std::endl;
-        std::cout << "Max frequency: "<< device.getMaxFrequency() << " Hz" << std::endl;
-        device.setFrequency(500000000);
-        std::cout << "Current set frequency: "<< device.getFrequency() << " Hz" << std::endl;
 
         vrt::Kernel accumulate(device, "accumulate_0");
         vrt::Kernel increment(device, "increment_0");

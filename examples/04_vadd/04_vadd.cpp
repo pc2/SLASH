@@ -38,7 +38,12 @@ int main(int argc, char* argv[]) {
 
         vrt::Device device(bdf, vrtbinFile);
         vrt::Kernel vadd_0(device, "vadd_0");
-        device.setFrequency(300000000);
+
+        std::cout << "Current set frequency: "<< device.getFrequency() << " Hz" << std::endl;
+        std::cout << "Max frequency: "<< device.getMaxFrequency() << " Hz" << std::endl;
+        device.setFrequency(500000000);
+        std::cout << "Current set frequency: "<< device.getFrequency() << " Hz" << std::endl;
+
         vrt::Buffer<int> a(device, size, vrt::MemoryRangeType::HBM);
         vrt::Buffer<int> b(device, size, vrt::MemoryRangeType::HBM);
         vrt::Buffer<int> c(device, size, vrt::MemoryRangeType::HBM);
@@ -52,7 +57,6 @@ int main(int argc, char* argv[]) {
         vadd_0.start(a.getPhysAddr(), b.getPhysAddr(), c.getPhysAddr(), size);
         vadd_0.wait();
         c.sync(vrt::SyncType::DEVICE_TO_HOST);
-        // b.sync(vrt::SyncType::DEVICE_TO_HOST);
         for (int i = 0; i < size; i++) {
             if (c[i] != a[i] + b[i]) {
                 std::cerr << "Error: " << c[i] << " != " << a[i] << " + " << b[i] << std::endl;
