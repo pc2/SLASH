@@ -24,8 +24,6 @@ namespace vrt {
 
 PcieDriverHandler::PcieDriverHandler(const std::string& bdf) {
     this->bdf = bdf;
-    utils::Logger::log(utils::LogLevel::DEBUG, __PRETTY_FUNCTION__,
-                       "Creating PCIe Hotplug Driver with BDF: {}", bdf);
     driverPath = pcieHotplugRootPath + "_0000:" + bdf;
 }
 
