@@ -32,8 +32,6 @@ VPP_DIR=$(BUILD_DIR)/v80-vitis-flow
 
 all: setup hls hw app
 
-emu_all: setup hls emu app
-
 sim_all: setup hls sim app
 
 hw_all: setup hls hw app
@@ -51,12 +49,6 @@ hw: setup hls
 	(cd $(VPP_DIR) && \
 	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform hw --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_DMA_IN)/sol1 $(HLS_DIR)/$(HLS_BUILD_DIR_PASSTHROUGH)/sol1 $(HLS_DIR)/$(HLS_BUILD_DIR_DMA_OUT)/sol1 && \
 	cp build/$(DESIGN_NAME)_hw.vrtbin $(BUILD_DIR))
-
-emu: setup hls
-	@echo "Running EMU step"
-	(cd $(VPP_DIR) && \
-	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform emu --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_DMA_IN)/sol1 $(HLS_DIR)/$(HLS_BUILD_DIR_PASSTHROUGH)/sol1 $(HLS_DIR)/$(HLS_BUILD_DIR_DMA_OUT)/sol1 && \
-	cp build/$(DESIGN_NAME)_emu.vrtbin $(BUILD_DIR))
 
 sim: setup hls
 	@echo "Running SIM step"
