@@ -27,41 +27,12 @@ HLS_DIR=$(shell realpath ./hls)
 V80PP_PATH=$(shell realpath ../../submodules/v80-vitis-flow)
 VPP_DIR=$(BUILD_DIR)/v80-vitis-flow
 
-.PHONY: all setup hls hw emu sim app clean
+.PHONY: all setup app clean
 
-all: setup hls hw app
-
-emu_all: setup hls emu app
-
-sim_all: setup hls sim app
-
-hw_all: setup hls hw app
+all: setup app
 
 setup:
 	mkdir -p $(BUILD_DIR)
-	cp -r $(V80PP_PATH) $(BUILD_DIR)
-
-hls:
-	@echo "Running HLS step"
-	$(MAKE) -C $(HLS_DIR)
-
-hw: setup hls
-	@echo "Running HW step"
-	cd $(VPP_DIR) && \
-	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform hw --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_ACCUMULATE)/sol1 $(HLS_DIR)/$(HLS_BUILD_DIR_INCREMENT)/sol1 && \
-	cp build/$(DESIGN_NAME)_hw.vrtbin $(BUILD_DIR)
-
-emu: setup hls
-	@echo "Running HW step"
-	cd $(VPP_DIR) && \
-	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform emu --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_ACCUMULATE)/sol1 $(HLS_DIR)/$(HLS_BUILD_DIR_INCREMENT)/sol1 && \
-	cp build/$(DESIGN_NAME)_emu.vrtbin $(BUILD_DIR)
-
-sim: setup hls
-	@echo "Running HW step"
-	cd $(VPP_DIR) && \
-	./scripts/v80++ --design-name $(DESIGN_NAME) --cfg $(HOME_DIR)/config.cfg --platform sim --segmented --kernels $(HLS_DIR)/$(HLS_BUILD_DIR_ACCUMULATE)/sol1 $(HLS_DIR)/$(HLS_BUILD_DIR_INCREMENT)/sol1 && \
-	cp build/$(DESIGN_NAME)_sim.vrtbin $(BUILD_DIR)
 
 app: setup
 	@echo "Running user app build step"
@@ -75,4 +46,3 @@ app: setup
 
 clean:
 	rm -rf $(BUILD_DIR)
-	make -C $(HLS_DIR) clean

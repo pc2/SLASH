@@ -17,7 +17,7 @@ sudo apt install libxml2-dev libzmq3-dev libjsoncpp-dev
 
 ### Submodules
 
-VRT depends on the AVED software stack and the v80++ linker. These can be pulled from git using:
+SLASH depends on [AVED](https://github.com/Xilinx/AVED) and [QDMA](https://github.com/Xilinx/dma_ip_drivers) which can be pulled from git using:
 ```bash
 git submodule update --init --recursive
 ```
@@ -32,7 +32,7 @@ A README file can be found in the examples directory. Please follow the instruct
 ## Known limitations
 - HLS arguments should not be Verilog or VHDL keywords (eg. `in`, `out` so on). Some issues may appear in the linker with this configuration.
 - In emulation, HLS kernels must include at least one axi4lite interface to work.
-- In the current version of the linker (`submodules/v80-vitis-flow`), a maximum number of 15 kernels can be included. This will be fixed in future versions.
+- In the current version of the linker (`submodules/v80-vitis-flow`), a maximum number of 15 kernels can be instantiated. This will be fixed in future versions.
 
 ## Notes
 All the hardware examples are built using the Segmented Configuration flow.
