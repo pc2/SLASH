@@ -144,3 +144,13 @@ lspci -vd 10ee:
         Kernel modules: qdma_pf, ami, qdma_vf
 ```
 
+## New card preparation
+
+In order for VRT to work, the [AVED card installation](https://xilinx.github.io/AVED/latest/AVED%2BUpdating%2BFPT%2BImage%2Bin%2BFlash.html) process should be followed to prepare the card.
+
+After the card installation is complete, partition 1 of the OSPI memory needs to be overwritten with the Segmented Configuration image. The Segmented Configuration image can be found at `/opt/amd/vrt/design.pdi`. In order to program this, run the following command:
+
+```bash
+sudo ami_tool cfgmem_program -d 21:00.0 -i /opt/amd/vrt/design.pdi -t primary -p 1
+```
+Replace `21:00.0` with your card's BDF.
