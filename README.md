@@ -27,7 +27,7 @@ In order to build and deploy all necessary software for this project to work, fo
 
 ## How to build the examples
 
-A README file can be found in the examples directory. Please follow the instruction given there to proceed.
+A [README](examples/README.md) file can be found in the examples directory. Please follow the instruction given there to proceed.
 
 ## Known limitations
 - HLS arguments should not be Verilog or VHDL keywords (eg. `in`, `out` so on). Some issues may appear in the linker with this configuration.
