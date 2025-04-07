@@ -27,11 +27,44 @@ import shutil
 from datetime import datetime
 
 PACKAGE_NAME = "amd-vrt"
-VERSION = "1.0.0"
 MAINTAINER = "AMD <support@amd.com>"
 ARCHITECTURE = "amd64"
 DESCRIPTION = "AMD V80 Runtime API, SMI and PCIe driver package"
 DEPENDS = "libxml2, libzmq3-dev, libjsoncpp-dev"
+
+def get_version_from_header(repo_root):
+    """Extract version from vrt_version.hpp header file"""
+    version_file = os.path.join(repo_root, "vrt", "include", "api", "vrt_version.hpp")
+    
+    if not os.path.exists(version_file):
+        print(f"Warning: Version file not found at {version_file}")
+        return "1.0.0"  # Default version if file not found
+    
+    major = "1"
+    minor = "0"
+    patch = "0"
+    
+    try:
+        with open(version_file, 'r') as f:
+            for line in f:
+                if "VRT_VERSION_MAJOR" in line and "define" in line:
+                    major = line.split()[-1].strip()
+                elif "VRT_VERSION_MINOR" in line and "define" in line:
+                    minor = line.split()[-1].strip()
+                elif "VRT_VERSION_PATCH" in line and "define" in line:
+                    patch = line.split()[-1].strip()
+                elif "GIT_TAG" in line and "define" in line:
+                    git_tag = line.split('"')[1].strip()
+                    if git_tag.startswith('v'):
+                        pass
+    
+        version = f"{major}.{minor}.{patch}"
+        print(f"Extracted version: {version}")
+        return version
+    
+    except Exception as e:
+        print(f"Error extracting version from header file: {e}")
+        return "1.0.0"
 
 def run_command(cmd, cwd=None):
     """Run a shell command and return the output"""
@@ -141,7 +174,7 @@ def build_and_copy_smi(repo_root, temp_dir):
     
     for root, _, files in os.walk(build_dir):
         for file in files:
-            if file in ["v80-smi", "vrt-smi"] or (file.endswith("-smi") and os.access(os.path.join(root, file), os.X_OK)):
+            if file in ["v80-smi"] or (file.endswith("-smi") and os.access(os.path.join(root, file), os.X_OK)):
                 print(f"Found SMI binary: {file}")
                 shutil.copy2(
                     os.path.join(root, file),
@@ -213,13 +246,69 @@ if [ -d "/usr/src/pcie-hotplug-drv" ]; then
     # Install the driver
     make install
     
-    # Load the module
-    modprobe pcie_hotplug || echo "Warning: Failed to load pcie_hotplug module"
+    # Create comprehensive udev rules first
+    echo "Creating VRT device permission rules..."
+    cat > /etc/udev/rules.d/99-amd-vrt-permissions.rules << 'EOF'
+
+# For PCIe hotplug devices - match on both the specific name and wildcard
+KERNEL=="pcie_hotplug", MODE="0666", GROUP="users"
+KERNEL=="pcie_hotplug*", MODE="0666", GROUP="users"
+EOF
     
-    # Create udev rule
-    echo 'KERNEL=="pcie_hotplug", MODE="0666", GROUP="users"' > /etc/udev/rules.d/99-pcie-hotplug.rules
+    # Reload rules before loading the module
     udevadm control --reload-rules
+    
+    # Create a persistent device setup script
+    cat > /usr/local/bin/vrt-setup-devices.sh << 'EOF'
+#!/bin/bash
+# This script ensures VRT devices have proper permissions
+# It runs both at boot time and can be run manually after module reloading
+
+# Set permissions for all VRT-related devices
+for dev in /dev/pcie_hotplug*; do
+  if [ -e "$dev" ]; then
+    chmod 666 "$dev"
+    chown root "$dev"
+    echo "Set permissions for $dev"
+  fi
+done
+EOF
+    
+    chmod +x /usr/local/bin/vrt-setup-devices.sh
+    
+    # Create systemd service to run at boot
+    cat > /etc/systemd/system/vrt-devices.service << 'EOF'
+[Unit]
+Description=VRT Device Permissions
+After=systemd-udev-settle.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/vrt-setup-devices.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    
+    # Enable the service for future boots
+    systemctl daemon-reload
+    systemctl enable vrt-devices.service
+    
+    # Now load the module
+    if lsmod | grep -q "pcie_hotplug"; then
+        echo "Reloading pcie_hotplug module..."
+        rmmod pcie_hotplug || echo "Warning: Failed to unload pcie_hotplug module"
+        modprobe pcie_hotplug || echo "Warning: Failed to load pcie_hotplug module"
+    else
+        echo "Loading pcie_hotplug module..."
+        modprobe pcie_hotplug || echo "Warning: Failed to load pcie_hotplug module"
+    fi
+    
+    # Apply permissions immediately after module loading
     udevadm trigger
+    sleep 1  # Give udev a moment to create the device nodes
+    /usr/local/bin/vrt-setup-devices.sh
 fi
 
 exit 0
@@ -255,9 +344,22 @@ def create_postrm_script(temp_dir):
 set -e
 
 # Remove udev rules
-if [ -f "/etc/udev/rules.d/99-pcie-hotplug.rules" ]; then
-    rm -f /etc/udev/rules.d/99-pcie-hotplug.rules
+if [ -f "/etc/udev/rules.d/99-amd-vrt-permissions.rules" ]; then
+    rm -f /etc/udev/rules.d/99-amd-vrt-permissions.rules
     udevadm control --reload-rules
+fi
+
+# Remove systemd service
+if [ -f "/etc/systemd/system/vrt-devices.service" ]; then
+    systemctl disable vrt-devices.service || true
+    systemctl stop vrt-devices.service || true
+    rm -f /etc/systemd/system/vrt-devices.service
+    systemctl daemon-reload
+fi
+
+# Remove device setup script
+if [ -f "/usr/local/bin/vrt-setup-devices.sh" ]; then
+    rm -f /usr/local/bin/vrt-setup-devices.sh
 fi
 
 # Remove ldconfig configuration
@@ -285,7 +387,8 @@ def build_deb_package(temp_dir, output_dir):
 def main():
     repo_root = os.path.abspath(os.getcwd())
     print(f"Repository root directory: {repo_root}")
-    
+    global VERSION
+    VERSION = get_version_from_header(repo_root)
     output_dir = os.path.join(repo_root, "deploy", "output")
     os.makedirs(output_dir, exist_ok=True)
     

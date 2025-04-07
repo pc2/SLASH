@@ -38,6 +38,7 @@
 
 #include "allocator/allocator.hpp"
 #include "api/kernel.hpp"
+#include "api/vrt_version.hpp"
 #include "api/vrtbin.hpp"
 #include "driver/clk_wiz.hpp"
 #include "driver/qdma_logic.hpp"
@@ -108,7 +109,7 @@ class Device {
     Platform platform;                            ///< Platform information
     std::shared_ptr<ZmqServer> zmqServer;         ///< ZeroMQ server object
     std::vector<QdmaConnection> qdmaConnections;  ///< Vector of QDMA connections
-    std::vector<QdmaIntf*> qdmaIntfs;  ///< Vector of QDMA interfaces for streaming
+    std::vector<QdmaIntf*> qdmaIntfs;             ///< Vector of QDMA interfaces for streaming
    public:
     QdmaIntf qdmaIntf;  ///< QDMA interface object
 
