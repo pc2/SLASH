@@ -20,7 +20,7 @@
 
 HLS_BUILD_DIR_ACCUMULATE=build_accumulate.xcv80-lsva4737-2MHP-e-S
 HLS_BUILD_DIR_INCREMENT=build_increment.xcv80-lsva4737-2MHP-e-S
-DESIGN_NAME=00_example
+DESIGN_NAME=00_axilite
 HOME_DIR=$(shell realpath .)
 BUILD_DIR=$(shell realpath ./build)
 HLS_DIR=$(shell realpath ./hls)

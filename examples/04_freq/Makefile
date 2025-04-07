@@ -19,7 +19,7 @@
 # ##################################################################################################
 
 HLS_BUILD_DIR_VADD = build_vadd.xcv80-lsva4737-2MHP-e-S
-DESIGN_NAME = 04_vadd
+DESIGN_NAME = 04_freq
 
 HOME_DIR=$(shell realpath .)
 BUILD_DIR=$(shell realpath ./build)

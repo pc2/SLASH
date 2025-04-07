@@ -19,7 +19,7 @@
 # ##################################################################################################
 
 cmake_minimum_required(VERSION 3.10)
-project(00_example)
+project(00_axilite)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -32,7 +32,7 @@ include_directories(/usr/local/vrt/include
                     /usr/include/jsoncpp)
 
 # Define sources for the executable
-set(EXE_SOURCES 00_example.cpp)
+set(EXE_SOURCES 00_axilite.cpp)
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${EXE_SOURCES})
