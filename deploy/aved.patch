@@ -1,3 +1,20 @@
+diff --git a/fw/AMC/build/amc_version.json b/fw/AMC/build/amc_version.json
+deleted file mode 100644
+index d35941a..0000000
+--- a/fw/AMC/build/amc_version.json
++++ /dev/null
+@@ -1,11 +0,0 @@
+-{
+-  "BUILD_BRANCH":"",
+-  "VERSION_HASH":"37139f62ff1333680cda75c952112a85c01e131d",
+-  "VERSION_HASH_DATE":"20240725",
+-  "AMC_VERSION_RELEASE":"2.3.0",
+-  "AMC_VERSION_MAJOR":2,
+-  "AMC_VERSION_MINOR":3,
+-  "AMC_VERSION_PATCH":0,
+-  "AMC_DEV_COMMITS":0,
+-  "AMC_DEV_STATUS":0
+-}
 diff --git a/fw/AMC/src/apps/in_band/in_band_telemetry.c b/fw/AMC/src/apps/in_band/in_band_telemetry.c
 index e69615e..3f226d3 100644
 --- a/fw/AMC/src/apps/in_band/in_band_telemetry.c
@@ -192,10 +209,18 @@ index a77dc6c..126dd85 100644
  } AMI_PROXY_PDI_DOWNLOAD_REQUEST;
  
 diff --git a/fw/AMC/src/proxy_drivers/apc/apc_proxy_driver.c b/fw/AMC/src/proxy_drivers/apc/apc_proxy_driver.c
-index 58b16b7..d7b99c5 100644
+index 58b16b7..ce0cfcb 100644
 --- a/fw/AMC/src/proxy_drivers/apc/apc_proxy_driver.c
 +++ b/fw/AMC/src/proxy_drivers/apc/apc_proxy_driver.c
-@@ -53,6 +53,22 @@
+@@ -18,6 +18,7 @@
+ #include "osal.h"
+ #include "apc_proxy_driver.h"
+ #include "profile_hal.h"
++#include "profile_fal.h"
+ 
+ /******************************************************************************/
+ /* Defines                                                                    */
+@@ -53,6 +54,22 @@
  #define APC_FPT_HDR_MAGIC_NUM ( 0x92F7A516 )
  #endif
  
@@ -218,7 +243,7 @@ index 58b16b7..d7b99c5 100644
  /* Stat & Error definitions */
  #define APC_PROXY_STATS( DO )                            \
  	DO( APC_PROXY_STATS_INIT_OVERALL_COMPLETE )      \
-@@ -164,6 +180,7 @@ typedef enum
+@@ -164,6 +181,7 @@ typedef enum
  	APC_MSG_TYPE_COPY_PDI,
  	APC_MSG_TYPE_PARTITION_SELECT,
  	APC_MSG_TYPE_ENABLE_HOT_RESET,
@@ -226,7 +251,7 @@ index 58b16b7..d7b99c5 100644
  	MAX_APC_MSG_TYPE
  
  } APC_MSG_TYPES;
-@@ -205,9 +222,8 @@ typedef struct APC_PRIVATE_DATA
+@@ -205,9 +223,8 @@ typedef struct APC_PRIVATE_DATA
  
  	uint32_t pulStats[ APC_PROXY_STATS_MAX ];
  	uint32_t pulErrors[ APC_PROXY_ERRORS_MAX ];
@@ -237,7 +262,7 @@ index 58b16b7..d7b99c5 100644
  } APC_PRIVATE_DATA;
  
  /**
-@@ -353,6 +369,15 @@ static int iVerifyDownload( APC_MBOX_DOWNLOAD_IMAGE *pxImageData );
+@@ -353,6 +370,15 @@ static int iVerifyDownload( APC_MBOX_DOWNLOAD_IMAGE *pxImageData );
   */
  static int iRefreshFptData( APC_BOOT_DEVICES xBootDevice );
  
@@ -253,7 +278,7 @@ index 58b16b7..d7b99c5 100644
  
  /******************************************************************************/
  /* Local variables                                                            */
-@@ -391,10 +416,13 @@ static APC_PRIVATE_DATA xLocalData =
+@@ -391,10 +417,13 @@ static APC_PRIVATE_DATA xLocalData =
  	{
  		0
  	},                                                                     /* puErrors */
@@ -267,7 +292,7 @@ index 58b16b7..d7b99c5 100644
  
  /******************************************************************************/
  /* Public Function implementations                                            */
-@@ -428,6 +456,14 @@ int iAPC_Initialise( uint8_t ucProxyId,
+@@ -428,6 +457,14 @@ int iAPC_Initialise( uint8_t ucProxyId,
  		/* used for primary boot device only */
  		pxThis->ulNextBootAddr = APC_MULTIBOOT_REAL( HAL_IO_READ32( HAL_APC_PMC_BOOT_REG ) );
  
@@ -282,7 +307,7 @@ index 58b16b7..d7b99c5 100644
  		/* initalise evl record*/
  		if( OK != iEVL_CreateRecord( &pxThis->pxEvlRecord ) )
  		{
-@@ -598,7 +634,9 @@ int iAPC_DownloadImage( EVL_SIGNAL *pxSignal,
+@@ -598,7 +635,9 @@ int iAPC_DownloadImage( EVL_SIGNAL *pxSignal,
                          uint32_t ulSrcAddr,
                          uint32_t ulImageSize,
                          uint16_t usPacketNum,
@@ -293,7 +318,7 @@ index 58b16b7..d7b99c5 100644
  {
  	int iStatus = ERROR;
  
-@@ -616,7 +654,9 @@ int iAPC_DownloadImage( EVL_SIGNAL *pxSignal,
+@@ -616,7 +655,9 @@ int iAPC_DownloadImage( EVL_SIGNAL *pxSignal,
  			{
  				0
  			};
@@ -304,7 +329,7 @@ index 58b16b7..d7b99c5 100644
  			xMsg.ucRequestId                     = pxSignal->ucInstance;
  			xMsg.xDownloadImageData.xBootDevice  = xBootDevice;
  			xMsg.xDownloadImageData.iPartition   = iPartition;
-@@ -625,6 +665,7 @@ int iAPC_DownloadImage( EVL_SIGNAL *pxSignal,
+@@ -625,6 +666,7 @@ int iAPC_DownloadImage( EVL_SIGNAL *pxSignal,
  			xMsg.xDownloadImageData.ulSrcAddr    = ulSrcAddr;
  			xMsg.xDownloadImageData.usPacketNum  = usPacketNum;
  			xMsg.xDownloadImageData.usPacketSize = usPacketSize;
@@ -312,7 +337,7 @@ index 58b16b7..d7b99c5 100644
  
  			if( OSAL_ERRORS_NONE == iOSAL_MBox_Post( pxThis->pvOsalMBoxHdl,
  			                                         ( void* )&xMsg,
-@@ -1222,6 +1263,24 @@ static void vProxyDriverTask( void *pArg )
+@@ -1222,6 +1264,24 @@ static void vProxyDriverTask( void *pArg )
  			}
  			break;
  
@@ -337,7 +362,7 @@ index 58b16b7..d7b99c5 100644
  			default:
  			{
  				INC_ERROR_COUNTER_WITH_STATE( APC_PROXY_ERRORS_MBOX_PEND_FAILED )
-@@ -1875,3 +1934,73 @@ static int iVerifyDownload( APC_MBOX_DOWNLOAD_IMAGE *pxImageData )
+@@ -1875,3 +1935,73 @@ static int iVerifyDownload( APC_MBOX_DOWNLOAD_IMAGE *pxImageData )
  
  	return iStatus;
  }
