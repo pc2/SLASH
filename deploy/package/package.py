@@ -43,23 +43,37 @@ def get_version_from_header(repo_root):
     major = "1"
     minor = "0"
     patch = "0"
+    git_tag = ""
     
     try:
         with open(version_file, 'r') as f:
-            for line in f:
-                if "VRT_VERSION_MAJOR" in line and "define" in line:
-                    major = line.split()[-1].strip()
-                elif "VRT_VERSION_MINOR" in line and "define" in line:
-                    minor = line.split()[-1].strip()
-                elif "VRT_VERSION_PATCH" in line and "define" in line:
-                    patch = line.split()[-1].strip()
-                elif "GIT_TAG" in line and "define" in line:
-                    git_tag = line.split('"')[1].strip()
-                    if git_tag.startswith('v'):
-                        pass
+            content = f.read()
+            import re
+
+            major_match = re.search(r'#define\s+VRT_VERSION_MAJOR\s+(\d+)', content)
+            if major_match:
+                major = major_match.group(1)
+                
+            minor_match = re.search(r'#define\s+VRT_VERSION_MINOR\s+(\d+)', content)
+            if minor_match:
+                minor = minor_match.group(1)
+                
+            patch_match = re.search(r'#define\s+VRT_VERSION_PATCH\s+(\d+)', content)
+            if patch_match:
+                patch = patch_match.group(1)
+                
+            git_tag_match = re.search(r'#define\s+GIT_TAG\s+"([^"]+)"', content)
+            if git_tag_match:
+                git_tag = git_tag_match.group(1)
     
         version = f"{major}.{minor}.{patch}"
-        print(f"Extracted version: {version}")
+        
+        if version == "1.0.0" and git_tag.startswith('v'):
+            version = git_tag[1:]
+            print(f"Using version from GIT_TAG: {version}")
+        else:
+            print(f"Extracted version from components: {version}")
+            
         return version
     
     except Exception as e:
@@ -246,10 +260,13 @@ if [ -d "/usr/src/pcie-hotplug-drv" ]; then
     # Install the driver
     make install
     
+    # Add the module to modules-load.d to ensure it loads at boot
+    echo "Configuring pcie_hotplug module to load at boot..."
+    echo "pcie_hotplug" > /etc/modules-load.d/amd-vrt.conf
+    
     # Create comprehensive udev rules first
     echo "Creating VRT device permission rules..."
     cat > /etc/udev/rules.d/99-amd-vrt-permissions.rules << 'EOF'
-
 # For PCIe hotplug devices - match on both the specific name and wildcard
 KERNEL=="pcie_hotplug", MODE="0666", GROUP="users"
 KERNEL=="pcie_hotplug*", MODE="0666", GROUP="users"
@@ -258,17 +275,25 @@ EOF
     # Reload rules before loading the module
     udevadm control --reload-rules
     
-    # Create a persistent device setup script
+    # Create a persistent device setup script that also loads the module if needed
     cat > /usr/local/bin/vrt-setup-devices.sh << 'EOF'
 #!/bin/bash
-# This script ensures VRT devices have proper permissions
+# This script ensures VRT devices have proper permissions and the module is loaded
 # It runs both at boot time and can be run manually after module reloading
+
+# Check if module is loaded, if not, load it
+if ! lsmod | grep -q "pcie_hotplug"; then
+    echo "Loading pcie_hotplug module..."
+    modprobe pcie_hotplug || echo "Warning: Failed to load pcie_hotplug module"
+    # Give udev time to create device nodes
+    sleep 1
+fi
 
 # Set permissions for all VRT-related devices
 for dev in /dev/pcie_hotplug*; do
   if [ -e "$dev" ]; then
     chmod 666 "$dev"
-    chown root "$dev"
+    chown root:users "$dev"
     echo "Set permissions for $dev"
   fi
 done
@@ -281,6 +306,7 @@ EOF
 [Unit]
 Description=VRT Device Permissions
 After=systemd-udev-settle.service
+After=systemd-modules-load.service
 
 [Service]
 Type=oneshot
@@ -342,6 +368,11 @@ def create_postrm_script(temp_dir):
     with open(script_path, "w") as script:
         script.write("""#!/bin/bash
 set -e
+
+# Remove module loading configuration
+if [ -f "/etc/modules-load.d/amd-vrt.conf" ]; then
+    rm -f /etc/modules-load.d/amd-vrt.conf
+fi
 
 # Remove udev rules
 if [ -f "/etc/udev/rules.d/99-amd-vrt-permissions.rules" ]; then
