@@ -1,6 +1,9 @@
-# VRT (V80 RunTime) API
+# SLASH  VRT (V80 RunTime) API
 
-This repository contains the VRT API implementation, along with examples.
+This repository contains SLASH, a SmartNIC platform for Alveo V80. SLASH consists of several components:
+- card management functionality that layers on top of [AVED](https://github.com/Xilinx/AVED)
+- V80 RunTime (VRT): the VRT API implementation, along with examples.
+- (upcoming) 200Gbps MAC implementation for network-attached kernels and SmartNIC applications
 
 The project was tested with AMD Vivado & Vitis tools version 2024.2, kernel version 5.15.
 ## Dependencies
@@ -24,6 +27,10 @@ git submodule update --init --recursive
 ## Deployment
 
 In order to build and deploy all necessary software for this project to work, follow the steps shown in the [deployment instructions](deploy/README.md).
+
+## How to build VRT API documentation
+
+Follow the instructions in the [API documentation README](vrt/doc/README.md).
 
 ## How to build the examples
 
