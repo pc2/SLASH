@@ -147,6 +147,13 @@ class ArgParser {
      */
     std::vector<std::string> getKernelPaths();
 
+    /**
+     * @brief Sets the network interface flags.
+     * @param networkInterfaces Array of booleans indicating the status of enablement of each
+     * network interface.
+     */
+    std::array<bool, 4> getNetworkInterfaces() const;
+
    private:
     std::vector<std::string> kernelPaths;  ///< Paths to kernel files
     std::string configFile;                ///< Path to the configuration file
@@ -157,7 +164,7 @@ class ArgParser {
     uint64_t freqHz;                      ///< Clock frequency in Hz
     bool segmented;                       ///< Flag indicating if the design is segmented
     Platform platform;                    ///< Target platform
-
+    std::array<bool, 4> networkInterfacessubmodules/v80-vitis-flow/include/arg_parser/arg_parser.hpp = {false, false, false, false};  ///< Network interface flags
     /**
      * @brief Parses kernel information from configuration files.
      * @return Vector of parsed kernel objects.
@@ -168,6 +175,8 @@ class ArgParser {
      * @brief Parses the configuration file.
      */
     void parseConfig();
+
+    bool isNetworkKernel(const std::string& kernelName);
 };
 
 #endif  // ARG_PARSER_HPP
