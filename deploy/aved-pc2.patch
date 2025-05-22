@@ -1,0 +1,41 @@
+diff --git a/sw/AMI/api/src/ami_sensor.c b/sw/AMI/api/src/ami_sensor.c
+index 70540e6..85dd07c 100644
+--- a/sw/AMI/api/src/ami_sensor.c
++++ b/sw/AMI/api/src/ami_sensor.c
+@@ -374,7 +374,7 @@ static int read_sensor_attr(struct ami_sensor_attr *attr)
+ 	char buf[AMI_HWMON_MAX_STR] = { 0 };
+ 	int ret = AMI_STATUS_ERROR;
+ 
+-	if (!attr || !attr->hwmon)
++	if (!attr || attr->hwmon[0] == '\0')
+ 		return AMI_API_ERROR(AMI_ERROR_EINVAL);
+ 
+ 	if (read_hwmon(attr->hwmon, 0, NULL, buf) == AMI_STATUS_OK) {
+diff --git a/sw/AMI/driver/ami_cdev.c b/sw/AMI/driver/ami_cdev.c
+index 63453d1..3f9db33 100644
+--- a/sw/AMI/driver/ami_cdev.c
++++ b/sw/AMI/driver/ami_cdev.c
+@@ -31,7 +31,13 @@
+  #define READ_WRITE               (0666)
+  #define IS_ROOT_USER(uid, euid)  (capable(CAP_DAC_OVERRIDE) || (uid == ROOT_USER) || (euid == ROOT_USER))
+  
+- 
++// Providing OS Support for RHEL.
++#if defined(RHEL_RELEASE_CODE)
++#if RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8, 10)
++#define RHEL_8_10_GE
++#endif
++#endif
++
+  static int dev_major = 0;  /* This will be overriden. */
+  
+  
+@@ -42,7 +48,7 @@
+   * 
+   * Return: NULL.
+   */
+- #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0)
++ #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0) || defined(RHEL_8_10_GE)
+  static char *devnode(const struct device *dev, umode_t *mode)
+  #else
+  static char *devnode(struct device *dev, umode_t *mode)
