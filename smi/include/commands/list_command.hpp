@@ -22,6 +22,7 @@
 #define LIST_COMMAND_HPP
 
 #include <string>
+#include <cstdint>
 
 /**
  * @brief Class for listing available V80 devices.

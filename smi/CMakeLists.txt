@@ -24,8 +24,13 @@ project(v80-smi)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-include_directories(include /usr/include/ami/ /usr/include/libxml2 /usr/include/jsoncpp)
+find_package(Threads REQUIRED)
+find_package(LibXml2 REQUIRED)
+find_package(jsoncpp REQUIRED)
+
+include_directories(include /usr/include/ami/ ${LIBXML2_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS})
 
 file(GLOB APP_SOURCES v80-smi.cpp src/*.cpp src/commands/*.cpp src/utils/*.cpp)
 
@@ -35,6 +40,6 @@ set(SOURCES
 
 add_executable(v80-smi ${SOURCES})
 
-target_link_libraries(v80-smi ami jsoncpp xml2)
+target_link_libraries(v80-smi Threads::Threads ami jsoncpp xml2)
 
 install(TARGETS v80-smi DESTINATION /usr/local/bin)
