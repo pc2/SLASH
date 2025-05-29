@@ -54,7 +54,7 @@ class BdBuilder {
     std::string INPUT_FILE_SIM =
         "../resources/sim_prj.tcl";           ///< Base TCL file for simulation platform
     std::string OUTPUT_FILE = "run_pre.tcl";  ///< Output TCL file name
-    std::string NOC_SOLUTION = "../resources/noc_sol.ncr";  ///< NoC solution file path
+    std::string NOC_SOLUTION = "../resources/noc_sol_compute.ncr";  ///< NoC solution file path
     std::string NOC0_ADDR_STR =
         " -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs "
         "base_logic/";  ///< NoC 0 address space TCL string
