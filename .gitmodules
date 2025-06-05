@@ -3,4 +3,5 @@
 	url = https://github.com/Xilinx/dma_ip_drivers.git
 [submodule "submodules/v80-vitis-flow/submodules/aved"]
 	path = submodules/v80-vitis-flow/submodules/aved
-	url = https://github.com/Xilinx/AVED.git
+	url = https://github.com/pc2/AVED.git
+	branch = vrt_ROCKY_RHEL_9

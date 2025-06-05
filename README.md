@@ -22,7 +22,7 @@ sudo apt install libxml2-dev libzmq3-dev libjsoncpp-dev xvfb
 
 SLASH depends on [AVED](https://github.com/Xilinx/AVED) and [QDMA](https://github.com/Xilinx/dma_ip_drivers) which can be pulled from git using:
 ```bash
-git submodule update --init --recursive
+git submodule update --init --recursive --remote
 ```
 ## Deployment
 
