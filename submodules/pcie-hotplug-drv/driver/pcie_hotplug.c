@@ -12,12 +12,20 @@
  * 02110-1301, USA.
  */
 
+#include <linux/version.h>
+
 #include "pcie_hotplug.h"
 
 #define DEVICE_NAME "pcie_hotplug"
 #define CLASS_NAME "pcie"
 #define BUF_SIZE 16
 
+// Providing OS Support for RHEL/rocky.
+#if defined(RHEL_RELEASE_CODE)
+#if RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 4)
+#define RHEL_9_4_GE
+#endif
+#endif
 
 static struct pci_dev *get_pci_dev_by_bdf(const char* bdf) {
     int domain, bus, slot, func;
@@ -295,7 +303,11 @@ static int __init pcie_hotplug_init(void) {
     }
 
     // Initialize class
+ #if defined(RHEL_9_4_GE)
+    pcie_hotplug_class = class_create(CLASS_NAME);
+ #else
     pcie_hotplug_class = class_create(THIS_MODULE, CLASS_NAME);
+ #endif
     if (IS_ERR(pcie_hotplug_class)) {
         unregister_chrdev(major_number, DEVICE_NAME);
         printk(KERN_ERR "Failed to create class\n");
