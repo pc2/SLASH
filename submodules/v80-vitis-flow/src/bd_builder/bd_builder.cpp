@@ -543,7 +543,7 @@ std::string BdBuilder::genQoS(int slave_offset, int bw) {
               "/axi_noc_cips/";
     } else if (slave_offset == 2) {
         ss << "set_property -dict [list CONFIG.CONNECTIONS {M02_INI {read_bw {800} write_bw {800} "
-              "read_avg_burst {64} write_avg_burst {64} initial_boot {true}}"
+              "read_avg_burst {64} write_avg_burst {64} initial_boot {true}} "
            << "M00_INI {read_bw {800} write_bw {800} read_avg_burst {64} write_avg_burst {64} "
               "initial_boot {true}}}] [get_bd_intf_pins /axi_noc_cips/";
 
